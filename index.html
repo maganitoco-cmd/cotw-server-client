@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>COTW Test Client — Interactivo</title>
+<title>COTW Dashboard — Integrado</title>
 <style>
 :root {
   --bg: #1a0f0a;
@@ -19,6 +19,8 @@
   --border: #3a2a1a;
   --highlight: #3a2a10;
   --input-bg: #0f0805;
+  --card-bg: #1f120a;
+  --accent-green: #2ecc71;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
@@ -31,22 +33,24 @@ body {
   overflow: hidden;
   font-size: 12px;
 }
+/* HEADER */
 #header {
   background: linear-gradient(180deg, #3a2010, #2a1508);
   border-bottom: 2px solid var(--gold-dark);
-  padding: 5px 10px;
+  padding: 4px 10px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
   flex-wrap: wrap;
+  min-height: 36px;
 }
-#header h1 { color: var(--gold); font-size: 15px; white-space: nowrap; }
+#header h1 { color: var(--gold); font-size: 14px; white-space: nowrap; }
 #header input, #header select {
   background: var(--input-bg);
   border: 1px solid var(--border);
   color: var(--text);
-  padding: 3px 6px;
+  padding: 2px 6px;
   border-radius: 3px;
   font-family: inherit;
   font-size: 11px;
@@ -55,44 +59,52 @@ body {
   background: var(--gold-dark);
   border: 1px solid var(--border);
   color: #fff;
-  padding: 4px 10px;
+  padding: 3px 8px;
   border-radius: 3px;
   font-family: inherit;
   font-size: 11px;
   cursor: pointer;
   font-weight: bold;
+  white-space: nowrap;
 }
 #header button:hover { background: var(--gold); }
 #main { display: flex; flex: 1; overflow: hidden; }
-
-/* LEFT PANEL - CATEGORIES */
-#categories {
+/* LEFT SIDEBAR */
+#left-sidebar {
   width: 200px;
   background: var(--panel);
   border-right: 1px solid var(--border);
   overflow-y: auto;
   flex-shrink: 0;
-  padding: 4px 0;
-}
-.cat-group {
-  border-bottom: 1px solid var(--border);
-}
-.cat-header {
-  color: var(--gold);
-  font-size: 12px;
-  padding: 4px 8px;
-  cursor: pointer;
-  user-select: none;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+}
+#left-sidebar .sidebar-title {
+  color: var(--gold);
+  font-size: 11px;
+  padding: 6px 8px 3px;
+  border-bottom: 1px solid var(--border);
   font-weight: bold;
 }
-.cat-header:hover { background: var(--highlight); }
-.cat-header .toggle { font-size: 9px; color: var(--text-dim); }
-.cat-body { display: none; }
-.cat-body.open { display: block; }
-.action-btn {
+#left-sidebar .quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--border);
+}
+#left-sidebar .quick-actions button {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 3px 4px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 10px;
+}
+#left-sidebar .quick-actions button:hover { background: var(--highlight); color: var(--gold); }
+.nav-item {
   display: block;
   width: 100%;
   background: transparent;
@@ -100,112 +112,168 @@ body {
   border-bottom: 1px solid var(--border);
   color: var(--text);
   text-align: left;
-  padding: 3px 8px 3px 14px;
+  padding: 5px 8px 5px 14px;
   cursor: pointer;
   font-family: inherit;
   font-size: 11px;
 }
-.action-btn:hover { background: var(--highlight); color: var(--gold); }
-.action-btn.selected { background: var(--gold-dark); color: #fff; }
-.action-btn .endpoint { color: var(--text-dim); font-size: 9px; margin-left: 4px; }
-
-/* CENTER - PARAM FORM & FLOW */
-#flow {
+.nav-item:hover { background: var(--highlight); color: var(--gold); }
+.nav-item.active { background: var(--gold-dark); color: #fff; }
+.nav-item .nav-badge { float: right; font-size: 9px; color: var(--text-dim); }
+/* CENTER DASHBOARD */
+#center {
   flex: 1;
-  padding: 8px;
   overflow-y: auto;
+  padding: 8px;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  min-width: 0;
+  gap: 8px;
 }
-.form-card {
+.dash-section {
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 4px;
-  padding: 10px;
+  padding: 8px;
 }
-.form-card h3 {
+.dash-section h2 {
   color: var(--gold);
-  font-size: 14px;
-  margin-bottom: 8px;
+  font-size: 13px;
+  margin-bottom: 6px;
   border-bottom: 1px solid var(--border);
   padding-bottom: 4px;
-}
-.form-card h4 {
-  color: var(--gold-dark);
-  font-size: 12px;
-  margin: 8px 0 4px;
-}
-.form-row {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 5px;
+}
+.dash-section h2 .badge {
+  font-size: 10px;
+  color: var(--text-dim);
+  font-weight: normal;
+}
+/* RESOURCE BARS */
+.res-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 4px;
+}
+.res-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 4px 6px;
+}
+.res-card .res-name { font-size: 10px; color: var(--text-dim); }
+.res-card .res-val { font-size: 14px; font-weight: bold; }
+.res-card .res-bar { height: 4px; background: #2a1508; border-radius: 2px; margin-top: 2px; overflow: hidden; }
+.res-card .res-bar-fill { height: 100%; border-radius: 2px; transition: width 0.5s; }
+/* BUILDING CARDS */
+.building-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 5px;
+}
+.dash-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px;
+  transition: border-color 0.15s;
+}
+.dash-card:hover { border-color: var(--gold-dark); }
+.dash-card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3px;
+}
+.dash-card .card-title { font-weight: bold; font-size: 12px; }
+.dash-card .card-level { color: var(--gold); font-size: 11px; }
+.dash-card .card-stats { font-size: 10px; color: var(--text-dim); margin-bottom: 4px; }
+.dash-card .card-actions {
+  display: flex;
+  gap: 3px;
   flex-wrap: wrap;
+  margin-top: 3px;
 }
-.form-row label {
-  min-width: 90px;
-  color: var(--text);
-  font-size: 11px;
+.dash-card .card-timer {
+  font-size: 10px;
+  color: var(--orange);
+  padding: 2px 0;
 }
-.form-row input, .form-row select, .form-row textarea {
-  flex: 1;
-  min-width: 120px;
+/* TROOP GRID */
+.troop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 4px;
+}
+/* HERO CARD */
+.hero-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px;
+  display: flex;
+  gap: 10px;
+  align-items: start;
+}
+.hero-card .hero-info { flex: 1; }
+.hero-card .hero-stats { font-size: 10px; }
+.hero-card .hero-skills { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 2px; }
+.hero-card .skill-pill {
   background: var(--input-bg);
   border: 1px solid var(--border);
-  color: var(--text);
-  padding: 3px 6px;
-  border-radius: 3px;
-  font-family: 'Courier New', monospace;
-  font-size: 11px;
+  border-radius: 10px;
+  padding: 1px 6px;
+  font-size: 9px;
 }
-.form-row textarea { min-height: 40px; resize: vertical; }
-.form-row .help-text { font-size: 9px; color: var(--text-dim); width: 100%; padding-left: 96px; }
-.form-row .prefilled { border-color: var(--gold-dark); background: #1a0f0a; }
-.form-actions {
-  display: flex;
-  gap: 6px;
-  margin-top: 8px;
-  flex-wrap: wrap;
+/* MARCH CARD */
+.march-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 4px;
 }
+/* BUTTONS */
 .btn {
-  padding: 5px 14px;
+  padding: 3px 10px;
   border-radius: 3px;
   border: 1px solid var(--border);
   font-family: inherit;
-  font-size: 12px;
+  font-size: 11px;
   cursor: pointer;
   font-weight: bold;
   transition: background 0.15s;
 }
+.btn-sm { padding: 2px 6px; font-size: 10px; }
 .btn-gold { background: var(--gold-dark); color: #fff; }
 .btn-gold:hover { background: var(--gold); }
 .btn-green { background: var(--green); color: #fff; }
-.btn-green:hover { background: #2ecc71; }
+.btn-green:hover { background: var(--accent-green); }
 .btn-red { background: var(--red); color: #fff; }
 .btn-red:hover { background: #e74c3c; }
 .btn-blue { background: var(--blue); color: #fff; }
 .btn-blue:hover { background: #3498db; }
 .btn-dim { background: var(--text-dim); color: #fff; }
+.btn-dim:hover { background: #7a6a5a; }
+.btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+.btn-outline:hover { background: var(--highlight); color: var(--gold); }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-/* RIGHT PANEL - RESPONSE + DASHBOARD */
-#right {
-  width: 340px;
+/* RIGHT SIDEBAR */
+#right-sidebar {
+  width: 300px;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
   border-left: 1px solid var(--border);
 }
-#dashboard-panel {
+#timers-panel {
   background: var(--panel);
   padding: 6px;
   max-height: 40%;
   overflow-y: auto;
   border-bottom: 1px solid var(--border);
 }
-#dashboard-panel h3 { color: var(--gold); font-size: 12px; margin-bottom: 4px; }
+#timers-panel h3 { color: var(--gold); font-size: 12px; margin-bottom: 4px; }
 #response-panel {
   background: var(--panel);
   padding: 6px;
@@ -226,10 +294,84 @@ body {
   word-break: break-all;
   flex: 1;
 }
-
+/* WATCHERS IN SIDEBAR */
+.watcher-item {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 5px;
+  margin: 3px 0;
+  font-size: 10px;
+}
+.watcher-item .bar { height: 3px; background: #2a1508; border-radius: 2px; margin: 3px 0; overflow: hidden; }
+.watcher-item .bar-fill { height: 100%; background: var(--gold); transition: width 1s linear; }
+.countdown { color: var(--gold); font-family: 'Courier New', monospace; font-size: 12px; }
+.status-Departure { color: var(--blue); }
+.status-Return { color: var(--orange); }
+.status-Ended { color: var(--text-dim); }
+.status-Gather { color: var(--green); }
+.status-Camping { color: var(--text-dim); }
+.status-Ruins { color: var(--gold); }
+.status-Reinforcements { color: var(--blue); }
+/* MODAL */
+#modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+#modal-overlay.open { display: flex; }
+#modal-box {
+  background: var(--panel);
+  border: 2px solid var(--gold-dark);
+  border-radius: 6px;
+  padding: 14px;
+  max-width: 480px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 0 30px rgba(0,0,0,0.5);
+}
+#modal-box h3 { color: var(--gold); font-size: 14px; margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+#modal-box .form-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+  flex-wrap: wrap;
+}
+#modal-box .form-row label { min-width: 80px; color: var(--text); font-size: 11px; }
+#modal-box .form-row input, #modal-box .form-row select {
+  flex: 1;
+  min-width: 100px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 3px 6px;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+}
+#modal-box .form-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+#modal-cost {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 8px;
+  margin: 6px 0;
+  font-size: 11px;
+}
 /* STATS PANEL */
 #stats-panel {
-  height: 140px;
+  height: 110px;
   background: var(--panel);
   border-top: 2px solid var(--gold-dark);
   overflow-y: auto;
@@ -238,20 +380,19 @@ body {
 #stats-panel h3 {
   color: var(--gold);
   font-size: 11px;
-  padding: 3px 10px;
+  padding: 2px 10px;
   position: sticky;
   top: 0;
   background: var(--panel);
   border-bottom: 1px solid var(--border);
 }
 .stats-table { width: 100%; font-size: 9px; border-collapse: collapse; }
-.stats-table th { background: #2a1508; color: var(--gold); text-align: left; padding: 2px 6px; position: sticky; top: 22px; }
+.stats-table th { background: #2a1508; color: var(--gold); text-align: left; padding: 2px 6px; position: sticky; top: 20px; }
 .stats-table td { padding: 2px 6px; border-bottom: 1px solid var(--border); }
 .stats-table tr:hover td { background: var(--highlight); }
 .slow { color: var(--red); }
 .medium { color: var(--orange); }
 .fast { color: var(--green); }
-
 #status-bar {
   background: #0a0502;
   border-top: 1px solid var(--border);
@@ -264,84 +405,75 @@ body {
 #status-bar .err { color: var(--red); }
 .spinner { display: inline-block; width: 10px; height: 10px; border: 2px solid var(--text-dim); border-top: 2px solid var(--gold); border-radius: 50%; animation: spin 0.6s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-
-/* CONSTRUCT / MARCH WATCHERS */
-.watcher-item {
-  background: #1a0f0a;
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  padding: 6px;
-  margin: 4px 0;
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+/* Responsive */
+@media (max-width: 900px) {
+  #left-sidebar { width: 150px; }
+  #right-sidebar { width: 250px; }
+  .building-grid { grid-template-columns: 1fr; }
+  .res-grid { grid-template-columns: repeat(3, 1fr); }
 }
-.watcher-item .bar { height: 4px; background: #2a1508; border-radius: 2px; margin: 4px 0; overflow: hidden; }
-.watcher-item .bar-fill { height: 100%; background: var(--gold); transition: width 1s linear; }
-.countdown { color: var(--gold); font-family: 'Courier New', monospace; font-size: 13px; }
-.status-Departure { color: var(--blue); }
-.status-Return { color: var(--orange); }
-.status-Ended { color: var(--text-dim); }
-.status-Gather { color: var(--green); }
-.status-Camping { color: var(--text-dim); }
-.status-Ruins { color: var(--gold); }
-.status-Reinforcements { color: var(--blue); }
-.watcher-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
-.res-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 3px; }
-.res-item { background: #0f0805; padding: 3px; border: 1px solid var(--border); border-radius: 2px; }
-.res-item .name { color: var(--gold); font-size: 9px; }
-.res-item .val { font-size: 13px; font-weight: bold; }
-.troop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; font-size: 10px; }
-.troop-row { background: #0f0805; padding: 2px 4px; border: 1px solid var(--border); border-radius: 2px; }
+@media (max-width: 650px) {
+  #left-sidebar { display: none; }
+  #right-sidebar { display: none; }
+}
 </style>
 </head>
 <body>
 <div id="header">
-  <h1>⚔️ COTW Cliente de Pruebas</h1>
-  <input type="text" id="deviceId" value="4df64994e692f5a00be2d29faefd8c7c50119a20" size="40">
+  <h1>⚔️ COTW</h1>
+  <input type="text" id="deviceId" value="4df64994e692f5a00be2d29faefd8c7c50119a20" size="30">
   <button onclick="doLogin()">🔑 Iniciar Sesión</button>
+  <button onclick="refreshDashboard()" style="background:var(--blue)">🔄 Refrescar</button>
+  <button onclick="showActionModal('Usuario','getDictionaries')" style="background:var(--text-dim)">📖 Diccionarios</button>
   <span style="margin-left:auto;font-size:10px;display:flex;gap:4px;align-items:center">
     <span id="conn-status" style="color:var(--text-dim)">⚪</span>
     <span id="dash-summary" style="color:var(--text-dim)">Sin sesión</span>
   </span>
 </div>
 <div id="main">
-  <!-- LEFT: CATEGORIES -->
-  <div id="categories"></div>
-
-  <!-- CENTER: FLOW (form → cost → confirm → result) -->
-  <div id="flow">
-    <div class="form-card" id="flow-welcome">
-      <h3>🏰 Panel de Acciones</h3>
-      <p style="color:var(--text-dim);font-size:12px;">
-        Selecciona una acción del panel izquierdo para comenzar.
-      </p>
-      <p style="color:var(--text-dim);font-size:11px;margin-top:6px;">
-        <b>Flujo:</b> Selecciona acción → Completa parámetros → Previsualiza costo → Confirma → Ve resultados
-      </p>
-      <div id="watchers-container" style="margin-top:8px;">
-        <div id="construct-watcher" style="display:none">
-          <h4 style="color:var(--gold);font-size:12px;margin-bottom:4px">⏱️ Construcciones Activas</h4>
-          <div id="construct-list"></div>
-        </div>
-        <div id="march-watcher" style="display:none">
-          <h4 style="color:var(--gold);font-size:12px;margin-bottom:4px;margin-top:8px">🚶 Marchas Activas</h4>
-          <div id="march-list"></div>
-        </div>
-        <div id="mis-edificios-card" class="form-card" style="margin-top:8px;display:none">
-          <h3>🏗️ Mis Edificios</h3>
-          <div id="mis-edificios-content" style="font-size:11px;color:var(--text-dim)">Inicia sesión para ver datos...</div>
-        </div>
-      </div>
-    </div>
-    <div class="form-card" id="flow-form" style="display:none"></div>
-    <div class="form-card" id="flow-cost" style="display:none"></div>
-    <div class="form-card" id="flow-result" style="display:none"></div>
+  <!-- LEFT NAV -->
+  <div id="left-sidebar">
+    <div class="sidebar-title">🧭 Navegación</div>
+    <button class="nav-item active" onclick="scrollToSection('recursos')">📊 Recursos</button>
+    <button class="nav-item" onclick="scrollToSection('edificios')">🏗️ Edificios</button>
+    <button class="nav-item" onclick="scrollToSection('tropas')">⚔️ Tropas</button>
+    <button class="nav-item" onclick="scrollToSection('investigaciones')">🔬 Invest.</button>
+    <button class="nav-item" onclick="scrollToSection('heroe')">🦸 Héroe</button>
+    <button class="nav-item" onclick="scrollToSection('warlords')">👹 Señores</button>
+    <button class="nav-item" onclick="scrollToSection('mapa')">🗺️ Mapa / Marchas</button>
+    <button class="nav-item" onclick="scrollToSection('alianza')">🏰 Alianza</button>
+    <button class="nav-item" onclick="scrollToSection('apuesta')">🎰 Ruleta</button>
+    <button class="nav-item" onclick="scrollToSection('chat')">💬 Chat/Correo</button>
+    <button class="nav-item" onclick="scrollToSection('admin')">🛠️ Admin</button>
+    <button class="nav-item" onclick="scrollToSection('acciones')">📋 Acciones</button>
   </div>
 
-  <!-- RIGHT: DASHBOARD + RESPONSE -->
-  <div id="right">
-    <div id="dashboard-panel">
-      <h3>🏰 Dashboard</h3>
-      <div id="dash-content" style="color:var(--text-dim);font-size:11px">Inicia sesión para ver datos...</div>
-      <div id="dash-resources" style="margin-top:4px"></div>
+  <!-- CENTER DASHBOARD -->
+  <div id="center">
+    <div id="dash-placeholder" style="color:var(--text-dim);text-align:center;padding:40px;font-size:14px">
+      🔐 Inicia sesión para ver el dashboard interactivo
+    </div>
+    <div id="dash-content" style="display:none"></div>
+  </div>
+
+  <!-- RIGHT SIDEBAR -->
+  <div id="right-sidebar">
+    <div id="timers-panel">
+      <h3>⏱️ Temporizadores</h3>
+      <div id="construct-watcher" style="display:none">
+        <div style="color:var(--gold-dark);font-size:10px;margin-bottom:2px">🏗️ Construcciones</div>
+        <div id="construct-list"></div>
+      </div>
+      <div id="march-watcher" style="display:none;margin-top:4px">
+        <div style="color:var(--blue);font-size:10px;margin-bottom:2px">🚶 Marchas</div>
+        <div id="march-list"></div>
+      </div>
+      <div id="timers-empty" style="color:var(--text-dim);font-size:10px;padding:6px;text-align:center">Sin temporizadores activos</div>
     </div>
     <div id="response-panel">
       <h3>📋 Respuesta <span id="resp-time" style="font-size:10px;font-weight:normal"></span></h3>
@@ -349,6 +481,8 @@ body {
     </div>
   </div>
 </div>
+
+<!-- STATS PANEL -->
 <div id="stats-panel">
   <h3>📈 Llamadas API (<span id="stats-count">0</span>) <span id="stats-avg" style="font-size:10px;font-weight:normal;color:var(--text-dim)"></span></h3>
   <table class="stats-table">
@@ -358,6 +492,17 @@ body {
 </div>
 <div id="status-bar">⚡ Listo</div>
 
+<!-- MODAL -->
+<div id="modal-overlay">
+  <div id="modal-box">
+    <h3 id="modal-title">Acción</h3>
+    <div id="modal-body"></div>
+    <div class="form-actions" id="modal-actions">
+      <button class="btn btn-dim" onclick="closeModal()">✖️ Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ===================== CONFIG =====================
 const PROXY = window.location.origin + '/api/';
@@ -365,7 +510,7 @@ let userId = '', deviceId = '', callCount = 0, totalElapsed = 0;
 let lastUserData = null;
 let countdownTimers = [];
 let marchPollIntervals = {};
-let selectedCat = null;
+let modalState = null; // {cat, action, params, costParams}
 
 // ===================== BUILDING NAMES =====================
 const BUILDING_NAMES = {
@@ -407,14 +552,12 @@ function getRequisitesHtml(reqs, userBuildings) {
     const cls = met ? '' : 'color:var(--red)';
     return `<span style="${cls}">${icon} ${name} Lv.${lv}</span>`;
   });
-  return `<div style="margin-top:8px;padding:6px;background:#1a0f0a;border:1px solid var(--border);border-radius:3px;font-size:11px">
-    <span style="color:var(--orange)">⚠️ Requisitos:</span><br>
-    ${items.join(', ')}
+  return `<div style="margin-top:6px;padding:4px 6px;background:#1a0f0a;border:1px solid var(--border);border-radius:3px;font-size:10px">
+    <span style="color:var(--orange)">⚠️ Requisitos:</span> ${items.join(', ')}
   </div>`;
 }
 
 // ===================== ACTION DEFINITIONS =====================
-// Each action: {name, servlet, params: [{key, label, default, help}], costAction, splitParams}
 const ACTIONS = {
   "Usuario": {
     icon: "👤",
@@ -669,7 +812,6 @@ const ACTIONS = {
   }
 };
 
-// Determine which actions should show cost preview first
 const COST_ACTIONS = {
   "goldCostConstruct": ["construct", "GOLDconstruct"],
   "goldCostBuild": ["levelUpB", "GOLDlevelUpB"],
@@ -678,9 +820,8 @@ const COST_ACTIONS = {
   "goldCostHeal": ["heal", "GOLDheal"],
   "goldCostResearch": ["research", "GOLDresearch"]
 };
-function hasCostPreview(action) {
-  return action.costAction && action.costAction.length > 0;
-}
+
+function hasCostPreview(action) { return action.costAction && action.costAction.length > 0; }
 
 // ===================== INIT =====================
 function loadState() {
@@ -694,364 +835,622 @@ function saveState() {
 }
 loadState();
 
-// ===================== RENDER CATEGORIES =====================
-function renderCategories() {
-  const container = document.getElementById('categories');
-  const catKeys = Object.keys(ACTIONS);
-  // Expand first category by default
+// ===================== SCROLL NAV =====================
+function scrollToSection(id) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelector(`.nav-item[onclick*="${id}"]`)?.classList.add('active');
+  const el = document.getElementById('section-' + id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ===================== DASHBOARD RENDER =====================
+function renderDashboard(data) {
+  const u = data.User || data;
+  const p = u.Player || {};
+  const buildings = u.Buildings || [];
+  const troops = u.Troops || [];
+  const hero = u.Hero || {};
+  const researchs = u.Researchs || [];
+  const constructs = u.Constructs || [];
+  const vip = u.VIP || {};
+  const res = u.Resources || {};
+  const marches = u.Marches || [];
+  const warlords = u.Warlords || [];
+  const alliance = u.Alliance || {};
+  const bp = (data.BuildingProgressions || lastUserData?.BuildingProgressions || []);
+  const activeConstructions = (data.Constructs || constructs || []);
+
+  // Update connection status
+  if (p.UserName) {
+    document.getElementById('conn-status').textContent = '🟢';
+    document.getElementById('conn-status').style.color = 'var(--green)';
+    document.getElementById('dash-summary').innerHTML = `<span style="color:var(--green)">${p.UserName}</span> Lv.${hero.Level || 1} | 💰${(u.Gold?.Quantity||0).toLocaleString()}`;
+  }
+
+  document.getElementById('dash-placeholder').style.display = 'none';
+  document.getElementById('dash-content').style.display = 'flex';
+  document.getElementById('dash-content').style.flexDirection = 'column';
+  document.getElementById('dash-content').style.gap = '8px';
+
+  // Update active construct watchers from data
+  if (activeConstructions.length) {
+    updateConstructsFromData(activeConstructions);
+  }
+
+  // Update march watchers
+  if (marches.length) {
+    updateMarchesFromData(marches);
+  }
+
   let html = '';
-  catKeys.forEach((catName, i) => {
-    const cat = ACTIONS[catName];
-    const defOpen = i === 0 ? 'open' : '';
-    html += `<div class="cat-group">
-      <div class="cat-header" onclick="toggleCat(this)">
-        ${cat.icon || '📋'} ${catName} <span class="toggle">${defOpen ? '−' : '+'}</span>
-      </div>
-      <div class="cat-body ${defOpen}">
-        ${cat.actions.map(a => `
-          <button class="action-btn" onclick="selectAction('${catName}','${a.name}')" data-cat="${catName}" data-action="${a.name}">
-            ${a.name} <span class="endpoint">${a.desc || ''}</span>
-          </button>
-        `).join('')}
-      </div>
+
+  // ========== SECCIÓN RECURSOS ==========
+  html += `<div class="dash-section" id="section-recursos">
+    <h2>📊 Recursos <span class="badge">💰 ${(u.Gold?.Quantity||0).toLocaleString()} Gold</span></h2>
+    <div class="res-grid">`;
+  const resNames = ['Food','Wood','Stone','Ore','Ecto'];
+  const resIcons = {'Food':'🍗','Wood':'🪵','Stone':'🪨','Ore':'⛏️','Ecto':'🔮'};
+  const resColors = {'Food':'#27ae60','Wood':'#8b6914','Stone':'#6b5a4a','Ore':'#e67e22','Ecto':'#9b59b6'};
+  // Gold card
+  html += `<div class="res-card">
+    <div class="res-name">💰 Gold</div>
+    <div class="res-val" style="color:var(--gold)">${(u.Gold?.Quantity||0).toLocaleString()}</div>
+    <div class="res-bar"><div class="res-bar-fill" style="width:100%;background:var(--gold)"></div></div>
+  </div>`;
+  resNames.forEach(r => {
+    const d = res[r] || {};
+    const val = d.Quantity || 0;
+    const cap = d.Cap || val * 2 || 1000000;
+    const pct = Math.min(100, (val / cap) * 100);
+    html += `<div class="res-card">
+      <div class="res-name">${resIcons[r] || ''} ${r}</div>
+      <div class="res-val" style="color:${resColors[r] || 'var(--text)'}">${val.toLocaleString()}</div>
+      <div class="res-bar"><div class="res-bar-fill" style="width:${pct}%;background:${resColors[r] || 'var(--text)'}"></div></div>
     </div>`;
   });
-  container.innerHTML = html;
+  html += `<div class="res-card">
+    <div class="res-name">💠 DarkRunes</div>
+    <div class="res-val" style="color:#9b59b6">${(u.DarkRunes?.Quantity||0).toLocaleString()}</div>
+  </div>`;
+  html += `</div></div>`;
+
+  // ========== SECCIÓN EDIFICIOS ==========
+  html += `<div class="dash-section" id="section-edificios">
+    <h2>🏗️ Edificios <span class="badge">${buildings.length} construidos</span></h2>
+    <div class="building-grid">`;
+  buildings.forEach(b => {
+    const name = getBuildingName(b.idBuilding);
+    const currentProg = bp.find(p => String(p.idBuilding) === String(b.idBuilding) && String(p.Level) === String(b.Level));
+    const nextProg = bp.find(p => String(p.idBuilding) === String(b.idBuilding) && String(p.Level) === String(parseInt(b.Level)+1));
+    const nextTime = nextProg ? nextProg.Time : null;
+    const nextCosts = nextProg ? nextProg.Cost : null;
+    const nextReqs = nextProg ? nextProg.Requisites : null;
+    // Check if this building has an active construct
+    const activeCons = activeConstructions.filter(c => String(c.Location || c.Node) === String(b.Node) && c.Type === 'Construct');
+    const hasActive = activeCons.length > 0;
+
+    html += `<div class="dash-card">
+      <div class="card-header">
+        <span class="card-title">${name}</span>
+        <span class="card-level">Lv.${b.Level} ${b.Node ? `[${b.Node}]` : ''}</span>
+      </div>
+      <div class="card-stats">⚔️ Poder: ${(b.Power || 0).toLocaleString()} ${b.Hp ? '| ❤️ '+b.Hp : ''}</div>`;
+    if (hasActive) {
+      html += `<div class="card-timer">⏱️ Construyendo...</div>`;
+    }
+    if (!hasActive) {
+      html += `<div class="card-actions">
+        <button class="btn btn-gold btn-sm" onclick="buildingLevelUp('${b.Node}','${b.idBuilding}','${b.Level}')">⬆️ Subir Nivel</button>
+        <button class="btn btn-red btn-sm" onclick="showActionModal('Edificios Construir','demolish',{Node:'${b.Node}'})">💥 Demoler</button>
+        ${parseInt(b.idBuilding) === 2015 ? `<button class="btn btn-blue btn-sm" onclick="showActionModal('Edificios Entrenar','train',{idBuilding:'${b.idBuilding}'})">⚔️ Entrenar</button>` : ''}
+        ${parseInt(b.idBuilding) === 1004 ? `<button class="btn btn-gold btn-sm" onclick="showActionModal('Edificios Forjar','forge')">🔨 Forjar</button>` : ''}
+        ${parseInt(b.idBuilding) === 1005 ? `<button class="btn btn-green btn-sm" onclick="showActionModal('Edificios Investigar','research')">📜 Investigar</button>` : ''}
+        ${Array.isArray(b.CanCollect) && b.CanCollect.length ? `<button class="btn btn-green btn-sm" onclick="quickAction('BUILDINGS','collect',{Node:'${b.Node}'})">📦 Recolectar</button>` : ''}
+      </div>`;
+    }
+    if (nextTime) {
+      html += `<div style="margin-top:3px;font-size:9px;color:var(--text-dim)">
+        ⏱️ Sig. nivel: ${Math.ceil(nextTime/60)}m`;
+      if (nextCosts && nextCosts.length) {
+        const costParts = nextCosts.filter(c => c.Type === 'Resources').map(c => `${c.Name}: ${(c.Quantity||0).toLocaleString()}`);
+        if (costParts.length) html += ` | 📦 ${costParts.join(' | ')}`;
+      }
+      html += `</div>`;
+    }
+    if (nextReqs) html += getRequisitesHtml(nextReqs, buildings);
+    if (!nextProg) html += `<div style="margin-top:3px;font-size:10px;color:var(--gold-dark)">🏆 Nivel máximo</div>`;
+    // Current level rewards
+    if (currentProg && currentProg.Rewards && currentProg.Rewards.length) {
+      html += `<div style="margin-top:2px;font-size:9px;color:var(--green)">🏅 Recomp: ${currentProg.Rewards.map(r => `${r.Type}: ${r.Quantity || r.Hp || ''}`).join(', ')}</div>`;
+    }
+    html += `</div>`;
+  });
+  html += `</div>
+    <div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap">
+      <button class="btn btn-gold btn-sm" onclick="showActionModal('Edificios Construir','construct')">🏗️ Construir Nuevo</button>
+      <button class="btn btn-blue btn-sm" onclick="showActionModal('Edificios Entrenar','traps')">⚠️ Fabricar Trampas</button>
+      <button class="btn btn-green btn-sm" onclick="showActionModal('Edificios Curar','heal')">💚 Curar Tropas</button>
+    </div>
+  </div>`;
+
+  // ========== SECCIÓN TROPAS ==========
+  html += `<div class="dash-section" id="section-tropas">
+    <h2>⚔️ Tropas <span class="badge">${troops.length ? troops.reduce((s,t) => s + (t.Active||0) + (t.Wounded||0) + (t.Dead||0), 0).toLocaleString() : 0} total</span></h2>
+    <div class="troop-grid">`;
+  if (troops.length) {
+    // Group troops by type
+    const troopTypes = [...new Set(troops.map(t => t.TroopName || t.TroopType || t.Type || '?'))];
+    troopTypes.forEach(type => {
+      const ofType = troops.filter(t => (t.TroopName || t.TroopType || t.Type) === type);
+      const typeIcon = {'Infantry':'🛡️','Archer':'🏹','Cavalry':'🐴','Siege':'💣'}[type] || '⚔️';
+      html += `<div class="dash-card">
+        <div class="card-title">${typeIcon} ${type}</div>`;
+      ofType.forEach(t => {
+        const level = t.Level || t.TroopLevel || 1;
+        html += `<div style="display:flex;justify-content:space-between;font-size:10px;padding:1px 0;border-bottom:1px solid var(--border)">
+          <span>Nv.${level}</span>
+          <span><span style="color:var(--green)">🟢${t.Active||0}</span> <span style="color:var(--orange)">🟡${t.Wounded||0}</span> <span style="color:var(--red)">🔴${t.Dead||0}</span></span>
+        </div>`;
+      });
+      html += `<div class="card-actions" style="margin-top:2px">
+        <button class="btn btn-blue btn-sm" onclick="showActionModal('Edificios Entrenar','train',{idBuilding:'2015',Level:'1',Quantity:'10'})">🏋️ Entrenar</button>
+      </div></div>`;
+    });
+  } else {
+    html += `<div class="dash-card"><div class="card-stats" style="color:var(--text-dim);text-align:center;padding:8px">Sin tropas. Entrena en el Campo de Entrenamiento.</div>
+    <div class="card-actions"><button class="btn btn-blue btn-sm" onclick="showActionModal('Edificios Entrenar','train',{idBuilding:'2015'})">🏋️ Entrenar Tropas</button></div></div>`;
+  }
+  html += `</div></div>`;
+
+  // ========== SECCIÓN INVESTIGACIONES ==========
+  html += `<div class="dash-section" id="section-investigaciones">
+    <h2>🔬 Investigaciones <span class="badge">${researchs.length} activas</span></h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:4px">`;
+  if (researchs.length) {
+    researchs.forEach(r => {
+      html += `<div class="dash-card">
+        <div class="card-header">
+          <span class="card-title">📜 #${r.idResearch || r._id || '?'}</span>
+          <span class="card-level" style="font-size:10px">Lv.${r.Level || 0}</span>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-green btn-sm" onclick="showActionModal('Edificios Investigar','research',{idResearch:'${r.idResearch || r._id || '1'}'})">🔬 Investigar</button>
+        </div>
+      </div>`;
+    });
+  } else {
+    html += `<div class="dash-card"><div class="card-stats" style="color:var(--text-dim);text-align:center;padding:8px">Sin investigaciones activas</div>
+    <div class="card-actions"><button class="btn btn-green btn-sm" onclick="showActionModal('Edificios Investigar','research')">🔬 Investigar</button></div></div>`;
+  }
+  html += `</div></div>`;
+
+  // ========== SECCIÓN HÉROE ==========
+  html += `<div class="dash-section" id="section-heroe">
+    <h2>🦸 Héroe</h2>
+    <div class="hero-card">
+      <div class="hero-info">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:14px;font-weight:bold">${hero.Name || p.UserName || 'Héroe'}</span>
+          <span style="color:var(--gold)">Nv.${hero.Level || 1}</span>
+        </div>
+        <div class="hero-stats" style="margin-top:4px">
+          <span>⚡ XP: ${hero.XP || 0}/${hero.XPCap || 100}</span>
+          <span style="margin-left:8px">⚔️ Ataque: ${hero.Attack || 0}</span>
+          <span style="margin-left:8px">🛡️ Defensa: ${hero.Defense || 0}</span>
+        </div>
+        ${hero.Skills && hero.Skills.length ? `<div class="hero-skills">${hero.Skills.slice(0,6).map(s => `<span class="skill-pill">${s.Name || s.idSkill || '?'}</span>`).join('')}</div>` : ''}
+        <div class="card-actions" style="margin-top:4px">
+          <button class="btn btn-gold btn-sm" onclick="showActionModal('Héroe','levelUpH')">⬆️ Subir Nivel</button>
+          <button class="btn btn-blue btn-sm" onclick="showActionModal('Héroe','equipItem')">⚔️ Equipar Item</button>
+          <button class="btn btn-orange btn-sm" onclick="showActionModal('Edificios Forjar','forge')">🔨 Forjar</button>
+          <button class="btn btn-dim btn-sm" onclick="showActionModal('Héroe','status')">📋 Estado</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  // ========== SECCIÓN SEÑORES DE LA GUERRA ==========
+  html += `<div class="dash-section" id="section-warlords">
+    <h2>👹 Señores de la Guerra <span class="badge">${warlords.length || 0}</span></h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:4px">`;
+  if (warlords && warlords.length) {
+    warlords.forEach(w => {
+      html += `<div class="dash-card">
+        <div class="card-title">👹 #${w.idDemon || w._id || '?'}</div>
+        <div class="card-stats">Nv.${w.Level || 1} | ⚔️ ${w.Attack || 0} | ❤️ ${w.Hp || 0}</div>
+        <div class="card-actions">
+          <button class="btn btn-gold btn-sm" onclick="showActionModal('Señores de la Guerra','levelupW',{idWarlord:'${w.idDemon || w._id || '1001'}'})">⬆️ Subir Nv.</button>
+        </div>
+      </div>`;
+    });
+  } else {
+    html += `<div class="dash-card"><div class="card-stats" style="color:var(--text-dim);text-align:center;padding:8px">Sin señores invocados</div>
+    <div class="card-actions"><button class="btn btn-gold btn-sm" onclick="showActionModal('Señores de la Guerra','summon')">👹 Invocar</button></div></div>`;
+  }
+  html += `</div>
+    <div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap">
+      <button class="btn btn-gold btn-sm" onclick="showActionModal('Señores de la Guerra','summon')">👹 Invocar</button>
+      <button class="btn btn-blue btn-sm" onclick="showActionModal('Señores de la Guerra','chest')">📦 Cofre</button>
+      <button class="btn btn-red btn-sm" onclick="showActionModal('Señores de la Guerra','dungeon')">🏚️ Mazmorra</button>
+    </div>
+  </div>`;
+
+  // ========== SECCIÓN MAPA / MARCHAS ==========
+  const marchList = data.Marches || data.marches || marches || [];
+  html += `<div class="dash-section" id="section-mapa">
+    <h2>🗺️ Mapa / Marchas <span class="badge">${marchList.length} activas</span></h2>
+    <div class="march-grid">`;
+  if (marchList.length) {
+    marchList.forEach(m => {
+      const mid = m._id?.$oid || m._id || '';
+      const status = m.Status || 'Departure';
+      const origin = m.Origin?.Coordinates || ['?','?'];
+      const dest = m.Destiny?.Coordinates || ['?','?'];
+      html += `<div class="dash-card">
+        <div class="card-header">
+          <span class="card-title"><span class="status-${status}">●</span> ${m.Type || 'Marcha'}</span>
+          <span class="card-level status-${status}">${status}</span>
+        </div>
+        <div class="card-stats">[${origin.join(',')}] → [${dest.join(',')}]</div>
+        <div class="card-actions">
+          <button class="btn btn-blue btn-sm" onclick="marchAction('getMarch','${mid}')">🚶 Ver</button>
+          <button class="btn btn-red btn-sm" onclick="marchAction('recall','${mid}')">↩️ Retirar</button>
+          <button class="btn btn-gold btn-sm" onclick="marchAction('goHome','${mid}')">🏠 Volver</button>
+          <button class="btn btn-dim btn-sm" onclick="marchAction('deleteMarch','${mid}')">🗑️ Eliminar</button>
+        </div>
+      </div>`;
+    });
+  } else {
+    html += `<div class="dash-card"><div class="card-stats" style="color:var(--text-dim);text-align:center;padding:8px">Sin marchas activas</div></div>`;
+  }
+  html += `</div>
+    <div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap">
+      <button class="btn btn-red btn-sm" onclick="showActionModal('Ataque','attack')">⚔️ Atacar</button>
+      <button class="btn btn-red btn-sm" onclick="showActionModal('Ataque','monster')">👾 Monstruo</button>
+      <button class="btn btn-orange btn-sm" onclick="showActionModal('Ataque','ruins')">🏚️ Ruinas</button>
+      <button class="btn btn-green btn-sm" onclick="showActionModal('Recolectar/Acuartelar','gather')">🌾 Recolectar</button>
+      <button class="btn btn-blue btn-sm" onclick="showActionModal('Recolectar/Acuartelar','camping')">⛺ Acampar</button>
+      <button class="btn btn-dim btn-sm" onclick="showActionModal('Recolectar/Acuartelar','scout')">👁️ Espiar</button>
+      <button class="btn btn-gold btn-sm" onclick="showActionModal('Mapa Envíos','sendResources')">📦 Enviar Rec.</button>
+      <button class="btn btn-blue btn-sm" onclick="showActionModal('Mapa Envíos','sendReinforcements')">🛡️ Refuerzos</button>
+    </div>
+  </div>`;
+
+  // ========== SECCIÓN ALIANZA ==========
+  html += `<div class="dash-section" id="section-alianza">
+    <h2>🏰 Alianza <span class="badge">${alliance.Name || 'Sin alianza'}</span></h2>
+    <div class="dash-card">
+      <div class="card-header">
+        <span>${alliance.Name ? `🏰 ${alliance.Name}` : 'No estás en una alianza'}</span>
+        <span>${alliance.Slogan ? `"${alliance.Slogan}"` : ''}</span>
+      </div>
+      <div class="card-actions">
+        ${alliance.Name ? `
+          <button class="btn btn-blue btn-sm" onclick="apiCall('ALLIANCE?action=get')">📋 Ver</button>
+          <button class="btn btn-blue btn-sm" onclick="apiCall('ALLIANCE?action=chat&Message=Hola!')">💬 Chat</button>
+          <button class="btn btn-gold btn-sm" onclick="showActionModal('Alianza','requestShards')">💠 Fragmentos</button>
+          <button class="btn btn-red btn-sm" onclick="apiCall('ALLIANCE?action=leave')">🚪 Salir</button>
+        ` : `
+          <button class="btn btn-green btn-sm" onclick="showActionModal('Alianza','create')">✨ Crear</button>
+          <button class="btn btn-blue btn-sm" onclick="showActionModal('Alianza','join')">🔗 Unirse</button>
+          <button class="btn btn-dim btn-sm" onclick="showActionModal('Alianza','search')">🔍 Buscar</button>
+        `}
+      </div>
+    </div>
+  </div>`;
+
+  // ========== SECCIÓN APUESTA ==========
+  html += `<div class="dash-section" id="section-apuesta">
+    <h2>🎰 Ruleta / Cofre</h2>
+    <div style="display:flex;gap:4px;flex-wrap:wrap">
+      <button class="btn btn-gold btn-sm" onclick="showActionModal('Apuesta','spin')">🎡 Girar Ruleta</button>
+      <button class="btn btn-blue btn-sm" onclick="showActionModal('Apuesta','flip')">🃏 Voltear Carta</button>
+      <button class="btn btn-green btn-sm" onclick="showActionModal('Misiones','feed')">🎯 Misiones</button>
+      <button class="btn btn-green btn-sm" onclick="apiCall('QUEST?action=collectQ')">🎯 Cobrar Misiones</button>
+      <button class="btn btn-green btn-sm" onclick="apiCall('QUEST?action=collectD')">📅 Cobrar Diarias</button>
+      <button class="btn btn-gold btn-sm" onclick="apiCall('USER?action=dailyReward')">🎁 Recompensa Diaria</button>
+      <button class="btn btn-blue btn-sm" onclick="showActionModal('VIP','levelUpV')">💎 Subir VIP</button>
+    </div>
+  </div>`;
+
+  // ========== SECCIÓN CHAT / CORREO ==========
+  html += `<div class="dash-section" id="section-chat">
+    <h2>💬 Chat / Correo</h2>
+    <div style="display:flex;gap:4px;flex-wrap:wrap">
+      <button class="btn btn-blue btn-sm" onclick="apiCall('CHAT?action=feed')">💬 Chat Feed</button>
+      <button class="btn btn-blue btn-sm" onclick="showActionModal('Chat/Correo','addPrivate')">✉️ Mensaje Privado</button>
+      <button class="btn btn-blue btn-sm" onclick="apiCall('KINGDOMCHAT?action=feed')">👑 Chat Reino</button>
+      <button class="btn btn-blue btn-sm" onclick="showActionModal('Chat/Correo','kingdomMessage')">👑 Msg Reino</button>
+      <button class="btn btn-gold btn-sm" onclick="apiCall('MAIL?action=mailFeed')">📧 Buzón</button>
+      <button class="btn btn-dim btn-sm" onclick="showActionModal('Chat/Correo','mailCollect')">📧 Cobrar Mail</button>
+    </div>
+  </div>`;
+
+  // ========== SECCIÓN ADMIN ==========
+  html += `<div class="dash-section" id="section-admin">
+    <h2>🛠️ Admin / Demo</h2>
+    <div style="display:flex;gap:3px;flex-wrap:wrap">
+      <button class="btn btn-dim btn-sm" onclick="apiCall('DEMO?action=backupUser')">💾 Backup</button>
+      <button class="btn btn-red btn-sm" onclick="if(confirm('¿Restaurar usuario?'))apiCall('DEMO?action=restoreUser')">⏪ Restaurar</button>
+      <button class="btn btn-gold btn-sm" onclick="apiCall('DEMO?action=putGold')">💰 +Oro</button>
+      <button class="btn btn-gold btn-sm" onclick="apiCall('DEMO?action=putAllItems')">📦 +Items</button>
+      <button class="btn btn-gold btn-sm" onclick="apiCall('DEMO?action=putAllTroops')">⚔️ +Tropas</button>
+      <button class="btn btn-gold btn-sm" onclick="apiCall('DEMO?action=putAllWarlords')">👹 +Señores</button>
+      <button class="btn btn-blue btn-sm" onclick="showActionModal('Objetos','purchase')">🛒 Comprar</button>
+      <button class="btn btn-blue btn-sm" onclick="showActionModal('Objetos','use')">📦 Usar Item</button>
+      <button class="btn btn-blue btn-sm" onclick="showActionModal('Objetos','advancedTeleport')">🌀 Teletransporte</button>
+      <button class="btn btn-dim btn-sm" onclick="showActionModal('Demo','modifyTimeValues')">⏱️ Mult. Tiempo</button>
+    </div>
+  </div>`;
+
+  // ========== SECCIÓN ACCIONES (ALL RAW ACTIONS) ==========
+  html += `<div class="dash-section" id="section-acciones">
+    <h2>📋 Todas las Acciones API</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:3px">`;
+  Object.keys(ACTIONS).forEach(catName => {
+    const cat = ACTIONS[catName];
+    cat.actions.forEach(a => {
+      html += `<button class="btn btn-outline btn-sm" style="text-align:left;font-size:10px;padding:3px 6px" onclick="showActionModal('${catName}','${a.name}')">
+        ${cat.icon || ''} ${a.name}
+        <span style="color:var(--text-dim);font-size:8px;display:block">${a.desc || ''}</span>
+      </button>`;
+    });
+  });
+  html += `</div></div>`;
+
+  document.getElementById('dash-content').innerHTML = html;
 }
-function toggleCat(el) {
-  const body = el.nextElementSibling;
-  body.classList.toggle('open');
-  el.querySelector('.toggle').textContent = body.classList.contains('open') ? '−' : '+';
+
+// ========== BUILDING LEVEL UP (SPECIAL FLOW) ==========
+async function buildingLevelUp(node, idBuilding, currentLevel) {
+  const bp = (lastUserData && lastUserData.BuildingProgressions) || [];
+  const nextProg = bp.find(p => String(p.idBuilding) === String(idBuilding) && String(p.Level) === String(parseInt(currentLevel)+1));
+  
+  // Show modal with cost
+  const modalBody = document.getElementById('modal-body');
+  const modalTitle = document.getElementById('modal-title');
+  modalTitle.innerHTML = `⬆️ Subir Nivel — ${getBuildingName(idBuilding)} [Node ${node}]`;
+  
+  let html = `<div class="form-row">
+    <label>Node</label>
+    <input type="text" id="m-Node" value="${node}" readonly class="prefilled">
+  </div>`;
+  
+  // Show next level info
+  if (nextProg) {
+    const nextTime = nextProg.Time;
+    const nextCosts = nextProg.Cost;
+    const nextReqs = nextProg.Requisites;
+    const buildings = (lastUserData && lastUserData.User && lastUserData.User.Buildings) || [];
+    
+    html += `<div id="modal-cost">`;
+    if (nextTime) html += `<p>⏱️ Tiempo: <b>${Math.ceil(nextTime/60)}m ${nextTime%60}s</b></p>`;
+    if (nextCosts && nextCosts.length) {
+      const goldCost = nextCosts.find(c => c.Type === 'Gold' || c.Name === 'Gold');
+      if (goldCost) html += `<p>💰 Oro: <b style="color:var(--gold)">${(goldCost.Quantity||0).toLocaleString()}</b></p>`;
+      const resCosts = nextCosts.filter(c => c.Type === 'Resources');
+      if (resCosts.length) html += `<p>📦 Recursos: ${resCosts.map(c => `${c.Name}: ${(c.Quantity||0).toLocaleString()}`).join(' | ')}</p>`;
+    }
+    if (nextReqs) html += getRequisitesHtml(nextReqs, buildings);
+    html += `<p style="margin-top:4px;font-size:10px;color:var(--text-dim)">Lv.${currentLevel} → Lv.${parseInt(currentLevel)+1}</p>`;
+    html += `</div>`;
+  } else {
+    html += `<p style="color:var(--gold-dark)">🏆 Nivel máximo alcanzado</p>`;
+  }
+  
+  html += `<div class="form-actions">
+    <button class="btn btn-blue" onclick="previewCostFromModal('Edificios Construir','levelUpB',{Node:'${node}'},'goldCostBuild')">💰 Previsualizar Costo</button>
+    <button class="btn btn-green" onclick="executeFromModal('Edificios Construir','levelUpB',{Node:'${node}'})">✅ Subir Nivel</button>
+    <button class="btn btn-gold" onclick="executeFromModal('Edificios Construir','GOLDlevelUpB',{Node:'${node}'})">💰 Subir con Oro</button>
+    <button class="btn btn-dim" onclick="closeModal()">✖️ Cancelar</button>
+  </div>`;
+  
+  modalBody.innerHTML = html;
+  modalState = { cat: 'Edificios Construir', action: 'levelUpB', params: {Node: node} };
+  document.getElementById('modal-overlay').classList.add('open');
 }
 
-// ===================== SELECT ACTION → SHOW FORM =====================
-let currentAction = null;
-let currentCat = null;
-
-function selectAction(catName, actionName) {
-  currentCat = catName;
-  currentAction = actionName;
-  // Highlight selected
-  document.querySelectorAll('.action-btn').forEach(b => b.classList.remove('selected'));
-  document.querySelectorAll(`.action-btn[data-action="${actionName}"]`).forEach(b => b.classList.add('selected'));
-
+// ========== MODAL SYSTEM ==========
+function showActionModal(catName, actionName, presetParams) {
   const cat = ACTIONS[catName];
   const action = cat.actions.find(a => a.name === actionName);
   if (!action) return;
 
-  // Hide welcome, show form
-  document.getElementById('flow-welcome').style.display = 'none';
-  document.getElementById('flow-cost').style.display = 'none';
-  document.getElementById('flow-result').style.display = 'none';
-  const formCard = document.getElementById('flow-form');
-  formCard.style.display = 'block';
+  const modalTitle = document.getElementById('modal-title');
+  const modalBody = document.getElementById('modal-body');
+  const modalActions = document.getElementById('modal-actions');
+  
+  modalTitle.innerHTML = `${cat.icon || '📋'} ${actionName} <span style="font-size:10px;font-weight:normal;color:var(--text-dim)">${action.servlet} — ${action.desc || ''}</span>`;
 
-  // Build param form
-  let paramsHtml = `<h3>${cat.icon || ''} ${action.name}</h3>
-    <p style="color:var(--text-dim);font-size:11px;margin-bottom:8px">Servlet: ${action.servlet} — ${action.desc || ''}</p>`;
-
-  // Always add idUser and deviceId (prefilled, hidden if empty)
-  paramsHtml += `<div class="form-row">
-    <label>deviceId</label>
-    <input type="text" id="f-deviceId" value="${deviceId}" class="prefilled" readonly>
-  </div>`;
-  if (action.servlet !== 'ALLIANCE' || action.name === 'create' || action.name === 'join' || action.name === 'search' || action.name === 'changeSlogan' || action.name === 'changeName' || action.name === 'changeNickname' || action.name === 'changeLanguage' || action.name === 'changeBanner' || action.name === 'changeRecruitment' || action.name === 'kick' || action.name === 'answerRequest' || action.name === 'changeRank' || action.name === 'requestShards' || action.name === 'donateShards' || action.name === 'askHelp' || action.name === 'sendHelp' || action.name === 'chat') {
-    // Some ALLIANCE actions need idUser
-    if (action.name !== 'search' && action.name !== 'get') {
-      paramsHtml += `<div class="form-row">
-        <label>idUser</label>
-        <input type="text" id="f-idUser" value="${userId}" class="prefilled" readonly>
-      </div>`;
-    }
-  } else if (action.servlet !== 'ALLIANCE') {
-    paramsHtml += `<div class="form-row">
-      <label>idUser</label>
-      <input type="text" id="f-idUser" value="${userId}" class="prefilled" readonly>
-    </div>`;
-  }
-
-  // Action-specific params, skipping "action" meta-params
+  let html = '';
+  // Action-specific params
   action.params.filter(p => p.key !== 'action').forEach(p => {
-    const val = p.value || p.default || '';
-    paramsHtml += `<div class="form-row">
+    const presetVal = (presetParams && presetParams[p.key]) || p.value || p.default || '';
+    html += `<div class="form-row">
       <label>${p.label}</label>
-      <input type="text" id="f-${p.key}" value="${val}" placeholder="${p.help || ''}">
+      <input type="text" id="m-${p.key}" value="${presetVal}" placeholder="${p.help || ''}">
     </div>`;
-    if (p.help) {
-      paramsHtml += `<div class="form-row"><span class="help-text">💡 ${p.help}</span></div>`;
-    }
   });
 
-  // Show requisites for building actions (construct, levelUpB, train, research)
-  const BUILDING_REQ_ACTIONS = ['construct', 'levelUpB', 'train', 'research'];
-  if (BUILDING_REQ_ACTIONS.includes(actionName)) {
+  // Show requisites for building actions
+  const BUILDING_REQ = ['construct', 'levelUpB', 'train', 'research'];
+  if (BUILDING_REQ.includes(actionName)) {
     const bp = (lastUserData && lastUserData.BuildingProgressions) || [];
     const userBuildings = (lastUserData && lastUserData.User && lastUserData.User.Buildings) || [];
     let reqs = null;
     if (actionName === 'construct') {
-      const idB = action.params.find(p => p.key === 'idBuilding')?.default || '1001';
+      const idB = presetParams?.idBuilding || action.params.find(p => p.key === 'idBuilding')?.default || '1001';
       const prog = bp.find(b => String(b.idBuilding) === String(idB) && String(b.Level) === '1');
       if (prog) reqs = prog.Requisites || null;
-    } else if (actionName === 'levelUpB') {
-      const node = action.params.find(p => p.key === 'Node')?.default || '1';
-      const buildingAtNode = getBuildingLevelAtNode(node, userBuildings);
-      if (buildingAtNode) {
-        const targetLv = parseInt(buildingAtNode.Level) + 1;
-        const prog = bp.find(b => String(b.idBuilding) === String(buildingAtNode.idBuilding) && String(b.Level) === String(targetLv));
-        if (prog) reqs = prog.Requisites || null;
-      }
     } else if (actionName === 'train') {
-      const idB = action.params.find(p => p.key === 'idBuilding')?.default || '2015';
-      const lv = action.params.find(p => p.key === 'Level')?.default || '1';
+      const idB = presetParams?.idBuilding || action.params.find(p => p.key === 'idBuilding')?.default || '2015';
+      const lv = presetParams?.Level || action.params.find(p => p.key === 'Level')?.default || '1';
       const prog = bp.find(b => String(b.idBuilding) === String(idB) && String(b.Level) === String(lv));
       if (prog) reqs = prog.Requisites || null;
     } else if (actionName === 'research') {
-      const idR = action.params.find(p => p.key === 'idResearch')?.default || '1';
+      const idR = presetParams?.idResearch || action.params.find(p => p.key === 'idResearch')?.default || '1';
       const rp = (lastUserData && (lastUserData.ResearchProgressions || lastUserData.SkillProgressions || []));
       if (rp.length) {
         const found = rp.find(r => String(r.idResearch || r.idSkill || r._id) === String(idR));
         if (found) reqs = found.Requisites || null;
       }
-      // Fallback: try BuildingProgressions with idBuilding=1005 (Academia)
       if (!reqs) {
         const prog = bp.find(b => String(b.idBuilding) === '1005' && String(b.Level) === String(idR));
         if (prog) reqs = prog.Requisites || null;
       }
     }
-    paramsHtml += `<div id="requisites-container">` + getRequisitesHtml(reqs, userBuildings) + `</div>`;
+    html += `<div id="modal-requisites">` + getRequisitesHtml(reqs, userBuildings) + `</div>`;
   }
 
-  // Show cost preview button for cost actions
+  // Cost preview + execute buttons
   const hasCost = hasCostPreview(action);
-  paramsHtml += `<div class="form-actions">`;
+  html += `<div class="form-actions">`;
   if (hasCost) {
-    paramsHtml += `<button class="btn btn-blue" onclick="previewCost()">💰 Previsualizar Costo</button>`;
+    html += `<button class="btn btn-blue" onclick="previewCostFromModal('${catName}','${actionName}',getModalParams(),'${action.costAction}')">💰 Previsualizar Costo</button>`;
   }
-  paramsHtml += `<button class="btn btn-green" onclick="executeAction()">▶️ Ejecutar</button>
-    <button class="btn btn-dim" onclick="cancelAction()">✖️ Cancelar</button>
+  html += `<button class="btn btn-green" onclick="executeFromModal('${catName}','${actionName}',getModalParams())">✅ Ejecutar</button>`;
+  if (hasCost) {
+    // Show gold version if available
+    const goldAction = cat.actions.find(a => a.name === 'GOLD' + actionName.charAt(0).toUpperCase() + actionName.slice(1) ||
+      (actionName === 'construct' ? cat.actions.find(a => a.name === 'GOLDconstruct') : null));
+    const goldName = actionName === 'construct' ? 'GOLDconstruct' : actionName === 'levelUpB' ? 'GOLDlevelUpB' : actionName === 'train' ? 'GOLDtrain' : actionName === 'research' ? 'GOLDresearch' : null;
+    if (goldName && cat.actions.find(a => a.name === goldName)) {
+      html += `<button class="btn btn-gold" onclick="executeFromModal('${catName}','${goldName}',getModalParams())">💰 Con Oro</button>`;
+    }
+  }
+  html += `<button class="btn btn-dim" onclick="closeModal()">✖️ Cancelar</button>
   </div>`;
 
-  formCard.innerHTML = paramsHtml;
+  // Cost display area
+  html += `<div id="modal-cost" style="display:none"></div>`;
+
+  modalBody.innerHTML = html;
+  modalState = { cat: catName, action: actionName, params: presetParams || {} };
+  document.getElementById('modal-overlay').classList.add('open');
 }
 
-function cancelAction() {
-  document.getElementById('flow-form').style.display = 'none';
-  document.getElementById('flow-cost').style.display = 'none';
-  document.getElementById('flow-result').style.display = 'none';
-  document.getElementById('flow-welcome').style.display = 'block';
-  document.querySelectorAll('.action-btn').forEach(b => b.classList.remove('selected'));
-  currentAction = null;
-  currentCat = null;
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  modalState = null;
 }
 
-// ===================== GET FORM PARAMS =====================
-function getFormParams() {
-  const cat = ACTIONS[currentCat];
-  const action = cat.actions.find(a => a.name === currentAction);
-  if (!action) return {};
-
+function getModalParams() {
   const params = {};
-  // Always add action
-  params.action = currentAction;
-
-  // Auto deviceId/idUser from form or globals
-  const devEl = document.getElementById('f-deviceId');
-  params.deviceId = devEl ? devEl.value : deviceId;
-
-  const uidEl = document.getElementById('f-idUser');
-  if (uidEl) params.idUser = uidEl.value;
-
-  action.params.forEach(p => {
-    const el = document.getElementById('f-' + p.key);
-    if (el && el.value) {
-      params[p.key] = el.value;
-    }
+  document.querySelectorAll('#modal-body [id^="m-"]').forEach(el => {
+    const key = el.id.replace('m-', '');
+    if (el.value) params[key] = el.value;
   });
-
-  // For ALLIANCE.get, ALLIANCE.search etc. without idUser
-  if (action.servlet === 'ALLIANCE' && action.name === 'search') {
-    // Need Search param
-  }
-
   return params;
 }
 
-// ===================== COST PREVIEW =====================
-let lastCostParams = null;
+// ========== COST PREVIEW IN MODAL ==========
+async function previewCostFromModal(catName, actionName, formParams, costAction) {
+  const costDiv = document.getElementById('modal-cost');
+  costDiv.style.display = 'block';
+  costDiv.innerHTML = '<p><span class="spinner"></span> Calculando costo...</p>';
 
-async function previewCost() {
-  const cat = ACTIONS[currentCat];
-  const action = cat.actions.find(a => a.name === currentAction);
-  if (!action || !action.costAction) return;
-
-  lastCostParams = getFormParams();
-
-  // Build cost endpoint
-  const costParams = {...lastCostParams, action: action.costAction};
-  // Remove params not needed for cost
-  // cost preview uses same params minus some extras
-  delete costParams.idBuilding; // not needed for goldCostBuild level
-  delete costParams.idBuilding; // already removed
-
-  // For goldCostBuild, goldCostConstruct, goldCostResearch: need Level or similar
-  // goldCostConstruct: idBuilding, Level
-  // goldCostTrain: idBuilding, Level, Quantity
-  // goldCostHeal: Troops
-  // goldCostTraps: TrapType, Level, Quantity
-  // goldCostResearch: idResearch, Level
-  // goldCostBuild (levelUp): Node → needs Level from building's current level+1... just pass the same params
-
-  const url = buildUrl(action.servlet, costParams);
+  const url = buildUrl('BUILDINGS', { ...formParams, action: costAction, deviceId, idUser: userId });
   document.getElementById('resp-time').innerHTML = '<span class="spinner"></span> Calculando costo...';
 
   try {
     const resp = await fetch(url);
     const data = await resp.json();
     const elapsed = data._proxy_elapsed_ms || 0;
-    addStatsEntry(`${action.servlet}?action=${action.costAction}`, resp.status, elapsed, data);
+    addStatsEntry(`BUILDINGS?action=${costAction}`, resp.status, elapsed, data);
 
-    const costCard = document.getElementById('flow-cost');
-    costCard.style.display = 'block';
-
-    let costHtml = `<h3>💰 Previsualización de Costo</h3>`;
     if (data.result === 1) {
       const goldCost = data.GoldCost || data.goldCost || data.Gold || '?';
-      costHtml += `<p>Costo en oro: <b style="color:var(--gold);font-size:16px">${JSON.stringify(goldCost)}</b></p>`;
-
-      // Also lookup resource costs from BuildingProgressions in lastUserData
+      let costHtml = `<h4>💰 Costo: <span style="color:var(--gold);font-size:16px">${JSON.stringify(goldCost)}</span></h4>`;
+      
+      // Also look up from BuildingProgressions
       const bp = (lastUserData && lastUserData.BuildingProgressions) || [];
-      const formParams = lastCostParams || {};
       const idBuilding = formParams.idBuilding;
-      let level = formParams.Level || '1';
+      const level = formParams.Level || '1';
       let resourceCosts = null;
-
       if (bp.length > 0 && idBuilding) {
-        // For construct/train: find BuildingProgression by idBuilding + Level
         let prog = bp.find(b => String(b.idBuilding) === String(idBuilding) && String(b.Level) === String(level));
-        if (!prog) {
-          // Fallback: match only by idBuilding (use first match)
-          prog = bp.find(b => String(b.idBuilding) === String(idBuilding));
-        }
-        if (prog && prog.Cost) {
-          resourceCosts = prog.Cost;
-        }
+        if (!prog) prog = bp.find(b => String(b.idBuilding) === String(idBuilding));
+        if (prog && prog.Cost) resourceCosts = prog.Cost;
       }
-
       if (resourceCosts && Array.isArray(resourceCosts)) {
-        const resourceNames = {'Food':'🍗 Comida','Wood':'🪵 Madera','Stone':'🪨 Piedra','Ore':'⛏️ Mineral','Ecto':'🔮 Ecto'};
-        const resourceParts = resourceCosts
-          .filter(c => c.Type === 'Resources' && resourceNames[c.Name])
-          .map(c => `${resourceNames[c.Name]}: ${(c.Quantity||0).toLocaleString()}`);
-        if (resourceParts.length > 0) {
-          costHtml += `<p>📦 Recursos: <b style="color:var(--green);font-size:14px">${resourceParts.join(' | ')}</b></p>`;
-        }
+        const resParts = resourceCosts.filter(c => c.Type === 'Resources').map(c => `${c.Name || c.Type}: ${(c.Quantity||0).toLocaleString()}`);
+        if (resParts.length) costHtml += `<p>📦 ${resParts.join(' | ')}</p>`;
       }
-
-      // Show any other details
-      const extra = Object.keys(data).filter(k => k !== 'result' && k !== 'GoldCost' && k !== 'goldCost' && k !== 'Gold' && k !== '_proxy_elapsed_ms');
-      if (extra.length) {
-        costHtml += `<pre style="background:#0a0502;padding:4px;border:1px solid var(--border);border-radius:2px;font-size:10px;margin-top:4px">${JSON.stringify(data, null, 2)}</pre>`;
-      }
+      costHtml += `<pre style="background:#0a0502;padding:4px;border:1px solid var(--border);font-size:9px;margin-top:4px">${JSON.stringify(data, null, 2)}</pre>`;
+      costDiv.innerHTML = costHtml;
     } else {
-      costHtml += `<p style="color:var(--red)">❌ Error: ${data.Message || data.message || 'Desconocido'}</p>`;
+      costDiv.innerHTML = `<p style="color:var(--red)">❌ Error: ${data.Message || data.message || 'Desconocido'}</p>`;
     }
-    costHtml += `<div class="form-actions" style="margin-top:8px">
-      <button class="btn btn-green" onclick="executeActionWithConfirm()">✅ Confirmar y Ejecutar</button>
-      <button class="btn btn-dim" onclick="document.getElementById('flow-cost').style.display='none'">✖️ Volver</button>
-    </div>`;
-    costCard.innerHTML = costHtml;
-
-    // Show response
     showResponse(data, elapsed, resp.status);
-
-    // If cost also contains user data, update dashboard
-    if (data.result === 1 && data.User) {
-      lastUserData = data;
-      renderDashboard(data);
-    }
   } catch (e) {
+    costDiv.innerHTML = `<p style="color:var(--red)">❌ ${e.message}</p>`;
     document.getElementById('resp-time').innerHTML = `❌ ${e.message}`;
   }
 }
 
-// ===================== EXECUTE ACTION =====================
-async function executeAction() {
-  const cat = ACTIONS[currentCat];
-  const action = cat.actions.find(a => a.name === currentAction);
+// ========== EXECUTE FROM MODAL ==========
+async function executeFromModal(catName, actionName, formParams) {
+  const cat = ACTIONS[catName];
+  const action = cat.actions.find(a => a.name === actionName);
   if (!action) return;
 
-  const params = getFormParams();
+  const params = { ...formParams, action: actionName, deviceId, idUser: userId };
   const url = buildUrl(action.servlet, params);
 
-  document.getElementById('flow-cost').style.display = 'none';
   document.getElementById('resp-time').innerHTML = '<span class="spinner"></span> Ejecutando...';
 
   try {
     const resp = await fetch(url);
     const data = await resp.json();
     const elapsed = data._proxy_elapsed_ms || 0;
-    addStatsEntry(`${action.servlet}?action=${currentAction}`, resp.status, elapsed, data);
-
+    addStatsEntry(`${action.servlet}?action=${actionName}`, resp.status, elapsed, data);
     showResponse(data, elapsed, resp.status);
 
-    // Show result card
-    const resultCard = document.getElementById('flow-result');
-    resultCard.style.display = 'block';
+    closeModal();
 
-    let resultHtml = `<h3>📋 Resultado: ${currentAction}</h3>`;
-    if (data.result === 1) {
-      resultHtml += `<p style="color:var(--green)">✅ Éxito</p>`;
-    } else if (data.result === 0) {
-      resultHtml += `<p style="color:var(--red)">❌ Falló: ${data.Message || data.message || ''}</p>`;
-    } else {
-      resultHtml += `<p style="color:var(--orange)">⚠️ Resultado: ${data.result} — ${data.Message || ''}</p>`;
-    }
-
-    // Show response data
-    resultHtml += `<div style="margin-top:4px">
-      <pre style="background:#0a0502;padding:4px;border:1px solid var(--border);border-radius:2px;font-size:10px;max-height:200px;overflow:auto">${JSON.stringify(data, null, 2).substring(0, 2000)}</pre>
-    </div>`;
-
-    // CHECK FOR idConstruct → show watcher
+    // Check for idConstruct → add watcher
     const constructId = data.idConstruct || (data.Construct && (data.Construct._id?.$oid || data.Construct._id));
     if (constructId) {
-      resultHtml += `<div style="margin-top:8px;padding:6px;background:#1a0f0a;border:1px solid var(--gold-dark);border-radius:3px">
-        <p style="color:var(--gold)">⏱️ ¡Construcción iniciada! <b>ID: ${constructId}</b></p>
-        <div class="form-actions">
-          <button class="btn btn-blue" onclick="checkConstruct('${constructId}')">⏱️ Ver Tiempo Restante</button>
-          <button class="btn btn-gold" onclick="speedUpConstruct('${constructId}')">💰 Acelerar (Oro)</button>
-        </div>
-      </div>`;
-      // Also add to watcher
       addConstructWatcher(constructId, data);
+      setStatus(`✅ Construcción iniciada: ${constructId}`, 'ok');
     }
 
-    // CHECK FOR March → show watcher + auto-poll
+    // Check for march
     const marchData = data.March || data.march;
     if (marchData) {
       const marchId = marchData._id?.$oid || marchData._id || '';
       if (marchId) {
-        resultHtml += `<div style="margin-top:8px;padding:6px;background:#1a0f0a;border:1px solid var(--blue);border-radius:3px">
-          <p style="color:var(--blue)">🚶 ¡Marcha creada! <b>ID: ${marchId}</b></p>
-          <div class="form-actions">
-            <button class="btn btn-blue" onclick="marchAction('getMarch','${marchId}')">🚶 Ver Marcha</button>
-            <button class="btn btn-red" onclick="marchAction('recall','${marchId}')">↩️ Retirar</button>
-            <button class="btn btn-gold" onclick="marchAction('goHome','${marchId}')">🏠 Volver</button>
-          </div>
-        </div>`;
         addMarchWatcher(marchData);
-        // Start auto-poll monitoring (every 5s)
         startMarchAutoPoll(marchId);
+        setStatus(`🚶 Marcha creada: ${marchId}`, 'ok');
       }
     }
 
-    resultHtml += `<div class="form-actions" style="margin-top:8px">
-      <button class="btn btn-dim" onclick="document.getElementById('flow-result').style.display='none'; selectAction(currentCat, currentAction)">🔄 Nueva Acción</button>
-      <button class="btn btn-dim" onclick="cancelAction()">✖️ Cerrar</button>
-    </div>`;
-    resultCard.innerHTML = resultHtml;
+    // Refresh dashboard if user data returned
+    if (data.result === 1 && data.User) {
+      lastUserData = data;
+      renderDashboard(data);
+    } else {
+      // Still refresh to get latest state
+      setTimeout(refreshDashboard, 1000);
+    }
+  } catch (e) {
+    document.getElementById('resp-time').innerHTML = `❌ ${e.message}`;
+    setStatus(`❌ Error: ${e.message}`, 'err');
+  }
+}
 
-    // Update dashboard if user data present
+// ========== QUICK ACTION (no modal) ==========
+async function quickAction(servlet, action, extraParams) {
+  const params = { action, deviceId, idUser: userId, ...extraParams };
+  const url = buildUrl(servlet, params);
+  document.getElementById('resp-time').innerHTML = '<span class="spinner"></span> Ejecutando...';
+  try {
+    const resp = await fetch(url);
+    const data = await resp.json();
+    const elapsed = data._proxy_elapsed_ms || 0;
+    addStatsEntry(`${servlet}?action=${action}`, resp.status, elapsed, data);
+    showResponse(data, elapsed, resp.status);
     if (data.result === 1 && data.User) {
       lastUserData = data;
       renderDashboard(data);
@@ -1061,13 +1460,7 @@ async function executeAction() {
   }
 }
 
-// Confirm from cost preview
-async function executeActionWithConfirm() {
-  document.getElementById('flow-cost').style.display = 'none';
-  await executeAction();
-}
-
-// ===================== BUILD URL =====================
+// ========== BUILD URL ==========
 function buildUrl(servlet, params) {
   let url = PROXY + servlet;
   let sep = '?';
@@ -1080,14 +1473,14 @@ function buildUrl(servlet, params) {
   return url;
 }
 
-// ===================== SHOW RESPONSE =====================
+// ========== SHOW RESPONSE ==========
 function showResponse(data, elapsed, status) {
   const cls = elapsed > 5000 ? 'slow' : elapsed > 2000 ? 'medium' : 'fast';
   document.getElementById('resp-time').innerHTML = `⏱️ <span class="${cls}">${elapsed}ms</span> | HTTP ${status} | ${JSON.stringify(data).length} bytes`;
   document.getElementById('resp-body').textContent = JSON.stringify(data, null, 2);
 }
 
-// ===================== STATS =====================
+// ========== STATS ==========
 function addStatsEntry(endpoint, status, elapsed, data) {
   callCount++;
   totalElapsed += elapsed;
@@ -1106,13 +1499,13 @@ function addStatsEntry(endpoint, status, elapsed, data) {
   document.getElementById('stats-avg').textContent = ` | Prom: ${(totalElapsed/callCount).toFixed(0)}ms`;
 }
 
-// ===================== CONSTRUCT WATCHER =====================
+// ========== CONSTRUCT WATCHER ==========
 function addConstructWatcher(id, data) {
   const container = document.getElementById('construct-list');
   const watcher = document.getElementById('construct-watcher');
   watcher.style.display = 'block';
+  document.getElementById('timers-empty').style.display = 'none';
 
-  // Parse EndDate from response if available
   const c = data.Construct || data.construct || {};
   const endDate = c.EndDate?.$date || c.EndDate;
   const startDate = c.StartDate?.$date || c.StartDate;
@@ -1122,21 +1515,24 @@ function addConstructWatcher(id, data) {
   const remaining = Math.max(0, endMs - Date.now());
   const pct = totalDuration > 1 ? Math.min(100, ((1 - remaining / totalDuration) * 100)) : 0;
 
+  // Don't add duplicate
+  if (document.querySelector(`#construct-list .watcher-item[data-id="${id}"]`)) return;
+
   const item = document.createElement('div');
   item.className = 'watcher-item';
   item.dataset.id = id;
   item.dataset.end = endMs;
   item.dataset.total = totalDuration;
   item.innerHTML = `
-    <div class="grid-2">
-      <div><b>${c.Type || 'Construcción'}</b> ${c.idStuff || ''} | Node ${c.Location || (data.Node || '?')}</div>
-      <div style="text-align:right">
-        <button class="btn btn-blue" style="font-size:9px;padding:1px 6px" onclick="checkConstruct('${id}')">⏱️</button>
-        <button class="btn btn-gold" style="font-size:9px;padding:1px 6px" onclick="speedUpConstruct('${id}')">💰</button>
-      </div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span><b>${c.Type || 'Construcción'}</b> ${c.idStuff || ''} | Node ${c.Location || (data.Node || '?')}</span>
+      <span>
+        <button class="btn btn-blue" style="font-size:8px;padding:1px 5px" onclick="checkConstruct('${id}')">⏱️</button>
+        <button class="btn btn-gold" style="font-size:8px;padding:1px 5px" onclick="speedUpConstruct('${id}')">💰</button>
+      </span>
     </div>
     <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
-    <div style="font-size:10px">⏱️ <span class="countdown" data-end="${endMs}">${formatTime(Math.ceil(remaining/1000))}</span></div>
+    <div style="font-size:9px">⏱️ <span class="countdown" data-end="${endMs}">${formatTime(Math.ceil(remaining/1000))}</span></div>
   `;
   container.appendChild(item);
   startWatcherCountdowns();
@@ -1144,15 +1540,13 @@ function addConstructWatcher(id, data) {
 
 async function checkConstruct(id) {
   await apiCall(`CONSTRUCT?action=remainingTime&idConstruct=${id}`);
-  // Mark as complete if needed
   updateConstructWatchers();
 }
 
 async function speedUpConstruct(id) {
   const r = await apiCall(`CONSTRUCT?action=speedUpGold&idConstruct=${id}`);
   if (r && r.result === 1) {
-    // Remove watcher
-    const item = document.querySelector(`.watcher-item[data-id="${id}"]`);
+    const item = document.querySelector(`#construct-list .watcher-item[data-id="${id}"]`);
     if (item) item.remove();
     checkWatcherVisibility();
     setStatus(`✅ Construcción ${id} acelerada con oro`, 'ok');
@@ -1160,10 +1554,8 @@ async function speedUpConstruct(id) {
 }
 
 function updateConstructWatchers() {
-  // Re-fetch user data to refresh
   apiCall('CONSTRUCT?action=remainingTime&idConstruct=all', true).then(data => {
     if (data && data.Constructs) {
-      // Remove watchers not in list
       const activeIds = data.Constructs.map(c => c._id?.$oid || c._id);
       document.querySelectorAll('#construct-list .watcher-item').forEach(el => {
         if (!activeIds.includes(el.dataset.id)) el.remove();
@@ -1173,13 +1565,53 @@ function updateConstructWatchers() {
   }).catch(() => {});
 }
 
-// ===================== MARCH WATCHER =====================
+function updateConstructsFromData(constructs) {
+  if (!constructs.length) return;
+  document.getElementById('construct-watcher').style.display = 'block';
+  document.getElementById('timers-empty').style.display = 'none';
+  constructs.forEach(c => {
+    const id = c._id?.$oid || c._id;
+    if (!id) return;
+    if (document.querySelector(`#construct-list .watcher-item[data-id="${id}"]`)) return;
+    const endDate = c.EndDate?.$date || c.EndDate;
+    const startDate = c.StartDate?.$date || c.StartDate;
+    const endMs = endDate ? new Date(endDate).getTime() : Date.now();
+    const startMs = startDate ? new Date(startDate).getTime() : Date.now();
+    const totalDuration = Math.max(1, endMs - startMs);
+    const remaining = Math.max(0, endMs - Date.now());
+    const pct = totalDuration > 1 ? Math.min(100, ((1 - remaining / totalDuration) * 100)) : 0;
+    const item = document.createElement('div');
+    item.className = 'watcher-item';
+    item.dataset.id = id;
+    item.dataset.end = endMs;
+    item.dataset.total = totalDuration;
+    item.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span><b>${c.Type || 'Construcción'}</b> Node ${c.Location || c.Node || '?'}</span>
+        <span>
+          <button class="btn btn-blue" style="font-size:8px;padding:1px 5px" onclick="checkConstruct('${id}')">⏱️</button>
+          <button class="btn btn-gold" style="font-size:8px;padding:1px 5px" onclick="speedUpConstruct('${id}')">💰</button>
+        </span>
+      </div>
+      <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
+      <div style="font-size:9px">⏱️ <span class="countdown" data-end="${endMs}">${formatTime(Math.ceil(remaining/1000))}</span></div>
+    `;
+    document.getElementById('construct-list').appendChild(item);
+  });
+  startWatcherCountdowns();
+}
+
+// ========== MARCH WATCHER ==========
 function addMarchWatcher(march) {
   const container = document.getElementById('march-list');
   const watcher = document.getElementById('march-watcher');
   watcher.style.display = 'block';
+  document.getElementById('timers-empty').style.display = 'none';
 
   const id = march._id?.$oid || march._id || '';
+  if (!id) return;
+  if (document.querySelector(`#march-list .watcher-item[data-id="${id}"]`)) return;
+
   const status = march.Status || 'Departure';
   const endDate = march.EndDate?.$date || march.EndDate;
   const startDate = march.StartDate?.$date || march.StartDate;
@@ -1195,24 +1627,37 @@ function addMarchWatcher(march) {
   item.dataset.end = endMs;
   item.dataset.total = totalDuration;
   item.innerHTML = `
-    <div class="grid-2">
-      <div><span class="status-${status}">●</span> <b>${march.Type || 'Marcha'}</b> <span class="march-status-text status-${status}">${status}</span></div>
-      <div style="text-align:right;font-size:9px">
-        [${(march.Origin?.Coordinates||['?','?']).join(',')}] → [${(march.Destiny?.Coordinates||['?','?']).join(',')}]
-      </div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span><span class="status-${status}">●</span> <b>${march.Type || 'Marcha'}</b> <span class="march-status-text status-${status}">${status}</span></span>
+      <span style="font-size:8px;color:var(--text-dim)">
+        [${(march.Origin?.Coordinates||['?','?']).join(',')}]→[${(march.Destiny?.Coordinates||['?','?']).join(',')}]
+      </span>
     </div>
     <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
-    <div class="grid-2" style="font-size:10px">
+    <div style="display:flex;justify-content:space-between;font-size:9px">
       <span>⏱️ <span class="countdown" data-end="${endMs}">${formatTime(Math.ceil(remaining/1000))}</span></span>
-      <span style="text-align:right">
-        <button class="btn btn-blue" style="font-size:9px;padding:1px 6px" onclick="marchAction('getMarch','${id}')">🚶</button>
-        <button class="btn btn-red" style="font-size:9px;padding:1px 6px" onclick="marchAction('recall','${id}')">↩️</button>
-        <button class="btn btn-gold" style="font-size:9px;padding:1px 6px" onclick="marchAction('goHome','${id}')">🏠</button>
+      <span>
+        <button class="btn btn-blue" style="font-size:8px;padding:1px 5px" onclick="marchAction('getMarch','${id}')">🚶</button>
+        <button class="btn btn-red" style="font-size:8px;padding:1px 5px" onclick="marchAction('recall','${id}')">↩️</button>
+        <button class="btn btn-gold" style="font-size:8px;padding:1px 5px" onclick="marchAction('goHome','${id}')">🏠</button>
       </span>
     </div>
   `;
   container.appendChild(item);
   startWatcherCountdowns();
+}
+
+function updateMarchesFromData(marches) {
+  if (!marches.length) return;
+  document.getElementById('march-watcher').style.display = 'block';
+  document.getElementById('timers-empty').style.display = 'none';
+  marches.forEach(m => {
+    const id = m._id?.$oid || m._id;
+    if (!id) return;
+    if (document.querySelector(`#march-list .watcher-item[data-id="${id}"]`)) return;
+    addMarchWatcher(m);
+    startMarchAutoPoll(id);
+  });
 }
 
 async function marchAction(action, id) {
@@ -1223,31 +1668,25 @@ async function marchAction(action, id) {
   }
   const r = await apiCall(url);
   if (r && r.result === 1 && (action === 'recall' || action === 'goHome' || action === 'deleteMarch')) {
-    // Remove watcher if successful
     const item = document.querySelector(`#march-list .watcher-item[data-id="${id}"]`);
     if (item) item.remove();
     checkWatcherVisibility();
   }
 }
 
-// ===================== MARCH AUTO-POLL =====================
+// ========== MARCH AUTO-POLL ==========
 function startMarchAutoPoll(marchId) {
-  // Clear existing interval for this march
   if (marchPollIntervals[marchId]) {
     clearInterval(marchPollIntervals[marchId]);
   }
-
   const poll = async () => {
     try {
       const url = `${PROXY}WORLDMAP?action=getMarch&idMarch=${marchId}&deviceId=${deviceId}&idUser=${userId}`;
       const resp = await fetch(url);
       const data = await resp.json();
-
       if (data && data.result === 1) {
         const march = data.March || data.march || {};
         const status = march.Status || '';
-
-        // Update watcher in DOM
         const item = document.querySelector(`#march-list .watcher-item[data-id="${marchId}"]`);
         if (item) {
           const endDate = march.EndDate?.$date || march.EndDate;
@@ -1259,8 +1698,6 @@ function startMarchAutoPoll(marchId) {
             item.dataset.total = Math.max(1, endMs - startMs);
             startWatcherCountdowns();
           }
-
-          // Update status text and color
           const statusSpan = item.querySelector('.march-status-text');
           if (statusSpan) {
             const oldClasses = Array.from(statusSpan.classList).filter(c => c.startsWith('status-'));
@@ -1268,8 +1705,6 @@ function startMarchAutoPoll(marchId) {
             statusSpan.classList.add(`status-${status}`);
             statusSpan.textContent = status;
           }
-
-          // If ended, mark complete and stop polling
           if (status === 'Ended') {
             clearInterval(marchPollIntervals[marchId]);
             delete marchPollIntervals[marchId];
@@ -1281,17 +1716,13 @@ function startMarchAutoPoll(marchId) {
           }
         }
       }
-    } catch (e) {
-      // Silent — network errors during poll are expected
-    }
+    } catch (e) {}
   };
-
-  // Poll immediately, then every 5s
   poll();
   marchPollIntervals[marchId] = setInterval(poll, 5000);
 }
 
-// ===================== COUNTDOWN TIMERS =====================
+// ========== COUNTDOWN TIMERS ==========
 function formatTime(secs) {
   if (secs <= 0) return '✅ Completado';
   const h = Math.floor(secs / 3600);
@@ -1303,10 +1734,8 @@ function formatTime(secs) {
 }
 
 function startWatcherCountdowns() {
-  // Clear old timers
   countdownTimers.forEach(t => clearInterval(t));
   countdownTimers = [];
-
   document.querySelectorAll('.watcher-item .countdown').forEach(el => {
     const end = parseInt(el.dataset.end);
     if (!end) return;
@@ -1314,7 +1743,6 @@ function startWatcherCountdowns() {
       const remaining = Math.max(0, end - Date.now());
       const secs = Math.ceil(remaining / 1000);
       el.textContent = formatTime(secs);
-      // Update bar
       const parent = el.closest('.watcher-item');
       if (parent) {
         const bar = parent.querySelector('.bar-fill');
@@ -1333,11 +1761,16 @@ function startWatcherCountdowns() {
 function checkWatcherVisibility() {
   const cw = document.getElementById('construct-watcher');
   const mw = document.getElementById('march-watcher');
-  if (document.querySelectorAll('#construct-list .watcher-item').length === 0) cw.style.display = 'none';
-  if (document.querySelectorAll('#march-list .watcher-item').length === 0) mw.style.display = 'none';
+  const empty = document.getElementById('timers-empty');
+  const cCount = document.querySelectorAll('#construct-list .watcher-item').length;
+  const mCount = document.querySelectorAll('#march-list .watcher-item').length;
+  if (cCount === 0) cw.style.display = 'none';
+  if (mCount === 0) mw.style.display = 'none';
+  if (cCount === 0 && mCount === 0) empty.style.display = 'block';
+  else empty.style.display = 'none';
 }
 
-// ===================== API CALL (generic) =====================
+// ========== API CALL (generic) ==========
 async function apiCall(endpoint, silent=false) {
   const start = performance.now();
   let url = PROXY + endpoint;
@@ -1346,14 +1779,11 @@ async function apiCall(endpoint, silent=false) {
   if (!silent) {
     document.getElementById('resp-time').innerHTML = '<span class="spinner"></span> Cargando...';
   }
-
   try {
     const resp = await fetch(url);
     const data = await resp.json();
     const elapsed = data._proxy_elapsed_ms || Math.round(performance.now() - start);
-    if (!silent) {
-      showResponse(data, elapsed, resp.status);
-    }
+    if (!silent) showResponse(data, elapsed, resp.status);
     addStatsEntry(endpoint.split('?')[0] + '?' + (endpoint.match(/action=(\w+)/)?.[1]||'?'), resp.status, elapsed, data);
     if (data.result === 1 && data.User) {
       lastUserData = data;
@@ -1361,14 +1791,12 @@ async function apiCall(endpoint, silent=false) {
     }
     return data;
   } catch (e) {
-    if (!silent) {
-      document.getElementById('resp-time').innerHTML = `❌ ${e.message}`;
-    }
+    if (!silent) document.getElementById('resp-time').innerHTML = `❌ ${e.message}`;
     return null;
   }
 }
 
-// ===================== LOGIN =====================
+// ========== LOGIN ==========
 async function doLogin() {
   deviceId = document.getElementById('deviceId').value;
   saveState();
@@ -1380,131 +1808,31 @@ async function doLogin() {
     setStatus(`✅ Conectado: ${r.User.Player?.UserName || '?'} | idUser: ${userId}`, 'ok');
     document.getElementById('conn-status').textContent = '🟢';
     document.getElementById('conn-status').style.color = 'var(--green)';
-    document.getElementById('dash-summary').innerHTML = `<span class="ok">${r.User.Player?.UserName || '?'}</span>`;
+    document.getElementById('dash-summary').innerHTML = `<span style="color:var(--green)">${r.User.Player?.UserName || '?'}</span>`;
+  } else {
+    setStatus('❌ Login falló', 'err');
   }
 }
 
-// ===================== DASHBOARD =====================
-function renderDashboard(data) {
-  const u = data.User || data;
-  const p = u.Player || {};
-  const buildings = u.Buildings || [];
-  const bp = (data.BuildingProgressions || lastUserData?.BuildingProgressions || []);
-  const html = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;font-size:10px">
-      <div><b>${p.UserName || '?'}</b> | Nv. ${u.Hero?.Level || 1}</div>
-      <div style="text-align:right">Reino: ${p.idKingdom || '?'} [${(p.Coordinates||['?','?']).join(',')}]</div>
-      <div>💰 <span style="color:var(--gold)">${(u.Gold?.Quantity||0).toLocaleString()}</span></div>
-      <div style="text-align:right">⚡ ${(p.Stamina||0).toFixed(0)}/${(p.StaminaCap||50)}</div>
-      <div>💎 VIP ${u.VIP?.Level || 0}</div>
-      <div style="text-align:right">⚔️ Poder: ${(u.Power?.Total || u.Power?.Troop || 0).toLocaleString()}</div>
-    </div>
-    <div id="dash-buildings" style="margin-top:6px;font-size:10px">
-      <div style="color:var(--gold);font-size:11px;margin-bottom:3px;border-bottom:1px solid var(--border);padding-bottom:2px">🏗️ Edificios (${buildings.length})</div>
-      ${buildings.length ? buildings.map(b => {
-        const name = getBuildingName(b.idBuilding);
-        const prog = bp.find(p => String(p.idBuilding) === String(b.idBuilding) && String(p.Level) === String(b.Level));
-        return `<div style="display:flex;justify-content:space-between;padding:1px 0">
-          <span>${name}</span>
-          <span>Lv.${b.Level} ${b.Node ? `[Node ${b.Node}]` : ''}</span>
-        </div>`;
-      }).join('') : '<div style="color:var(--text-dim)">Sin edificios</div>'}
-    </div>
-  `;
-  document.getElementById('dash-content').innerHTML = html;
-
-  // Resources
-  const res = u.Resources || {};
-  const resNames = ['Food','Wood','Stone','Ore','Ecto'];
-  let resHtml = `<div class="res-grid" style="margin-top:4px">`;
-  resHtml += `<div class="res-item"><span class="name">💰 Gold</span><br><span class="val" style="color:var(--gold)">${(u.Gold?.Quantity||0).toLocaleString()}</span></div>`;
-  resNames.forEach(r => {
-    const d = res[r] || {};
-    resHtml += `<div class="res-item"><span class="name">${r}</span><br><span class="val">${(d.Quantity||0).toLocaleString()}</span></div>`;
-  });
-  resHtml += `<div class="res-item"><span class="name">💠 DarkRunes</span><br><span class="val">${(u.DarkRunes?.Quantity||0).toLocaleString()}</span></div>`;
-  resHtml += `</div>`;
-  document.getElementById('dash-resources').innerHTML = resHtml;
-
-  // Update Mis Edificios card
-  renderMisEdificios(data);
-}
-
-function renderMisEdificios(data) {
-  const card = document.getElementById('mis-edificios-card');
-  const content = document.getElementById('mis-edificios-content');
-  if (!card || !content) return;
-  const u = data.User || data;
-  const buildings = u.Buildings || [];
-  const bp = (data.BuildingProgressions || lastUserData?.BuildingProgressions || []);
-  if (!buildings.length) {
-    card.style.display = 'none';
-    return;
+// ========== REFRESH ==========
+async function refreshDashboard() {
+  if (!userId) return doLogin();
+  setStatus('🔄 Refrescando datos...');
+  const r = await apiCall('USER?action=login');
+  if (r && r.User) {
+    renderDashboard(r);
+    setStatus(`✅ Datos actualizados: ${r.User.Player?.UserName || '?'}`, 'ok');
+  } else {
+    setStatus('❌ Error al refrescar', 'err');
   }
-  card.style.display = 'block';
-  const resourceNames = {'Food':'🍗 Comida','Wood':'🪵 Madera','Stone':'🪨 Piedra','Ore':'⛏️ Mineral','Ecto':'🔮 Ecto'};
-  let html = '';
-  buildings.forEach(b => {
-    const name = getBuildingName(b.idBuilding);
-    const currentProg = bp.find(p => String(p.idBuilding) === String(b.idBuilding) && String(p.Level) === String(b.Level));
-    const nextProg = bp.find(p => String(p.idBuilding) === String(b.idBuilding) && String(p.Level) === String(parseInt(b.Level)+1));
-    const time = currentProg ? (currentProg.Time || nextProg?.Time || null) : null;
-    const cost = currentProg ? currentProg.Cost : null;
-    const rewards = currentProg ? currentProg.Rewards : null;
-
-    html += `<div style="background:#1a0f0a;border:1px solid var(--border);border-radius:3px;padding:6px;margin-bottom:4px">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-weight:bold;font-size:12px">${name}</span>
-        <span style="color:var(--gold);font-size:12px">Lv.${b.Level} ${b.Node ? `[Node ${b.Node}]` : ''}</span>
-      </div>`;
-
-    // Next level info if available
-    if (nextProg) {
-      const nextTime = nextProg.Time;
-      const nextCosts = nextProg.Cost;
-      const nextReqs = nextProg.Requisites;
-      if (nextTime || nextCosts || nextReqs) {
-        html += `<div style="margin-top:4px;font-size:10px;color:var(--text-dim)">`;
-        if (nextTime) {
-          html += `<span>⏱️ Próximo Lv.${parseInt(b.Level)+1}: ${Math.ceil(nextTime/60)}m</span>`;
-        }
-        if (nextCosts && nextCosts.length) {
-          const resParts = nextCosts
-            .filter(c => c.Type === 'Resources')
-            .map(c => `${resourceNames[c.Name] || c.Name}: ${(c.Quantity||0).toLocaleString()}`);
-          if (resParts.length) {
-            html += `<br><span>📦 Costo: ${resParts.join(' | ')}</span>`;
-          }
-        }
-        // Show next level requisites
-        const reqHtml = getRequisitesHtml(nextReqs, buildings);
-        if (reqHtml) {
-          html += `<br>${reqHtml.replace('margin-top:8px', 'margin-top:2px')}`;
-        }
-        html += `</div>`;
-      }
-    } else {
-      html += `<div style="margin-top:4px;font-size:10px;color:var(--gold-dark)">🏆 Nivel máximo alcanzado</div>`;
-    }
-
-    // Current level rewards
-    if (rewards && rewards.length) {
-      const rewardParts = rewards.map(r => `${r.Type}: ${r.Quantity || r.Hp || ''}`).join(', ');
-      html += `<div style="margin-top:2px;font-size:9px;color:var(--green)">🏅 Recompensas: ${rewardParts}</div>`;
-    }
-
-    html += `</div>`;
-  });
-  content.innerHTML = html;
 }
 
+// ========== STATUS ==========
 function setStatus(msg, cls='') {
   document.getElementById('status-bar').innerHTML = `⚡ ${msg}`;
 }
 
-// ===================== INIT =====================
-renderCategories();
-
+// ========== INIT ==========
 // Auto-login if deviceId exists
 if (deviceId) {
   setTimeout(doLogin, 500);
