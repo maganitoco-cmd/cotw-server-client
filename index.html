@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>COTW Test Client</title>
+<title>COTW Test Client — Interactivo</title>
 <style>
 :root {
   --bg: #1a0f0a;
@@ -15,8 +15,10 @@
   --red: #c0392b;
   --green: #27ae60;
   --blue: #2980b9;
+  --orange: #e67e22;
   --border: #3a2a1a;
   --highlight: #3a2a10;
+  --input-bg: #0f0805;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
@@ -27,26 +29,27 @@ body {
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
+  font-size: 12px;
 }
 #header {
   background: linear-gradient(180deg, #3a2010, #2a1508);
   border-bottom: 2px solid var(--gold-dark);
-  padding: 6px 12px;
+  padding: 5px 10px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-shrink: 0;
   flex-wrap: wrap;
 }
-#header h1 { color: var(--gold); font-size: 16px; white-space: nowrap; }
+#header h1 { color: var(--gold); font-size: 15px; white-space: nowrap; }
 #header input, #header select {
-  background: var(--panel);
+  background: var(--input-bg);
   border: 1px solid var(--border);
   color: var(--text);
   padding: 3px 6px;
   border-radius: 3px;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 11px;
 }
 #header button {
   background: var(--gold-dark);
@@ -55,112 +58,178 @@ body {
   padding: 4px 10px;
   border-radius: 3px;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 11px;
   cursor: pointer;
   font-weight: bold;
 }
 #header button:hover { background: var(--gold); }
 #main { display: flex; flex: 1; overflow: hidden; }
-#actions {
-  width: 280px;
+
+/* LEFT PANEL - CATEGORIES */
+#categories {
+  width: 200px;
   background: var(--panel);
   border-right: 1px solid var(--border);
   overflow-y: auto;
-  padding: 4px 6px;
   flex-shrink: 0;
+  padding: 4px 0;
 }
-.module-group {
-  margin-bottom: 4px;
-}
-.module-group h3 {
-  color: var(--gold);
-  font-size: 13px;
-  padding: 4px 6px;
-  cursor: pointer;
+.cat-group {
   border-bottom: 1px solid var(--border);
+}
+.cat-header {
+  color: var(--gold);
+  font-size: 12px;
+  padding: 4px 8px;
+  cursor: pointer;
   user-select: none;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-weight: bold;
 }
-.module-group h3:hover { background: var(--highlight); }
-.module-group h3 .toggle { font-size: 10px; color: var(--text-dim); }
-.module-body { display: none; padding: 2px 0; }
-.module-body.open { display: block; }
+.cat-header:hover { background: var(--highlight); }
+.cat-header .toggle { font-size: 9px; color: var(--text-dim); }
+.cat-body { display: none; }
+.cat-body.open { display: block; }
 .action-btn {
   display: block;
   width: 100%;
-  background: #2a1a10;
-  border: 1px solid var(--border);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
   color: var(--text);
   text-align: left;
-  padding: 3px 6px;
-  margin: 1px 0;
+  padding: 3px 8px 3px 14px;
   cursor: pointer;
   font-family: inherit;
   font-size: 11px;
-  border-radius: 2px;
 }
 .action-btn:hover { background: var(--highlight); color: var(--gold); }
-.action-btn .endpoint { color: var(--text-dim); font-size: 9px; }
-.action-btn .badge { float: right; font-size: 9px; padding: 0 4px; border-radius: 2px; }
-.badge-green { background: var(--green); color: #fff; }
-.badge-gold { background: var(--gold-dark); color: #fff; }
-.badge-blue { background: var(--blue); color: #fff; }
-#game {
+.action-btn.selected { background: var(--gold-dark); color: #fff; }
+.action-btn .endpoint { color: var(--text-dim); font-size: 9px; margin-left: 4px; }
+
+/* CENTER - PARAM FORM & FLOW */
+#flow {
   flex: 1;
   padding: 8px;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
 }
-.card {
+.form-card {
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 4px;
   padding: 10px;
-  margin-bottom: 8px;
 }
-.card h3 {
+.form-card h3 {
   color: var(--gold);
-  font-size: 13px;
-  margin-bottom: 6px;
+  font-size: 14px;
+  margin-bottom: 8px;
   border-bottom: 1px solid var(--border);
-  padding-bottom: 3px;
+  padding-bottom: 4px;
 }
-.card h4 {
+.form-card h4 {
   color: var(--gold-dark);
   font-size: 12px;
-  margin: 6px 0 3px;
+  margin: 8px 0 4px;
 }
-.card .countdown { color: var(--gold); font-family: monospace; font-size: 14px; }
-.resource-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 4px; }
-.res-item { background: #1a0f0a; padding: 4px; border: 1px solid var(--border); border-radius: 2px; font-size: 11px; }
-.res-item .name { color: var(--gold); }
-.res-item .val { font-size: 14px; font-weight: bold; }
-.troop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; font-size: 10px; }
-.troop-row { background: #1a0f0a; padding: 2px 4px; border: 1px solid var(--border); border-radius: 2px; }
-#response {
-  width: 340px;
-  background: var(--panel);
-  border-left: 1px solid var(--border);
-  padding: 6px;
-  overflow-y: auto;
-  flex-shrink: 0;
+.form-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+  flex-wrap: wrap;
+}
+.form-row label {
+  min-width: 90px;
+  color: var(--text);
   font-size: 11px;
 }
-#response h3 { color: var(--gold); font-size: 13px; margin-bottom: 3px; }
-#response pre {
+.form-row input, .form-row select, .form-row textarea {
+  flex: 1;
+  min-width: 120px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 3px 6px;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+}
+.form-row textarea { min-height: 40px; resize: vertical; }
+.form-row .help-text { font-size: 9px; color: var(--text-dim); width: 100%; padding-left: 96px; }
+.form-row .prefilled { border-color: var(--gold-dark); background: #1a0f0a; }
+.form-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.btn {
+  padding: 5px 14px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.15s;
+}
+.btn-gold { background: var(--gold-dark); color: #fff; }
+.btn-gold:hover { background: var(--gold); }
+.btn-green { background: var(--green); color: #fff; }
+.btn-green:hover { background: #2ecc71; }
+.btn-red { background: var(--red); color: #fff; }
+.btn-red:hover { background: #e74c3c; }
+.btn-blue { background: var(--blue); color: #fff; }
+.btn-blue:hover { background: #3498db; }
+.btn-dim { background: var(--text-dim); color: #fff; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* RIGHT PANEL - RESPONSE + DASHBOARD */
+#right {
+  width: 340px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  border-left: 1px solid var(--border);
+}
+#dashboard-panel {
+  background: var(--panel);
+  padding: 6px;
+  max-height: 40%;
+  overflow-y: auto;
+  border-bottom: 1px solid var(--border);
+}
+#dashboard-panel h3 { color: var(--gold); font-size: 12px; margin-bottom: 4px; }
+#response-panel {
+  background: var(--panel);
+  padding: 6px;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+#response-panel h3 { color: var(--gold); font-size: 12px; margin-bottom: 3px; flex-shrink: 0; }
+#response-panel pre {
   background: #0a0502;
   padding: 6px;
   border: 1px solid var(--border);
   border-radius: 3px;
   font-size: 10px;
-  max-height: 400px;
   overflow: auto;
   white-space: pre-wrap;
   word-break: break-all;
+  flex: 1;
 }
+
+/* STATS PANEL */
 #stats-panel {
-  height: 160px;
+  height: 140px;
   background: var(--panel);
   border-top: 2px solid var(--gold-dark);
   overflow-y: auto;
@@ -168,607 +237,972 @@ body {
 }
 #stats-panel h3 {
   color: var(--gold);
-  font-size: 12px;
-  padding: 4px 10px;
+  font-size: 11px;
+  padding: 3px 10px;
   position: sticky;
   top: 0;
   background: var(--panel);
   border-bottom: 1px solid var(--border);
 }
-.stats-table { width: 100%; font-size: 10px; border-collapse: collapse; }
-.stats-table th { background: #2a1508; color: var(--gold); text-align: left; padding: 3px 6px; position: sticky; top: 24px; }
+.stats-table { width: 100%; font-size: 9px; border-collapse: collapse; }
+.stats-table th { background: #2a1508; color: var(--gold); text-align: left; padding: 2px 6px; position: sticky; top: 22px; }
 .stats-table td { padding: 2px 6px; border-bottom: 1px solid var(--border); }
 .stats-table tr:hover td { background: var(--highlight); }
 .slow { color: var(--red); }
-.medium { color: #e67e22; }
+.medium { color: var(--orange); }
 .fast { color: var(--green); }
-#status { background: #0a0502; border-top: 1px solid var(--border); padding: 3px 10px; font-size: 10px; color: var(--text-dim); flex-shrink: 0; }
-#status .ok { color: var(--green); }
-#status .err { color: var(--red); }
+
+#status-bar {
+  background: #0a0502;
+  border-top: 1px solid var(--border);
+  padding: 2px 10px;
+  font-size: 10px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+#status-bar .ok { color: var(--green); }
+#status-bar .err { color: var(--red); }
 .spinner { display: inline-block; width: 10px; height: 10px; border: 2px solid var(--text-dim); border-top: 2px solid var(--gold); border-radius: 50%; animation: spin 0.6s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.inline-input { width: 60px; background: #1a0f0a; border: 1px solid var(--border); color: var(--text); padding: 2px 4px; border-radius: 2px; font-size: 10px; font-family: inherit; }
-.inline-input-wide { width: 120px; }
-.construct-item, .march-item, .quest-item, .hero-item, .alliance-item, .chat-item, .mail-item {
+
+/* CONSTRUCT / MARCH WATCHERS */
+.watcher-item {
   background: #1a0f0a;
   border: 1px solid var(--border);
   border-radius: 3px;
   padding: 6px;
   margin: 4px 0;
-  font-size: 11px;
 }
-.construct-item .bar, .march-item .bar {
-  height: 4px;
-  background: #2a1508;
-  border-radius: 2px;
-  margin: 4px 0;
-  overflow: hidden;
-}
-.construct-item .bar-fill, .march-item .bar-fill {
-  height: 100%;
-  background: var(--gold);
-  transition: width 1s linear;
-}
-.march-item .status-Departure { color: var(--blue); }
-.march-item .status-Return { color: #e67e22; }
-.march-item .status-Ended { color: var(--text-dim); }
-.march-item .status-Gather { color: var(--green); }
-.march-item .status-Camping { color: var(--text-dim); }
-.march-item .status-Ruins { color: var(--gold); }
-.march-item .status-Reinforcements { color: var(--blue); }
-.quest-item .done { color: var(--green); }
-.quest-item .pending { color: var(--text-dim); }
-.collect-btn {
-  background: var(--gold-dark);
-  color: #fff;
-  border: 1px solid var(--border);
-  padding: 2px 8px;
-  border-radius: 2px;
-  cursor: pointer;
-  font-size: 10px;
-  font-family: inherit;
-}
-.collect-btn:hover { background: var(--gold); }
-.section-tabs {
-  display: flex;
-  gap: 2px;
-  margin-bottom: 6px;
-  flex-wrap: wrap;
-}
-.section-tabs button {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  color: var(--text-dim);
-  padding: 3px 8px;
-  border-radius: 2px;
-  cursor: pointer;
-  font-size: 10px;
-  font-family: inherit;
-}
-.section-tabs button.active {
-  background: var(--gold-dark);
-  color: #fff;
-  border-color: var(--gold);
-}
-.section-tab-content { display: none; }
-.section-tab-content.active { display: block; }
-@media (max-width: 900px) {
-  #actions { width: 200px; }
-  #response { width: 250px; }
-}
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
-.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; }
+.watcher-item .bar { height: 4px; background: #2a1508; border-radius: 2px; margin: 4px 0; overflow: hidden; }
+.watcher-item .bar-fill { height: 100%; background: var(--gold); transition: width 1s linear; }
+.countdown { color: var(--gold); font-family: 'Courier New', monospace; font-size: 13px; }
+.status-Departure { color: var(--blue); }
+.status-Return { color: var(--orange); }
+.status-Ended { color: var(--text-dim); }
+.status-Gather { color: var(--green); }
+.status-Camping { color: var(--text-dim); }
+.status-Ruins { color: var(--gold); }
+.status-Reinforcements { color: var(--blue); }
+.watcher-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.res-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 3px; }
+.res-item { background: #0f0805; padding: 3px; border: 1px solid var(--border); border-radius: 2px; }
+.res-item .name { color: var(--gold); font-size: 9px; }
+.res-item .val { font-size: 13px; font-weight: bold; }
+.troop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; font-size: 10px; }
+.troop-row { background: #0f0805; padding: 2px 4px; border: 1px solid var(--border); border-radius: 2px; }
 </style>
 </head>
 <body>
 <div id="header">
-  <h1>⚔️ COTW Test Client</h1>
+  <h1>⚔️ COTW Cliente de Pruebas</h1>
   <input type="text" id="deviceId" value="4df64994e692f5a00be2d29faefd8c7c50119a20" size="40">
-  <button onclick="doLogin()">🔑 Login</button>
-  <span style="margin-left:auto;font-size:11px;color:var(--text-dim);display:flex;gap:4px;align-items:center">
-    <input type="text" id="userFilter" placeholder="Troops / params..." size="16" style="width:120px">
+  <button onclick="doLogin()">🔑 Iniciar Sesión</button>
+  <span style="margin-left:auto;font-size:10px;display:flex;gap:4px;align-items:center">
     <span id="conn-status" style="color:var(--text-dim)">⚪</span>
-    <span id="timer-display" style="font-family:monospace;font-size:11px"></span>
+    <span id="dash-summary" style="color:var(--text-dim)">Sin sesión</span>
   </span>
 </div>
 <div id="main">
-  <div id="actions">
-    <div class="module-group">
-      <h3 onclick="toggleModule(this)">👤 USER <span class="toggle">+</span></h3>
-      <div class="module-body open">
-        <button class="action-btn" onclick="call('USER?action=login')"><span class="endpoint">GET</span> login</button>
-        <button class="action-btn" onclick="call('USER?action=getDictionaries')"><span class="endpoint">GET</span> getDictionaries</button>
-        <button class="action-btn" onclick="call('USER?action=getLanguage')"><span class="endpoint">GET</span> getLanguage</button>
-        <button class="action-btn" onclick="call('USER?action=dailyReward')"><span class="endpoint">GET</span> dailyReward</button>
-        <button class="action-btn" onclick="call('USER?action=reset')"><span class="endpoint">GET</span> reset</button>
-        <button class="action-btn" onclick="call('USER?action=changeLanguage&Language=es')"><span class="endpoint">GET</span> changeLanguage</button>
+  <!-- LEFT: CATEGORIES -->
+  <div id="categories"></div>
+
+  <!-- CENTER: FLOW (form → cost → confirm → result) -->
+  <div id="flow">
+    <div class="form-card" id="flow-welcome">
+      <h3>🏰 Panel de Acciones</h3>
+      <p style="color:var(--text-dim);font-size:12px;">
+        Selecciona una acción del panel izquierdo para comenzar.
+      </p>
+      <p style="color:var(--text-dim);font-size:11px;margin-top:6px;">
+        <b>Flujo:</b> Selecciona acción → Completa parámetros → Previsualiza costo → Confirma → Ve resultados
+      </p>
+      <div id="watchers-container" style="margin-top:8px;">
+        <div id="construct-watcher" style="display:none">
+          <h4 style="color:var(--gold);font-size:12px;margin-bottom:4px">⏱️ Construcciones Activas</h4>
+          <div id="construct-list"></div>
+        </div>
+        <div id="march-watcher" style="display:none">
+          <h4 style="color:var(--gold);font-size:12px;margin-bottom:4px;margin-top:8px">🚶 Marchas Activas</h4>
+          <div id="march-list"></div>
+        </div>
       </div>
     </div>
-    <div class="module-group">
-      <h3 onclick="toggleModule(this)">🏗️ BUILDINGS <span class="toggle">+</span></h3>
-      <div class="module-body open">
-        <button class="action-btn" onclick="call('BUILDINGS?action=construct&idBuilding=1001&Node=1')"><span class="endpoint">GET</span> construct</button>
-        <button class="action-btn" onclick="call('BUILDINGS?action=levelUpB&Node=1')"><span class="endpoint">GET</span> levelUpB</button>
-        <button class="action-btn" onclick="call('BUILDINGS?action=train&idBuilding=2015&Level=1&Quantity=10')"><span class="endpoint">GET</span> train</button>
-        <button class="action-btn" onclick="call('BUILDINGS?action=heal&Troops=Infantry.1.10')"><span class="endpoint">GET</span> heal</button>
-        <button class="action-btn" onclick="call('BUILDINGS?action=research&idResearch=1')"><span class="endpoint">GET</span> research</button>
-        <button class="action-btn" onclick="call('BUILDINGS?action=forge&idHeroItem=1001&Materials=Item.1001.1')"><span class="endpoint">GET</span> forge</button>
-        <button class="action-btn" onclick="call('BUILDINGS?action=wish')"><span class="endpoint">GET</span> wish</button>
-        <button class="action-btn" onclick="call('BUILDINGS?action=skills&idSkill=1')"><span class="endpoint">GET</span> skills</button>
-        <button class="action-btn" onclick="call('BUILDINGS?action=traps&TrapType=Rocks&Level=1&Quantity=5')"><span class="endpoint">GET</span> traps</button>
-        <button class="action-btn" onclick="call('BUILDINGS?action=collect&Node=1')"><span class="endpoint">GET</span> collect</button>
-        <button class="action-btn" onclick="call('BUILDINGS?action=recruitBuilder')"><span class="endpoint">GET</span> recruitBuilder</button>
-        <button class="action-btn" onclick="call('BUILDINGS?action=boost&Node=1&idItem=1001')"><span class="endpoint">GET</span> boost</button>
-        <button class="action-btn" onclick="call('BUILDINGS?action=demolish&Node=1')"><span class="endpoint">GET</span> demolish</button>
-        <button class="action-btn" onclick="call('BUILDINGS?action=GOLDconstruct&idBuilding=1001&Node=1')"><span class="endpoint">GET</span> GOLDconstruct</button>
-        <button class="action-btn" onclick="call('BUILDINGS?action=GOLDtrain&idBuilding=2015&Level=1&Quantity=10')"><span class="endpoint">GET</span> GOLDtrain</button>
-        <button class="action-btn" onclick="call('BUILDINGS?action=GOLDheal&Troops=Infantry.1.10')"><span class="endpoint">GET</span> GOLDheal</button>
-        <button class="action-btn" onclick="call('BUILDINGS?action=GOLDlevelUpB&Node=1')"><span class="endpoint">GET</span> GOLDlevelUpB</button>
-        <button class="action-btn" onclick="call('BUILDINGS?action=synthesizeMaterials&Material=Item.1001&Tier=1')"><span class="endpoint">GET</span> synthesizeMaterials</button>
-        <button class="action-btn" onclick="call('BUILDINGS?action=disassemble&idItem=1001&Tier=1')"><span class="endpoint">GET</span> disassemble</button>
-      </div>
-    </div>
-    <div class="module-group">
-      <h3 onclick="toggleModule(this)">⏱️ CONSTRUCT TIMER <span class="toggle">+</span></h3>
-      <div class="module-body open">
-        <button class="action-btn" onclick="call('CONSTRUCT?action=remainingTime&idConstruct=all')"><span class="endpoint badge-blue">POLL</span> remainingTime (all)</button>
-        <button class="action-btn" onclick="showConstructInput('speedUp')"><span class="endpoint badge-gold">ITEM</span> speedUp</button>
-        <button class="action-btn" onclick="showConstructInput('speedUpGold')"><span class="endpoint badge-gold">GOLD</span> speedUpGold</button>
-        <button class="action-btn" onclick="pollConstructTimers()"><span class="endpoint badge-green">AUTO</span> 🔄 Auto-Poll</button>
-      </div>
-    </div>
-    <div class="module-group">
-      <h3 onclick="toggleModule(this)">🗺️ WORLDMAP <span class="toggle">+</span></h3>
-      <div class="module-body open">
-        <button class="action-btn" onclick="callMap('attack', 'x=315&y=963&UserID=588b9fddd382d6ba25c3c3d6')"><span class="endpoint">GET</span> attack</button>
-        <button class="action-btn" onclick="callMap('gather', 'x=402&y=348')"><span class="endpoint">GET</span> gather</button>
-        <button class="action-btn" onclick="callMap('monster', 'x=243&y=113')"><span class="endpoint">GET</span> monster</button>
-        <button class="action-btn" onclick="callMap('scout', 'x=315&y=963&UserID=588b9fddd382d6ba25c3c3d6')"><span class="endpoint">GET</span> scout</button>
-        <button class="action-btn" onclick="callMap('ruins', 'x=99&y=383&Mode=Easy')"><span class="endpoint">GET</span> ruins</button>
-        <button class="action-btn" onclick="callMap('camping', 'x=313&y=962')"><span class="endpoint">GET</span> camping</button>
-        <button class="action-btn" onclick="callMap('gatherAttack', 'x=402&y=348')"><span class="endpoint">GET</span> gatherAttack</button>
-        <button class="action-btn" onclick="callMap('campingAttack', 'x=313&y=962')"><span class="endpoint">GET</span> campingAttack</button>
-        <button class="action-btn" onclick="callMap('sendResources', 'x=315&y=963&UserID=588b9fddd382d6ba25c3c3d6&Resources=Food.100/-/Wood.100')"><span class="endpoint">GET</span> sendResources</button>
-        <button class="action-btn" onclick="callMap('sendReinforcements', 'x=315&y=963&UserID=588b9fddd382d6ba25c3c3d6')"><span class="endpoint">GET</span> sendReinforcements</button>
-        <button class="action-btn" onclick="call('WORLDMAP?action=getQuadrant&x=315&y=963')"><span class="endpoint">GET</span> getQuadrant</button>
-        <button class="action-btn" onclick="call('WORLDMAP?action=getMonsters')"><span class="endpoint">GET</span> getMonsters</button>
-        <button class="action-btn" onclick="call('WORLDMAP?action=findResource&Level=1&idBuilding=1001')"><span class="endpoint">GET</span> findResource</button>
-        <button class="action-btn" onclick="call('WORLDMAP?action=findMonster&Level=1')"><span class="endpoint">GET</span> findMonster</button>
-        <button class="action-btn" onclick="call('WORLDMAP?action=findRuins')"><span class="endpoint">GET</span> findRuins</button>
-        <button class="action-btn" onclick="call('WORLDMAP?action=getWatchTowerReports')"><span class="endpoint">GET</span> watchTowerReports</button>
-        <button class="action-btn" onclick="call('WORLDMAP?action=teleportInvite&UserID=588b9fddd382d6ba25c3c3d6')"><span class="endpoint">GET</span> teleportInvite</button>
-      </div>
-    </div>
-    <div class="module-group">
-      <h3 onclick="toggleModule(this)">🚶 MARCH TRACKING <span class="toggle">+</span></h3>
-      <div class="module-body open">
-        <button class="action-btn" onclick="showMarchInput('getMarch')"><span class="endpoint">GET</span> getMarch</button>
-        <button class="action-btn" onclick="showMarchInput('syncMarch')"><span class="endpoint">GET</span> syncMarch</button>
-        <button class="action-btn" onclick="showMarchInput('recall')"><span class="endpoint">GET</span> recall</button>
-        <button class="action-btn" onclick="showMarchInput('acceleration')"><span class="endpoint badge-blue">ITEM</span> acceleration</button>
-        <button class="action-btn" onclick="showMarchInput('goHome')"><span class="endpoint">GET</span> goHome</button>
-        <button class="action-btn" onclick="showMarchInput('deleteMarch')"><span class="endpoint badge-red" style="color:var(--red)">DEL</span> deleteMarch</button>
-        <button class="action-btn" onclick="pollMarchStatus()"><span class="endpoint badge-green">AUTO</span> 🔄 Auto-Poll Marches</button>
-        <button class="action-btn" onclick="call('MARCHREPORT?action=feed')"><span class="endpoint">GET</span> marchReport feed</button>
-        <button class="action-btn" onclick="call('MARCHREPORT?action=marchDayCount')"><span class="endpoint">GET</span> marchDayCount</button>
-        <button class="action-btn" onclick="call('MARCHREPORT?action=reinforcements')"><span class="endpoint">GET</span> reinforcements</button>
-      </div>
-    </div>
-    <div class="module-group">
-      <h3 onclick="toggleModule(this)">🎯 QUESTS <span class="toggle">+</span></h3>
-      <div class="module-body open">
-        <button class="action-btn" onclick="call('QUEST?action=rewards&idQuest=0')"><span class="endpoint">GET</span> rewards (by id)</button>
-        <button class="action-btn" onclick="call('QUEST?action=collectQ')"><span class="endpoint">GET</span> collectQ (all quests)</button>
-        <button class="action-btn" onclick="call('QUEST?action=rewardsD&idQuest=0')"><span class="endpoint">GET</span> rewardsD (daily by id)</button>
-        <button class="action-btn" onclick="call('QUEST?action=collectD')"><span class="endpoint">GET</span> collectD (all daily)</button>
-        <button class="action-btn" onclick="call('QUEST?action=feed')"><span class="endpoint">GET</span> quest feed</button>
-      </div>
-    </div>
-    <div class="module-group">
-      <h3 onclick="toggleModule(this)">⚔️ HERO <span class="toggle">+</span></h3>
-      <div class="module-body open">
-        <button class="action-btn" onclick="call('HERO?action=status')"><span class="endpoint">GET</span> status</button>
-        <button class="action-btn" onclick="call('HERO?action=levelUpH')"><span class="endpoint">GET</span> levelUpH</button>
-        <button class="action-btn" onclick="showHeroInput('changeHero')"><span class="endpoint">GET</span> changeHero</button>
-        <button class="action-btn" onclick="showHeroInput('equipItem')"><span class="endpoint">GET</span> equipItem</button>
-        <button class="action-btn" onclick="showHeroInput('unequipItem')"><span class="endpoint">GET</span> unequipItem</button>
-        <button class="action-btn" onclick="showHeroInput('forge')"><span class="endpoint">GET</span> forge (custom)</button>
-        <button class="action-btn" onclick="call('HERO?action=prisonFeed')"><span class="endpoint">GET</span> prisonFeed</button>
-        <button class="action-btn" onclick="call('HERO?action=pitFeed')"><span class="endpoint">GET</span> pitFeed</button>
-        <button class="action-btn" onclick="call('HERO?action=activateSkill')"><span class="endpoint">GET</span> activateSkill</button>
-        <button class="action-btn" onclick="showHeroInput('execute')"><span class="endpoint">GET</span> execute prisoner</button>
-        <button class="action-btn" onclick="showHeroInput('release')"><span class="endpoint">GET</span> release prisoner</button>
-        <button class="action-btn" onclick="call('HERO?action=resurrection')"><span class="endpoint">GET</span> resurrection</button>
-        <button class="action-btn" onclick="call('HERO?action=escape')"><span class="endpoint">GET</span> escape prisoner</button>
-        <button class="action-btn" onclick="showHeroInput('poison')"><span class="endpoint">GET</span> poison prisoner</button>
-      </div>
-    </div>
-    <div class="module-group">
-      <h3 onclick="toggleModule(this)">🏰 ALLIANCE <span class="toggle">+</span></h3>
-      <div class="module-body open">
-        <button class="action-btn" onclick="call('ALLIANCE?action=get')"><span class="endpoint">GET</span> get (my alliance)</button>
-        <button class="action-btn" onclick="showAllianceInput('create')"><span class="endpoint">GET</span> create</button>
-        <button class="action-btn" onclick="showAllianceInput('search')"><span class="endpoint">GET</span> search</button>
-        <button class="action-btn" onclick="showAllianceInput('join')"><span class="endpoint">GET</span> join</button>
-        <button class="action-btn" onclick="call('ALLIANCE?action=leave')"><span class="endpoint">GET</span> leave</button>
-        <button class="action-btn" onclick="call('ALLIANCE?action=getMembersDetails')"><span class="endpoint">GET</span> members</button>
-        <button class="action-btn" onclick="call('ALLIANCE?action=chatFeed')"><span class="endpoint">GET</span> chatFeed</button>
-        <button class="action-btn" onclick="showAllianceInput('chat')"><span class="endpoint">GET</span> chat (send)</button>
-        <button class="action-btn" onclick="showAllianceInput('askHelp')"><span class="endpoint">GET</span> askHelp</button>
-        <button class="action-btn" onclick="showAllianceInput('sendHelp')"><span class="endpoint">GET</span> sendHelp</button>
-        <button class="action-btn" onclick="showAllianceInput('requestShards')"><span class="endpoint">GET</span> requestShards</button>
-        <button class="action-btn" onclick="showAllianceInput('donateShards')"><span class="endpoint">GET</span> donateShards</button>
-        <button class="action-btn" onclick="showAllianceInput('changeSlogan')"><span class="endpoint">GET</span> changeSlogan</button>
-        <button class="action-btn" onclick="showAllianceInput('kick')"><span class="endpoint">GET</span> kick member</button>
-        <button class="action-btn" onclick="showAllianceInput('answerRequest')"><span class="endpoint">GET</span> answerRequest</button>
-        <button class="action-btn" onclick="showAllianceInput('changeRank')"><span class="endpoint">GET</span> changeRank</button>
-      </div>
-    </div>
-    <div class="module-group">
-      <h3 onclick="toggleModule(this)">💬 CHAT / MAIL <span class="toggle">+</span></h3>
-      <div class="module-body open">
-        <button class="action-btn" onclick="call('CHAT?action=feed')"><span class="endpoint">GET</span> chat feed</button>
-        <button class="action-btn" onclick="showChatInput('addPrivate')"><span class="endpoint">GET</span> private message</button>
-        <button class="action-btn" onclick="showChatInput('addGroup')"><span class="endpoint">GET</span> create group</button>
-        <button class="action-btn" onclick="call('KINGDOMCHAT?action=feed')"><span class="endpoint">GET</span> kingdom feed</button>
-        <button class="action-btn" onclick="showChatInput('kingdomMsg')"><span class="endpoint">GET</span> kingdom message</button>
-        <button class="action-btn" onclick="call('MAIL?action=feed')"><span class="endpoint">GET</span> mail feed</button>
-        <button class="action-btn" onclick="showMailInput('markRead')"><span class="endpoint">GET</span> mark read</button>
-        <button class="action-btn" onclick="showMailInput('collectRewards')"><span class="endpoint">GET</span> collect mail rewards</button>
-        <button class="action-btn" onclick="call('CHAT?action=markRead')"><span class="endpoint">GET</span> chat markRead</button>
-      </div>
-    </div>
-    <div class="module-group">
-      <h3 onclick="toggleModule(this)">🎰 GAMBLE <span class="toggle">+</span></h3>
-      <div class="module-body open">
-        <button class="action-btn" onclick="call('GAMBLE?action=spin')"><span class="endpoint">GET</span> spin</button>
-        <button class="action-btn" onclick="call('GAMBLE?action=flip&Slot=1')"><span class="endpoint">GET</span> flip</button>
-        <button class="action-btn" onclick="call('GAMBLE?action=giveUp')"><span class="endpoint">GET</span> giveUp</button>
-      </div>
-    </div>
-    <div class="module-group">
-      <h3 onclick="toggleModule(this)">👹 WARLORDS <span class="toggle">+</span></h3>
-      <div class="module-body open">
-        <button class="action-btn" onclick="call('WARLORDS?action=summon&Warlords=1001.5')"><span class="endpoint">GET</span> summon</button>
-        <button class="action-btn" onclick="showWarlordInput('levelupW')"><span class="endpoint">GET</span> levelupW</button>
-        <button class="action-btn" onclick="showWarlordInput('chest')"><span class="endpoint">GET</span> chest</button>
-        <button class="action-btn" onclick="call('WARLORDS?action=dungeon')"><span class="endpoint">GET</span> dungeon</button>
-      </div>
-    </div>
-    <div class="module-group">
-      <h3 onclick="toggleModule(this)">🛒 ITEMS <span class="toggle">+</span></h3>
-      <div class="module-body open">
-        <button class="action-btn" onclick="showItemInput('purchase')"><span class="endpoint">GET</span> purchase</button>
-        <button class="action-btn" onclick="showItemInput('use')"><span class="endpoint">GET</span> use</button>
-        <button class="action-btn" onclick="showItemInput('materialChest')"><span class="endpoint">GET</span> materialChest</button>
-        <button class="action-btn" onclick="showItemInput('incStamina')"><span class="endpoint">GET</span> incStamina</button>
-        <button class="action-btn" onclick="call('ITEMS?action=randomTeleport')"><span class="endpoint">GET</span> randomTeleport</button>
-        <button class="action-btn" onclick="showItemInput('advancedTeleport')"><span class="endpoint">GET</span> advancedTeleport</button>
-        <button class="action-btn" onclick="call('ITEMS?action=cityDefense')"><span class="endpoint">GET</span> cityDefense shield</button>
-        <button class="action-btn" onclick="call('ITEMS?action=timeItems')"><span class="endpoint">GET</span> timeItems</button>
-        <button class="action-btn" onclick="call('ITEMS?action=buyUse&idItem=1001&Quantity=1')"><span class="endpoint">GET</span> buyUse</button>
-      </div>
-    </div>
-    <div class="module-group">
-      <h3 onclick="toggleModule(this)">💎 VIP / IAP <span class="toggle">+</span></h3>
-      <div class="module-body open">
-        <button class="action-btn" onclick="showVipInput('activate')"><span class="endpoint">GET</span> activate</button>
-        <button class="action-btn" onclick="call('VIP?action=levelUpV')"><span class="endpoint">GET</span> levelUpV</button>
-        <button class="action-btn" onclick="showIapInput('IAPpurchase')"><span class="endpoint">GET</span> IAPpurchase</button>
-        <button class="action-btn" onclick="call('IAP?action=rewardsViewed')"><span class="endpoint">GET</span> rewardsViewed</button>
-      </div>
-    </div>
-    <div class="module-group">
-      <h3 onclick="toggleModule(this)">🌐 SOCIAL / RANKING <span class="toggle">+</span></h3>
-      <div class="module-body open">
-        <button class="action-btn" onclick="call('RANKING?action=feed')"><span class="endpoint">GET</span> ranking feed</button>
-        <button class="action-btn" onclick="call('SOCIAL?action=getUsersData')"><span class="endpoint">GET</span> social data</button>
-        <button class="action-btn" onclick="showSocialInput('sendRequest')"><span class="endpoint">GET</span> friend request</button>
-        <button class="action-btn" onclick="showSocialInput('unFriend')"><span class="endpoint">GET</span> unFriend</button>
-        <button class="action-btn" onclick="call('TUTORIAL?action=finish&Index=0')"><span class="endpoint">GET</span> tutorial finish</button>
-        <button class="action-btn" onclick="call('BOOKMARKS?action=add&Name=Test&Type=city&x=315&y=963')"><span class="endpoint">GET</span> add bookmark</button>
-        <button class="action-btn" onclick="call('AVATAR?action=incHappiness')"><span class="endpoint">GET</span> incHappiness</button>
-        <button class="action-btn" onclick="showSocialInput('changeAvatar')"><span class="endpoint">GET</span> changeAvatar</button>
-      </div>
-    </div>
-    <div class="module-group">
-      <h3 onclick="toggleModule(this)">🛠️ DEMO/ADMIN <span class="toggle">+</span></h3>
-      <div class="module-body open">
-        <h4 style="color:var(--gold-dark);font-size:11px;padding:2px 4px">👤 User Mgmt</h4>
-        <button class="action-btn" onclick="call('DEMO?action=backupUser')"><span class="endpoint badge-green">DEMO</span> backupUser</button>
-        <button class="action-btn" onclick="call('DEMO?action=snapshotUser&name=test')"><span class="endpoint badge-green">DEMO</span> snapshotUser</button>
-        <button class="action-btn" onclick="call('DEMO?action=restoreUser')"><span class="endpoint badge-green">DEMO</span> restoreUser</button>
-        <button class="action-btn" onclick="call('DEMO?action=resetUsr&x=315&y=963')"><span class="endpoint badge-green">DEMO</span> resetUsr</button>
-        <h4 style="color:var(--gold-dark);font-size:11px;padding:2px 4px">💰 Resources</h4>
-        <button class="action-btn" onclick="call('DEMO?action=putGold')"><span class="endpoint badge-gold">DEMO</span> putGold</button>
-        <button class="action-btn" onclick="call('DEMO?action=putAllItems')"><span class="endpoint badge-gold">DEMO</span> putAllItems</button>
-        <button class="action-btn" onclick="call('DEMO?action=putAllTroops')"><span class="endpoint badge-gold">DEMO</span> putAllTroops</button>
-        <button class="action-btn" onclick="call('DEMO?action=putAllWarlords')"><span class="endpoint badge-gold">DEMO</span> putAllWarlords</button>
-        <button class="action-btn" onclick="call('DEMO?action=addItem&idItem=1001&Quantity=10')"><span class="endpoint badge-gold">DEMO</span> addItem</button>
-        <h4 style="color:var(--gold-dark);font-size:11px;padding:2px 4px">🗺️ Map</h4>
-        <button class="action-btn" onclick="call('WORLDMAP?action=newMap')"><span class="endpoint badge-blue">MAP</span> newMap</button>
-        <button class="action-btn" onclick="call('DEMO?action=populateAlliance&idAlliance=test&Quantity=5')"><span class="endpoint badge-blue">MAP</span> populateAlliance</button>
-        <button class="action-btn" onclick="call('DEMO?action=populateMarches')"><span class="endpoint badge-blue">MAP</span> populateMarches</button>
-        <h4 style="color:var(--gold-dark);font-size:11px;padding:2px 4px">🐛 Debug</h4>
-        <button class="action-btn" onclick="showDebugInput('cutTimePrisoners')"><span class="endpoint badge-red">DBG</span> cutTimePrisoners</button>
-        <button class="action-btn" onclick="showDebugInput('resetDate')"><span class="endpoint badge-red">DBG</span> resetDate</button>
-        <button class="action-btn" onclick="call('DEMO?action=deleteCrons')"><span class="endpoint badge-red">DBG</span> deleteCrons</button>
-        <button class="action-btn" onclick="call('DEMO?action=activateShield')"><span class="endpoint badge-red">DBG</span> activateShield</button>
-        <button class="action-btn" onclick="call('DEMO?action=deactivateShield')"><span class="endpoint badge-red">DBG</span> deactivateShield</button>
-        <button class="action-btn" onclick="call('DEMO?action=activateBurn')"><span class="endpoint badge-red">DBG</span> activateBurn</button>
-        <button class="action-btn" onclick="call('DEMO?action=resetActiveSkillsCD')"><span class="endpoint badge-red">DBG</span> resetSkillsCD</button>
-        <button class="action-btn" onclick="call('DEMO?action=cleanMarches')"><span class="endpoint badge-red">DBG</span> cleanMarches</button>
-        <button class="action-btn" onclick="call('DEMO?action=halveValues&collectionName=TimeValues&arrayName=ConstructionTimes')"><span class="endpoint badge-red">DBG</span> halveValues</button>
-        <button class="action-btn" onclick="call('DEMO?action=modifyTimeValues&collectionName=TimeValues&value=0.1')"><span class="endpoint badge-red">DBG</span> modifyTimeValues *0.1</button>
-        <button class="action-btn" onclick="call('DEMO?action=getMarches')"><span class="endpoint badge-red">DBG</span> getMarches</button>
-        <button class="action-btn" onclick="call('DEMO?action=stopJobs')"><span class="endpoint badge-red">DBG</span> stopJobs</button>
-      </div>
-    </div>
+    <div class="form-card" id="flow-form" style="display:none"></div>
+    <div class="form-card" id="flow-cost" style="display:none"></div>
+    <div class="form-card" id="flow-result" style="display:none"></div>
   </div>
-  <div id="game">
-    <div class="card" id="dashboard">
-      <h3>🏰 Reino</h3>
-      <div id="dash-content" style="color:var(--text-dim);font-size:12px">Haz login para ver tu reino...</div>
+
+  <!-- RIGHT: DASHBOARD + RESPONSE -->
+  <div id="right">
+    <div id="dashboard-panel">
+      <h3>🏰 Dashboard</h3>
+      <div id="dash-content" style="color:var(--text-dim);font-size:11px">Inicia sesión para ver datos...</div>
+      <div id="dash-resources" style="margin-top:4px"></div>
     </div>
-    <div class="card">
-      <h3>📊 Recursos</h3>
-      <div class="resource-grid" id="resources"></div>
+    <div id="response-panel">
+      <h3>📋 Respuesta <span id="resp-time" style="font-size:10px;font-weight:normal"></span></h3>
+      <pre id="resp-body">Esperando acción...</pre>
     </div>
-    <div class="card">
-      <h3>⚔️ Tropas</h3>
-      <div class="troop-grid" id="troops"></div>
-    </div>
-    <div class="card">
-      <h3>🏗️ Edificios</h3>
-      <div id="buildings" style="font-size:11px;color:var(--text-dim)"></div>
-    </div>
-    <div class="card" id="cards-construct">
-      <h3>⏱️ Construcciones Activas <span id="construct-badge" class="badge badge-gold" style="display:none"></span></h3>
-      <div id="construct-list" style="font-size:11px;color:var(--text-dim)">Sin construcciones activas</div>
-    </div>
-    <div class="card" id="cards-marches">
-      <h3>🚶 Marchas Activas <span id="march-badge" class="badge badge-blue" style="display:none"></span></h3>
-      <div id="march-list" style="font-size:11px;color:var(--text-dim)">Sin marchas activas</div>
-    </div>
-    <div class="card" id="cards-quests">
-      <h3>🎯 Misiones</h3>
-      <div class="section-tabs">
-        <button class="active" onclick="switchQuestTab(this,'quest-norm')">Normales</button>
-        <button onclick="switchQuestTab(this,'quest-daily')">Diarias</button>
-        <button onclick="switchQuestTab(this,'quest-feed')">Feed</button>
-      </div>
-      <div id="quest-norm" class="section-tab-content active" style="font-size:11px"></div>
-      <div id="quest-daily" class="section-tab-content" style="font-size:11px"></div>
-      <div id="quest-feed" class="section-tab-content" style="font-size:11px"></div>
-    </div>
-    <div class="card" id="cards-hero">
-      <h3>⚔️ Héroe</h3>
-      <div id="hero-content" style="font-size:11px;color:var(--text-dim)">Usa HERO?action=status para ver</div>
-    </div>
-    <div class="card" id="cards-alliance">
-      <h3>🏰 Alianza</h3>
-      <div id="alliance-content" style="font-size:11px;color:var(--text-dim)">Usa ALLIANCE?action=get para ver</div>
-    </div>
-    <div class="card" id="cards-chatmail">
-      <h3>💬 Chat / Mail</h3>
-      <div class="section-tabs">
-        <button class="active" onclick="switchChatTab(this,'chat-private')">Chat</button>
-        <button onclick="switchChatTab(this,'chat-kingdom')">Kingdom</button>
-        <button onclick="switchChatTab(this,'mail-feed')">Mail</button>
-      </div>
-      <div id="chat-private" class="section-tab-content active" style="font-size:11px;max-height:200px;overflow-y:auto"></div>
-      <div id="chat-kingdom" class="section-tab-content" style="font-size:11px;max-height:200px;overflow-y:auto"></div>
-      <div id="mail-feed" class="section-tab-content" style="font-size:11px;max-height:200px;overflow-y:auto"></div>
-    </div>
-    <div class="card" id="cards-waritems">
-      <h3>👹 Warlords / 🛒 Items</h3>
-      <div id="waritems-content" style="font-size:11px;color:var(--text-dim)">Usa los botones del panel izquierdo</div>
-    </div>
-  </div>
-  <div id="response">
-    <h3>📋 Response <span id="resp-time" style="font-size:10px;font-weight:normal"></span></h3>
-    <pre id="resp-body">Selecciona una acción...</pre>
   </div>
 </div>
 <div id="stats-panel">
-  <h3>📈 API Calls (<span id="stats-count">0</span>) <span id="stats-avg" style="font-size:10px;font-weight:normal;color:var(--text-dim)"></span></h3>
+  <h3>📈 Llamadas API (<span id="stats-count">0</span>) <span id="stats-avg" style="font-size:10px;font-weight:normal;color:var(--text-dim)"></span></h3>
   <table class="stats-table">
-    <thead><tr><th>#</th><th>Hora</th><th>Endpoint</th><th>Status</th><th>ms</th><th>Size</th></tr></thead>
+    <thead><tr><th>#</th><th>Hora</th><th>Endpoint</th><th>Status</th><th>ms</th><th>Tamaño</th></tr></thead>
     <tbody id="stats-body"></tbody>
   </table>
 </div>
-<div id="status">⚡ Listo — <span id="status-text">sin sesión</span></div>
+<div id="status-bar">⚡ Listo</div>
 
 <script>
+// ===================== CONFIG =====================
 const PROXY = window.location.origin + '/api/';
-let userId = '', deviceId = '', callCount = 0, totalElapsed = 0, pollTimers = [], lastUserData = null;
+let userId = '', deviceId = '', callCount = 0, totalElapsed = 0;
+let lastUserData = null;
+let countdownTimers = [];
+let marchPollIntervals = {};
+let selectedCat = null;
 
+// ===================== ACTION DEFINITIONS =====================
+// Each action: {name, servlet, params: [{key, label, default, help}], costAction, splitParams}
+const ACTIONS = {
+  "Usuario": {
+    icon: "👤",
+    actions: [
+      {name:"login", servlet:"USER", params:[], desc:"Iniciar sesión con deviceId"},
+      {name:"reset", servlet:"USER", params:[], desc:"Reiniciar cuenta"},
+      {name:"dailyReward", servlet:"USER", params:[], desc:"Recompensa diaria"},
+      {name:"getDictionaries", servlet:"USER", params:[], desc:"Obtener diccionarios"},
+      {name:"getLanguage", servlet:"USER", params:[], desc:"Idioma actual"},
+      {name:"changeLanguage", servlet:"USER", params:[{key:"Language",label:"Idioma",default:"es",help:"es, en, etc."}], desc:"Cambiar idioma"},
+      {name:"getUser", servlet:"USER", params:[{key:"UserID",label:"UserID",default:"",help:"ID de usuario a consultar"}], desc:"Obtener datos de usuario"},
+      {name:"getUserName", servlet:"USER", params:[{key:"UserID",label:"UserID",default:"",help:"ID de usuario"}], desc:"Obtener nombre de usuario"},
+      {name:"getIn", servlet:"USER", params:[], desc:"Verificar si está dentro"},
+      {name:"loginJustUser", servlet:"USER", params:[], desc:"Login rápido solo usuario"},
+      {name:"pushBind", servlet:"USER", params:[{key:"idPush",label:"Push ID",default:"test_push",help:"ID de notificación push"}], desc:"Vincular push"},
+      {name:"toggleNotification", servlet:"USER", params:[{key:"Notification",label:"Notificaciones",default:"true",help:"true/false"}], desc:"Activar/desactivar notif."},
+      {name:"fbBind", servlet:"USER", params:[{key:"FBid",label:"Facebook ID",default:"test_fb",help:"ID de Facebook"},{key:"Email",label:"Email",default:"test@test.com",help:"Correo electrónico"}], desc:"Vincular Facebook"}
+    ]
+  },
+  "Edificios Construir": {
+    icon: "🏗️",
+    actions: [
+      {name:"construct", servlet:"BUILDINGS", params:[{key:"idBuilding",label:"idBuilding",default:"1001",help:"ID del edificio a construir"},{key:"Node",label:"Node",default:"1",help:"Slot de construcción (1-5)"}], costAction:"goldCostConstruct", desc:"Construir edificio"},
+      {name:"GOLDconstruct", servlet:"BUILDINGS", params:[{key:"idBuilding",label:"idBuilding",default:"1001"},{key:"Node",label:"Node",default:"1"}], costAction:"goldCostConstruct", desc:"Construir con oro"},
+      {name:"levelUpB", servlet:"BUILDINGS", params:[{key:"Node",label:"Node",default:"1",help:"Slot del edificio a mejorar"}], costAction:"goldCostBuild", desc:"Mejorar edificio"},
+      {name:"GOLDlevelUpB", servlet:"BUILDINGS", params:[{key:"Node",label:"Node",default:"1"}], costAction:"goldCostBuild", desc:"Mejorar con oro"},
+      {name:"demolish", servlet:"BUILDINGS", params:[{key:"Node",label:"Node",default:"1",help:"Slot a demoler"}], desc:"Demoler edificio"},
+      {name:"recruitBuilder", servlet:"BUILDINGS", params:[{key:"Node",label:"Node",default:"1",help:"Slot del constructor"}], desc:"Reclutar constructor"},
+      {name:"collect", servlet:"BUILDINGS", params:[{key:"Node",label:"Node",default:"1",help:"Slot a recolectar"}], desc:"Recolectar recursos"},
+      {name:"boost", servlet:"BUILDINGS", params:[{key:"idBuilding",label:"idBuilding",default:"1001",help:"ID del edificio a potenciar"}], desc:"Potenciar edificio"}
+    ]
+  },
+  "Edificios Entrenar": {
+    icon: "⚔️",
+    actions: [
+      {name:"train", servlet:"BUILDINGS", params:[{key:"idBuilding",label:"idBuilding",default:"2015",help:"ID del edificio de entrenamiento"},{key:"Level",label:"Level",default:"1",help:"Nivel de tropa"},{key:"Quantity",label:"Cantidad",default:"10",help:"Cantidad a entrenar"}], costAction:"goldCostTrain", desc:"Entrenar tropas"},
+      {name:"GOLDtrain", servlet:"BUILDINGS", params:[{key:"idBuilding",label:"idBuilding",default:"2015"},{key:"Level",label:"Level",default:"1"},{key:"Quantity",label:"Cantidad",default:"10"}], costAction:"goldCostTrain", desc:"Entrenar con oro"},
+      {name:"traps", servlet:"BUILDINGS", params:[{key:"TrapType",label:"Tipo Trampa",default:"Rocks",help:"Tipo: Rocks, Spikes, etc."},{key:"Level",label:"Level",default:"1"},{key:"Quantity",label:"Cantidad",default:"5"}], costAction:"goldCostTraps", desc:"Fabricar trampas"},
+      {name:"GOLDtraps", servlet:"BUILDINGS", params:[{key:"TrapType",label:"Tipo Trampa",default:"Rocks"},{key:"Level",label:"Level",default:"1"},{key:"Quantity",label:"Cantidad",default:"5"}], costAction:"goldCostTraps", desc:"Fabricar trampas con oro"}
+    ]
+  },
+  "Edificios Curar": {
+    icon: "💚",
+    actions: [
+      {name:"heal", servlet:"BUILDINGS", params:[{key:"Troops",label:"Tropas",default:"Infantry.1.10",help:"Formato: Tipo.Nivel.Cantidad/-/Tipo.Nivel.Cantidad (ej. Infantry.1.10/-/Archer.2.5)"}], costAction:"goldCostHeal", desc:"Curar tropas heridas"},
+      {name:"GOLDheal", servlet:"BUILDINGS", params:[{key:"Troops",label:"Tropas",default:"Infantry.1.10",help:"Formato: Tipo.Nivel.Cantidad/-/Tipo.Nivel.Cantidad"}], costAction:"goldCostHeal", desc:"Curar con oro"}
+    ]
+  },
+  "Edificios Forjar": {
+    icon: "🔨",
+    actions: [
+      {name:"forge", servlet:"BUILDINGS", params:[{key:"idHeroItem",label:"idHeroItem",default:"1001",help:"ID del item de héroe"},{key:"Materials",label:"Materiales",default:"Item.1001.1",help:"Formato: Item.id.Tier/-/Item.id.Tier"}], desc:"Forjar equipo"},
+      {name:"iForge", servlet:"BUILDINGS", params:[{key:"idHeroItem",label:"idHeroItem",default:"1001"},{key:"Materials",label:"Materiales",default:"Item.1001.1"}], desc:"Forjar equipo (inmediato)"},
+      {name:"synthesizeMaterials", servlet:"BUILDINGS", params:[{key:"Material",label:"Material",default:"Item.1001",help:"ID del material"},{key:"Tier",label:"Tier",default:"1"}], desc:"Sintetizar materiales"},
+      {name:"synthesizeGear", servlet:"BUILDINGS", params:[{key:"Items",label:"Items",default:"1001.1",help:"Formato: id.Tier/-/id.Tier"},{key:"Tier",label:"Tier",default:"1"}], desc:"Sintetizar equipo"},
+      {name:"disassemble", servlet:"BUILDINGS", params:[{key:"idItem",label:"idItem",default:"1001"},{key:"Tier",label:"Tier",default:"1"}], desc:"Desensamblar equipo"}
+    ]
+  },
+  "Edificios Investigar": {
+    icon: "📜",
+    actions: [
+      {name:"research", servlet:"BUILDINGS", params:[{key:"idResearch",label:"idResearch",default:"1",help:"ID de la investigación"}], costAction:"goldCostResearch", desc:"Investigar tecnología"},
+      {name:"GOLDresearch", servlet:"BUILDINGS", params:[{key:"idResearch",label:"idResearch",default:"1"}], costAction:"goldCostResearch", desc:"Investigar con oro"},
+      {name:"skills", servlet:"BUILDINGS", params:[{key:"idSkill",label:"idSkill",default:"1",help:"ID de habilidad"}], desc:"Activar habilidad de edificio"},
+      {name:"wish", servlet:"BUILDINGS", params:[], desc:"Pedir deseo"},
+      {name:"extinguishFire", servlet:"BUILDINGS", params:[], desc:"Apagar incendio"},
+      {name:"incCityDefense", servlet:"BUILDINGS", params:[], desc:"Aumentar defensa ciudad"}
+    ]
+  },
+  "Construcción Timer": {
+    icon: "⏱️",
+    actions: [
+      {name:"remainingTime", servlet:"CONSTRUCT", params:[{key:"idConstruct",label:"idConstruct",default:"all",help:"ID de construcción o 'all'"}], desc:"Ver tiempo restante"},
+      {name:"speedUp", servlet:"CONSTRUCT", params:[{key:"idConstruct",label:"idConstruct",default:"",help:"ID de construcción"},{key:"idItem",label:"idItem",default:"1001"},{key:"Quantity",label:"Cant.",default:"1"}], desc:"Acelerar con item"},
+      {name:"speedUpGold", servlet:"CONSTRUCT", params:[{key:"idConstruct",label:"idConstruct",default:"",help:"ID de construcción"}], desc:"Acelerar con oro"},
+      {name:"speedUpItems", servlet:"CONSTRUCT", params:[{key:"idConstruct",label:"idConstruct",default:""},{key:"Items",label:"Items",default:"1001.1",help:"Formato: id.Cant/-/id.Cant"}], desc:"Acelerar varios items"}
+    ]
+  },
+  "Ataque": {
+    icon: "⚔️",
+    actions: [
+      {name:"attack", servlet:"WORLDMAP", params:[{key:"x",label:"X",default:"315"},{key:"y",label:"Y",default:"963"},{key:"UserID",label:"UserID Objetivo",default:"",help:"ID del usuario a atacar"},{key:"Troops",label:"Tropas",default:"Archer.4.80/-/Infantry.4.100",help:"Formato: Tipo.Nivel.Cant/-/Tipo.Nivel.Cant"},{key:"Warlords",label:"Señores (opc.)",default:"",help:"Formato: idDemon.Cant/-/idDemon.Cant"}], desc:"Atacar jugador"},
+      {name:"monster", servlet:"WORLDMAP", params:[{key:"x",label:"X",default:"243"},{key:"y",label:"Y",default:"113"},{key:"Troops",label:"Tropas",default:"Archer.1.5/-/Infantry.1.5"},{key:"Warlords",label:"Señores (opc.)",default:""}], desc:"Atacar monstruo"},
+      {name:"ruins", servlet:"WORLDMAP", params:[{key:"x",label:"X",default:"99"},{key:"y",label:"Y",default:"383"},{key:"Mode",label:"Modo",default:"Easy",help:"Easy, Normal, Hard"},{key:"Troops",label:"Tropas",default:"Archer.1.5/-/Infantry.1.5"},{key:"Warlords",label:"Señores (opc.)",default:""}], desc:"Explorar ruinas"},
+      {name:"gatherAttack", servlet:"WORLDMAP", params:[{key:"x",label:"X",default:"402"},{key:"y",label:"Y",default:"348"},{key:"Troops",label:"Tropas",default:"Archer.1.5/-/Infantry.1.5"},{key:"Warlords",label:"Señores (opc.)",default:""}], desc:"Atacar recolector"},
+      {name:"campingAttack", servlet:"WORLDMAP", params:[{key:"x",label:"X",default:"313"},{key:"y",label:"Y",default:"962"},{key:"Troops",label:"Tropas",default:"Archer.1.5/-/Infantry.1.5"},{key:"Warlords",label:"Señores (opc.)",default:""}], desc:"Atacar acampado"}
+    ]
+  },
+  "Recolectar/Acuartelar": {
+    icon: "🌾",
+    actions: [
+      {name:"gather", servlet:"WORLDMAP", params:[{key:"x",label:"X",default:"402"},{key:"y",label:"Y",default:"348"},{key:"Troops",label:"Tropas",default:"Archer.1.5/-/Infantry.1.5",help:"Formato: Tipo.Nivel.Cant/-/Tipo.Nivel.Cant"}], desc:"Recolectar recursos"},
+      {name:"camping", servlet:"WORLDMAP", params:[{key:"x",label:"X",default:"313"},{key:"y",label:"Y",default:"962"},{key:"Troops",label:"Tropas",default:"Archer.1.5/-/Infantry.1.5"},{key:"Warlords",label:"Señores (opc.)",default:""}], desc:"Acampar"},
+      {name:"scout", servlet:"WORLDMAP", params:[{key:"x",label:"X",default:"315"},{key:"y",label:"Y",default:"963"},{key:"UserID",label:"UserID",default:"",help:"ID del usuario a espiar"}], desc:"Espiar jugador"},
+      {name:"gatherScout", servlet:"WORLDMAP", params:[{key:"x",label:"X",default:"402"},{key:"y",label:"Y",default:"348"}], desc:"Espiar recurso"},
+      {name:"campingScout", servlet:"WORLDMAP", params:[{key:"x",label:"X",default:"313"},{key:"y",label:"Y",default:"962"}], desc:"Espiar acampado"}
+    ]
+  },
+  "Mapa Envíos": {
+    icon: "📦",
+    actions: [
+      {name:"sendResources", servlet:"WORLDMAP", params:[{key:"x",label:"X",default:"315"},{key:"y",label:"Y",default:"963"},{key:"UserID",label:"UserID",default:"",help:"ID destinatario"},{key:"Resources",label:"Recursos",default:"Food.100/-/Wood.100",help:"Formato: Recurso.Cant/-/Recurso.Cant"}], desc:"Enviar recursos"},
+      {name:"sendReinforcements", servlet:"WORLDMAP", params:[{key:"x",label:"X",default:"315"},{key:"y",label:"Y",default:"963"},{key:"UserID",label:"UserID",default:""},{key:"Troops",label:"Tropas",default:"Infantry.1.5/-/Archer.1.5"},{key:"Warlords",label:"Señores (opc.)",default:""}], desc:"Enviar refuerzos"},
+      {name:"getQuadrant", servlet:"WORLDMAP", params:[{key:"idKingdom",label:"Reino",default:"1"},{key:"x",label:"X",default:"300"},{key:"y",label:"Y",default:"300"}], desc:"Ver cuadrante del mapa"}
+    ]
+  },
+  "Marchas": {
+    icon: "🚶",
+    actions: [
+      {name:"getMarch", servlet:"WORLDMAP", params:[{key:"idMarch",label:"idMarch",default:"",help:"ID de la marcha"}], desc:"Ver marcha"},
+      {name:"syncMarch", servlet:"WORLDMAP", params:[{key:"idMarch",label:"idMarch",default:""}], desc:"Sincronizar marcha"},
+      {name:"recall", servlet:"WORLDMAP", params:[{key:"idMarch",label:"idMarch",default:""}], desc:"Retirar marcha"},
+      {name:"goHome", servlet:"WORLDMAP", params:[{key:"idMarch",label:"idMarch",default:""}], desc:"Volver a casa"},
+      {name:"acceleration", servlet:"WORLDMAP", params:[{key:"idMarch",label:"idMarch",default:""},{key:"idItem",label:"idItem",default:"1001"}], desc:"Acelerar marcha (item)"},
+      {name:"deleteMarch", servlet:"WORLDMAP", params:[{key:"idMarch",label:"idMarch",default:""}], desc:"Eliminar marcha"}
+    ]
+  },
+  "Alianza": {
+    icon: "🏰",
+    actions: [
+      {name:"get", servlet:"ALLIANCE", params:[], desc:"Ver mi alianza"},
+      {name:"create", servlet:"ALLIANCE", params:[{key:"Name",label:"Nombre",default:"MiAlianza",help:"Nombre de la alianza"},{key:"Slogan",label:"Lema",default:"Test Slogan"}], desc:"Crear alianza"},
+      {name:"join", servlet:"ALLIANCE", params:[{key:"idAlliance",label:"idAlliance",default:"",help:"ID de la alianza"}], desc:"Unirse a alianza"},
+      {name:"leave", servlet:"ALLIANCE", params:[], desc:"Abandonar alianza"},
+      {name:"search", servlet:"ALLIANCE", params:[{key:"Search",label:"Búsqueda",default:"Test",help:"Término de búsqueda"}], desc:"Buscar alianzas"},
+      {name:"chat", servlet:"ALLIANCE", params:[{key:"Message",label:"Mensaje",default:"Hola desde el cliente!",help:"Mensaje de chat"}], desc:"Enviar mensaje"},
+      {name:"changeSlogan", servlet:"ALLIANCE", params:[{key:"Slogan",label:"Nuevo lema",default:"Nuevo Lema"}], desc:"Cambiar lema"},
+      {name:"changeName", servlet:"ALLIANCE", params:[{key:"Name",label:"Nuevo nombre",default:"AlianzaRenovada"}], desc:"Cambiar nombre"},
+      {name:"changeNickname", servlet:"ALLIANCE", params:[{key:"Nickname",label:"Apodo",default:"MiApodo"}], desc:"Cambiar apodo"},
+      {name:"changeLanguage", servlet:"ALLIANCE", params:[{key:"Language",label:"Idioma",default:"es"}], desc:"Cambiar idioma alianza"},
+      {name:"changeBanner", servlet:"ALLIANCE", params:[{key:"Banner",label:"Banner",default:"1"},{key:"Stamp",label:"Sello",default:"1"}], desc:"Cambiar estandarte"},
+      {name:"changeRecruitment", servlet:"ALLIANCE", params:[{key:"Restriction",label:"Restricción",default:"Open",help:"Open, Request, Invite"},{key:"Level",label:"Nivel req.",default:"1"},{key:"Power",label:"Poder req.",default:"0"}], desc:"Reclutamiento"},
+      {name:"kick", servlet:"ALLIANCE", params:[{key:"UserID",label:"UserID",default:"",help:"Usuario a expulsar"}], desc:"Expulsar miembro"},
+      {name:"answerRequest", servlet:"ALLIANCE", params:[{key:"UserID",label:"UserID",default:""},{key:"Answer",label:"Respuesta",default:"true",help:"true/false"}], desc:"Responder solicitud"},
+      {name:"changeRank", servlet:"ALLIANCE", params:[{key:"UserID",label:"UserID",default:""},{key:"Rank",label:"Rango",default:"1",help:"1-5"}], desc:"Cambiar rango"},
+      {name:"requestShards", servlet:"ALLIANCE", params:[{key:"idWarlord",label:"idWarlord",default:"1001"}], desc:"Pedir fragmentos"},
+      {name:"donateShards", servlet:"ALLIANCE", params:[{key:"UserID",label:"UserID",default:""}], desc:"Donar fragmentos"},
+      {name:"askHelp", servlet:"ALLIANCE", params:[{key:"idConstruct",label:"idConstruct",default:"0"}], desc:"Pedir ayuda construcción"},
+      {name:"sendHelp", servlet:"ALLIANCE", params:[{key:"UserID",label:"UserID",default:""},{key:"idConstruct",label:"idConstruct",default:"0"}], desc:"Enviar ayuda"},
+      {name:"getMembersDetails", servlet:"ALLIANCE", params:[], desc:"Detalles miembros"}
+    ]
+  },
+  "Héroe": {
+    icon: "⚔️",
+    actions: [
+      {name:"status", servlet:"HERO", params:[], desc:"Estado del héroe"},
+      {name:"levelUpH", servlet:"HERO", params:[], desc:"Subir nivel"},
+      {name:"changeHero", servlet:"HERO", params:[{key:"idHero",label:"idHero",default:"1",help:"ID del héroe"},{key:"Item",label:"Usar item",default:"false",help:"true/false"}], desc:"Cambiar héroe"},
+      {name:"changeName", servlet:"HERO", params:[{key:"Name",label:"Nombre",default:"MiHéroe"},{key:"Item",label:"Usar item",default:"false"}], desc:"Cambiar nombre"},
+      {name:"equipItem", servlet:"HERO", params:[{key:"idItem",label:"idItem",default:"1001"},{key:"Tier",label:"Tier",default:"1"}], desc:"Equipar item"},
+      {name:"unequipItem", servlet:"HERO", params:[{key:"idItem",label:"idItem",default:"1001"},{key:"Tier",label:"Tier",default:"1"}], desc:"Desequipar item"},
+      {name:"activateSkill", servlet:"HERO", params:[], desc:"Activar habilidad"},
+      {name:"prisonFeed", servlet:"HERO", params:[], desc:"Ver prisión"},
+      {name:"pitFeed", servlet:"HERO", params:[], desc:"Ver fosa"},
+      {name:"execute", servlet:"HERO", params:[{key:"idPrisoner",label:"idPrisionero",default:"",help:"ID del prisionero"}], desc:"Ejecutar prisionero"},
+      {name:"release", servlet:"HERO", params:[{key:"idPrisoner",label:"idPrisionero",default:""}], desc:"Liberar prisionero"},
+      {name:"escape", servlet:"HERO", params:[{key:"idPrisoner",label:"idPrisionero",default:""}], desc:"Fuga de prisionero"},
+      {name:"resurrection", servlet:"HERO", params:[{key:"idPrisoner",label:"idPrisionero",default:""},{key:"Gold",label:"Usar oro",default:"false"}], desc:"Resucitar prisionero"},
+      {name:"poison", servlet:"HERO", params:[{key:"idPrisoner",label:"idPrisionero",default:""},{key:"idItem",label:"idItem",default:"1001"},{key:"Gold",label:"Usar oro",default:"false"}], desc:"Envenenar prisionero"},
+      {name:"instantExecution", servlet:"HERO", params:[{key:"idPrisoner",label:"idPrisionero",default:""},{key:"Gold",label:"Usar oro",default:"false"}], desc:"Ejecución instantánea"}
+    ]
+  },
+  "Apuesta": {
+    icon: "🎰",
+    actions: [
+      {name:"spin", servlet:"GAMBLE", params:[{key:"Side",label:"Lado",default:"Light",help:"Light o Dark"}], desc:"Girar ruleta"},
+      {name:"flip", servlet:"GAMBLE", params:[{key:"Slot",label:"Slot",default:"1",help:"Slot (1-5)"}], desc:"Voltear carta"},
+      {name:"giveUp", servlet:"GAMBLE", params:[], desc:"Rendirse"}
+    ]
+  },
+  "Señores de la Guerra": {
+    icon: "👹",
+    actions: [
+      {name:"summon", servlet:"WARLORDS", params:[{key:"Warlords",label:"Señores",default:"1001.5",help:"Formato: idDemon.Cant/-/idDemon.Cant (ej. 1001.20/-/2001.60)"}], desc:"Invocar señores"},
+      {name:"levelupW", servlet:"WARLORDS", params:[{key:"idWarlord",label:"idWarlord",default:"1001"}], desc:"Subir nivel"},
+      {name:"chest", servlet:"WARLORDS", params:[{key:"idItem",label:"idItem",default:"1001"},{key:"Quantity",label:"Cant.",default:"1"}], desc:"Cofre de señores"},
+      {name:"dungeon", servlet:"WARLORDS", params:[{key:"Gold",label:"Usar oro",default:"false",help:"true/false"}], desc:"Mazmorra"}
+    ]
+  },
+  "Objetos": {
+    icon: "🛒",
+    actions: [
+      {name:"purchase", servlet:"ITEMS", params:[{key:"idItem",label:"idItem",default:"1001"},{key:"Quantity",label:"Cant.",default:"1"}], desc:"Comprar objeto"},
+      {name:"use", servlet:"ITEMS", params:[{key:"idItem",label:"idItem",default:"1001"},{key:"Quantity",label:"Cant.",default:"1"}], desc:"Usar objeto"},
+      {name:"materialChest", servlet:"ITEMS", params:[{key:"idItem",label:"idItem",default:"1001"},{key:"Quantity",label:"Cant.",default:"1"}], desc:"Cofre de materiales"},
+      {name:"incStamina", servlet:"ITEMS", params:[{key:"idItem",label:"idItem",default:"1001"},{key:"Quantity",label:"Cant.",default:"1"}], desc:"Aumentar resistencia"},
+      {name:"buyUse", servlet:"ITEMS", params:[{key:"idItem",label:"idItem",default:"1001"},{key:"Quantity",label:"Cant.",default:"1"}], desc:"Comprar y usar"},
+      {name:"cityDefense", servlet:"ITEMS", params:[{key:"idItem",label:"idItem",default:"1001"},{key:"Quantity",label:"Cant.",default:"1"}], desc:"Escudo defensa"},
+      {name:"randomTeleport", servlet:"ITEMS", params:[], desc:"Teletransporte aleatorio"},
+      {name:"advancedTeleport", servlet:"ITEMS", params:[{key:"x",label:"X",default:"400"},{key:"y",label:"Y",default:"500"}], desc:"Teletransporte avanzado"},
+      {name:"timeItems", servlet:"ITEMS", params:[], desc:"Items de tiempo"}
+    ]
+  },
+  "VIP": {
+    icon: "💎",
+    actions: [
+      {name:"levelUpV", servlet:"VIP", params:[], desc:"Subir nivel VIP"},
+      {name:"activate", servlet:"VIP", params:[{key:"idItem",label:"idItem",default:"1001"}], desc:"Activar VIP"}
+    ]
+  },
+  "Misiones": {
+    icon: "🎯",
+    actions: [
+      {name:"feed", servlet:"QUEST", params:[], desc:"Ver misiones"},
+      {name:"rewards", servlet:"QUEST", params:[{key:"idQuest",label:"idQuest",default:"0",help:"ID de la misión"}], desc:"Cobrar recompensa"},
+      {name:"collectQ", servlet:"QUEST", params:[], desc:"Cobrar todas las misiones"},
+      {name:"rewardsD", servlet:"QUEST", params:[{key:"idQuest",label:"idQuest",default:"0"}], desc:"Cobrar diaria"},
+      {name:"collectD", servlet:"QUEST", params:[], desc:"Cobrar todas las diarias"}
+    ]
+  },
+  "Chat/Correo": {
+    icon: "💬",
+    actions: [
+      {name:"feed", servlet:"CHAT", params:[], desc:"Feed de chats"},
+      {name:"addPrivate", servlet:"CHAT", params:[{key:"UserID",label:"UserID",default:""},{key:"Message",label:"Mensaje",default:"Hola!"}], desc:"Mensaje privado"},
+      {name:"addGroup", servlet:"CHAT", params:[{key:"Name",label:"Nombre grupo",default:"GrupoTest"},{key:"UserIDs",label:"UserIDs (coma)",default:"",help:"IDs separados por coma"}], desc:"Crear grupo"},
+      {name:"kingdomFeed", servlet:"KINGDOMCHAT", params:[{key:"action",label:"",value:"feed"}], desc:"Chat del reino"},
+      {name:"kingdomMessage", servlet:"KINGDOMCHAT", params:[{key:"Message",label:"Mensaje",default:"Hola reino!"}], desc:"Mensaje al reino"},
+      {name:"mailFeed", servlet:"MAIL", params:[], desc:"Buzón"},
+      {name:"mailMarkRead", servlet:"MAIL", params:[{key:"id",label:"ID Mail",default:"",help:"ID del correo"}], desc:"Marcar como leído"},
+      {name:"mailCollect", servlet:"MAIL", params:[{key:"idMail",label:"ID Mail",default:""}], desc:"Cobrar recompensas"}
+    ]
+  },
+  "Admin/Demo": {
+    icon: "🛠️",
+    actions: [
+      {name:"backupUser", servlet:"DEMO", params:[], desc:"Respaldar usuario"},
+      {name:"snapshotUser", servlet:"DEMO", params:[{key:"name",label:"Nombre",default:"test_snapshot"}], desc:"Snapshot usuario"},
+      {name:"restoreUser", servlet:"DEMO", params:[], desc:"Restaurar usuario"},
+      {name:"resetUsr", servlet:"DEMO", params:[{key:"x",label:"X",default:"315"},{key:"y",label:"Y",default:"963"}], desc:"Resetear posición"},
+      {name:"putGold", servlet:"DEMO", params:[], desc:"Poner oro (cheat)"},
+      {name:"putAllItems", servlet:"DEMO", params:[], desc:"Todos los items"},
+      {name:"putAllTroops", servlet:"DEMO", params:[], desc:"Todas las tropas"},
+      {name:"putAllWarlords", servlet:"DEMO", params:[], desc:"Todos los señores"},
+      {name:"addItem", servlet:"DEMO", params:[{key:"idItem",label:"idItem",default:"1001"},{key:"Quantity",label:"Cant.",default:"10"}], desc:"Añadir item"},
+      {name:"newMap", servlet:"WORLDMAP", params:[], desc:"Nuevo mapa"},
+      {name:"populateAlliance", servlet:"DEMO", params:[{key:"idAlliance",label:"idAlliance",default:"test"},{key:"Quantity",label:"Cant.",default:"5"}], desc:"Poblar alianza"},
+      {name:"populateMarches", servlet:"DEMO", params:[], desc:"Poblar marchas"},
+      {name:"activateShield", servlet:"DEMO", params:[], desc:"Activar escudo"},
+      {name:"deactivateShield", servlet:"DEMO", params:[], desc:"Desactivar escudo"},
+      {name:"activateBurn", servlet:"DEMO", params:[], desc:"Activar quema"},
+      {name:"resetActiveSkillsCD", servlet:"DEMO", params:[], desc:"Reset CD habilidades"},
+      {name:"cleanMarches", servlet:"DEMO", params:[], desc:"Limpiar marchas"},
+      {name:"deleteCrons", servlet:"DEMO", params:[], desc:"Eliminar crons"},
+      {name:"cutTimePrisoners", servlet:"DEMO", params:[{key:"ForcedTime",label:"Tiempo forzado (s)",default:"60"}], desc:"Cortar tiempo prisión"},
+      {name:"resetDate", servlet:"DEMO", params:[{key:"Name",label:"Nombre",default:"Daily"}], desc:"Resetear fecha"},
+      {name:"getMarches", servlet:"DEMO", params:[], desc:"Ver marchas (debug)"},
+      {name:"stopJobs", servlet:"DEMO", params:[], desc:"Detener jobs"},
+      {name:"halveValues", servlet:"DEMO", params:[{key:"collectionName",label:"Colección",default:"TimeValues"},{key:"arrayName",label:"Array",default:"ConstructionTimes"}], desc:"Halve valores"},
+      {name:"modifyTimeValues", servlet:"DEMO", params:[{key:"collectionName",label:"Colección",default:"TimeValues"},{key:"value",label:"Multiplicador",default:"0.1"}], desc:"Modificar tiempos *0.1"}
+    ]
+  }
+};
+
+// Determine which actions should show cost preview first
+const COST_ACTIONS = {
+  "goldCostConstruct": ["construct", "GOLDconstruct"],
+  "goldCostBuild": ["levelUpB", "GOLDlevelUpB"],
+  "goldCostTrain": ["train", "GOLDtrain"],
+  "goldCostTraps": ["traps", "GOLDtraps"],
+  "goldCostHeal": ["heal", "GOLDheal"],
+  "goldCostResearch": ["research", "GOLDresearch"]
+};
+function hasCostPreview(action) {
+  return action.costAction && action.costAction.length > 0;
+}
+
+// ===================== INIT =====================
 function loadState() {
   deviceId = localStorage.getItem('cotw_deviceId') || document.getElementById('deviceId').value;
   document.getElementById('deviceId').value = deviceId;
   userId = localStorage.getItem('cotw_userId') || '';
 }
+function saveState() {
+  localStorage.setItem('cotw_deviceId', deviceId);
+  if (userId) localStorage.setItem('cotw_userId', userId);
+}
+loadState();
 
-function toggleModule(el) {
+// ===================== RENDER CATEGORIES =====================
+function renderCategories() {
+  const container = document.getElementById('categories');
+  const catKeys = Object.keys(ACTIONS);
+  // Expand first category by default
+  let html = '';
+  catKeys.forEach((catName, i) => {
+    const cat = ACTIONS[catName];
+    const defOpen = i === 0 ? 'open' : '';
+    html += `<div class="cat-group">
+      <div class="cat-header" onclick="toggleCat(this)">
+        ${cat.icon || '📋'} ${catName} <span class="toggle">${defOpen ? '−' : '+'}</span>
+      </div>
+      <div class="cat-body ${defOpen}">
+        ${cat.actions.map(a => `
+          <button class="action-btn" onclick="selectAction('${catName}','${a.name}')" data-cat="${catName}" data-action="${a.name}">
+            ${a.name} <span class="endpoint">${a.desc || ''}</span>
+          </button>
+        `).join('')}
+      </div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+function toggleCat(el) {
   const body = el.nextElementSibling;
   body.classList.toggle('open');
   el.querySelector('.toggle').textContent = body.classList.contains('open') ? '−' : '+';
 }
 
-function switchQuestTab(btn, id) {
-  document.querySelectorAll('#cards-quests .section-tabs button').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('#cards-quests .section-tab-content').forEach(c => c.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById(id).classList.add('active');
-}
+// ===================== SELECT ACTION → SHOW FORM =====================
+let currentAction = null;
+let currentCat = null;
 
-function switchChatTab(btn, id) {
-  document.querySelectorAll('#cards-chatmail .section-tabs button').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('#cards-chatmail .section-tab-content').forEach(c => c.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById(id).classList.add('active');
-}
+function selectAction(catName, actionName) {
+  currentCat = catName;
+  currentAction = actionName;
+  // Highlight selected
+  document.querySelectorAll('.action-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll(`.action-btn[data-action="${actionName}"]`).forEach(b => b.classList.add('selected'));
 
-async function doLogin() {
-  deviceId = document.getElementById('deviceId').value;
-  localStorage.setItem('cotw_deviceId', deviceId);
-  const r = await call('USER?action=login');
-  if (r && r.User) {
-    userId = r.User._id?.$oid || r.User._id || '';
-    localStorage.setItem('cotw_userId', userId);
-    renderDashboard(r);
-    document.getElementById('status-text').innerHTML = `<span class="ok">✅ Conectado: ${r.User.Player?.UserName || '?'} | idUser: ${userId}</span>`;
-    document.getElementById('conn-status').style.color = 'var(--green)';
-    document.getElementById('conn-status').textContent = '🟢';
-    // Auto-load modules
-    autoLoadModules();
+  const cat = ACTIONS[catName];
+  const action = cat.actions.find(a => a.name === actionName);
+  if (!action) return;
+
+  // Hide welcome, show form
+  document.getElementById('flow-welcome').style.display = 'none';
+  document.getElementById('flow-cost').style.display = 'none';
+  document.getElementById('flow-result').style.display = 'none';
+  const formCard = document.getElementById('flow-form');
+  formCard.style.display = 'block';
+
+  // Build param form
+  let paramsHtml = `<h3>${cat.icon || ''} ${action.name}</h3>
+    <p style="color:var(--text-dim);font-size:11px;margin-bottom:8px">Servlet: ${action.servlet} — ${action.desc || ''}</p>`;
+
+  // Always add idUser and deviceId (prefilled, hidden if empty)
+  paramsHtml += `<div class="form-row">
+    <label>deviceId</label>
+    <input type="text" id="f-deviceId" value="${deviceId}" class="prefilled" readonly>
+  </div>`;
+  if (action.servlet !== 'ALLIANCE' || action.name === 'create' || action.name === 'join' || action.name === 'search' || action.name === 'changeSlogan' || action.name === 'changeName' || action.name === 'changeNickname' || action.name === 'changeLanguage' || action.name === 'changeBanner' || action.name === 'changeRecruitment' || action.name === 'kick' || action.name === 'answerRequest' || action.name === 'changeRank' || action.name === 'requestShards' || action.name === 'donateShards' || action.name === 'askHelp' || action.name === 'sendHelp' || action.name === 'chat') {
+    // Some ALLIANCE actions need idUser
+    if (action.name !== 'search' && action.name !== 'get') {
+      paramsHtml += `<div class="form-row">
+        <label>idUser</label>
+        <input type="text" id="f-idUser" value="${userId}" class="prefilled" readonly>
+      </div>`;
+    }
+  } else if (action.servlet !== 'ALLIANCE') {
+    paramsHtml += `<div class="form-row">
+      <label>idUser</label>
+      <input type="text" id="f-idUser" value="${userId}" class="prefilled" readonly>
+    </div>`;
   }
+
+  // Action-specific params, skipping "action" meta-params
+  action.params.filter(p => p.key !== 'action').forEach(p => {
+    const val = p.value || p.default || '';
+    paramsHtml += `<div class="form-row">
+      <label>${p.label}</label>
+      <input type="text" id="f-${p.key}" value="${val}" placeholder="${p.help || ''}">
+    </div>`;
+    if (p.help) {
+      paramsHtml += `<div class="form-row"><span class="help-text">💡 ${p.help}</span></div>`;
+    }
+  });
+
+  // Show cost preview button for cost actions
+  const hasCost = hasCostPreview(action);
+  paramsHtml += `<div class="form-actions">`;
+  if (hasCost) {
+    paramsHtml += `<button class="btn btn-blue" onclick="previewCost()">💰 Previsualizar Costo</button>`;
+  }
+  paramsHtml += `<button class="btn btn-green" onclick="executeAction()">▶️ Ejecutar</button>
+    <button class="btn btn-dim" onclick="cancelAction()">✖️ Cancelar</button>
+  </div>`;
+
+  formCard.innerHTML = paramsHtml;
 }
 
-function autoLoadModules() {
-  pollConstructTimers();
-  pollMarchStatus();
-  loadQuests();
-  loadHeroStatus();
-  loadAlliance();
-  loadChatMail();
+function cancelAction() {
+  document.getElementById('flow-form').style.display = 'none';
+  document.getElementById('flow-cost').style.display = 'none';
+  document.getElementById('flow-result').style.display = 'none';
+  document.getElementById('flow-welcome').style.display = 'block';
+  document.querySelectorAll('.action-btn').forEach(b => b.classList.remove('selected'));
+  currentAction = null;
+  currentCat = null;
 }
 
-async function call(endpoint) {
-  const start = performance.now();
-  callCount++;
-  let url = PROXY + endpoint;
-  if (!url.includes('deviceId=') && deviceId) url += (url.includes('?') ? '&' : '?') + 'deviceId=' + deviceId;
-  if (!url.includes('idUser=') && userId) url += '&idUser=' + userId;
+// ===================== GET FORM PARAMS =====================
+function getFormParams() {
+  const cat = ACTIONS[currentCat];
+  const action = cat.actions.find(a => a.name === currentAction);
+  if (!action) return {};
 
-  document.getElementById('resp-time').innerHTML = '<span class="spinner"></span> Loading...';
-  document.getElementById('resp-body').textContent = 'Loading...';
+  const params = {};
+  // Always add action
+  params.action = currentAction;
+
+  // Auto deviceId/idUser from form or globals
+  const devEl = document.getElementById('f-deviceId');
+  params.deviceId = devEl ? devEl.value : deviceId;
+
+  const uidEl = document.getElementById('f-idUser');
+  if (uidEl) params.idUser = uidEl.value;
+
+  action.params.forEach(p => {
+    const el = document.getElementById('f-' + p.key);
+    if (el && el.value) {
+      params[p.key] = el.value;
+    }
+  });
+
+  // For ALLIANCE.get, ALLIANCE.search etc. without idUser
+  if (action.servlet === 'ALLIANCE' && action.name === 'search') {
+    // Need Search param
+  }
+
+  return params;
+}
+
+// ===================== COST PREVIEW =====================
+let lastCostParams = null;
+
+async function previewCost() {
+  const cat = ACTIONS[currentCat];
+  const action = cat.actions.find(a => a.name === currentAction);
+  if (!action || !action.costAction) return;
+
+  lastCostParams = getFormParams();
+
+  // Build cost endpoint
+  const costParams = {...lastCostParams, action: action.costAction};
+  // Remove params not needed for cost
+  // cost preview uses same params minus some extras
+  delete costParams.idBuilding; // not needed for goldCostBuild level
+  delete costParams.idBuilding; // already removed
+
+  // For goldCostBuild, goldCostConstruct, goldCostResearch: need Level or similar
+  // goldCostConstruct: idBuilding, Level
+  // goldCostTrain: idBuilding, Level, Quantity
+  // goldCostHeal: Troops
+  // goldCostTraps: TrapType, Level, Quantity
+  // goldCostResearch: idResearch, Level
+  // goldCostBuild (levelUp): Node → needs Level from building's current level+1... just pass the same params
+
+  const url = buildUrl(action.servlet, costParams);
+  document.getElementById('resp-time').innerHTML = '<span class="spinner"></span> Calculando costo...';
 
   try {
     const resp = await fetch(url);
     const data = await resp.json();
-    const elapsed = data._proxy_elapsed_ms || Math.round(performance.now() - start);
-    totalElapsed += elapsed;
+    const elapsed = data._proxy_elapsed_ms || 0;
+    addStatsEntry(`${action.servlet}?action=${action.costAction}`, resp.status, elapsed, data);
 
-    document.getElementById('resp-time').innerHTML = `⏱️ <span class="${elapsed > 5000 ? 'slow' : elapsed > 2000 ? 'medium' : 'fast'}">${elapsed}ms</span> | HTTP ${resp.status} | ${JSON.stringify(data).length} bytes`;
-    document.getElementById('resp-body').textContent = JSON.stringify(data, null, 2);
+    const costCard = document.getElementById('flow-cost');
+    costCard.style.display = 'block';
 
-    const cls = elapsed > 5000 ? 'slow' : elapsed > 2000 ? 'medium' : 'fast';
-    document.getElementById('stats-body').insertAdjacentHTML('afterbegin', `
-      <tr>
-        <td>${callCount}</td>
-        <td>${new Date().toLocaleTimeString()}</td>
-        <td>${endpoint.split('?')[0]}?action=${endpoint.match(/action=(\w+)/)?.[1]||'?'}</td>
-        <td>${resp.status}</td>
-        <td class="${cls}">${elapsed}</td>
-        <td>${(JSON.stringify(data).length/1024).toFixed(1)} KB</td>
-      </tr>
-    `);
-    document.getElementById('stats-count').textContent = callCount;
-    document.getElementById('stats-avg').textContent = ` | avg: ${(totalElapsed/callCount).toFixed(0)}ms`;
+    let costHtml = `<h3>💰 Previsualización de Costo</h3>`;
+    if (data.result === 1) {
+      const goldCost = data.GoldCost || data.goldCost || data.Gold || '?';
+      costHtml += `<p>Costo en oro: <b style="color:var(--gold);font-size:16px">${JSON.stringify(goldCost)}</b></p>`;
 
+      // Also lookup resource costs from BuildingProgressions in lastUserData
+      const bp = (lastUserData && lastUserData.BuildingProgressions) || [];
+      const formParams = lastCostParams || {};
+      const idBuilding = formParams.idBuilding;
+      let level = formParams.Level || '1';
+      let resourceCosts = null;
+
+      if (bp.length > 0 && idBuilding) {
+        // For construct/train: find BuildingProgression by idBuilding + Level
+        let prog = bp.find(b => String(b.idBuilding) === String(idBuilding) && String(b.Level) === String(level));
+        if (!prog) {
+          // Fallback: match only by idBuilding (use first match)
+          prog = bp.find(b => String(b.idBuilding) === String(idBuilding));
+        }
+        if (prog && prog.Cost) {
+          resourceCosts = prog.Cost;
+        }
+      }
+
+      if (resourceCosts && Array.isArray(resourceCosts)) {
+        const resourceNames = {'Food':'🍗 Comida','Wood':'🪵 Madera','Stone':'🪨 Piedra','Ore':'⛏️ Mineral','Ecto':'🔮 Ecto'};
+        const resourceParts = resourceCosts
+          .filter(c => c.Type === 'Resources' && resourceNames[c.Name])
+          .map(c => `${resourceNames[c.Name]}: ${(c.Quantity||0).toLocaleString()}`);
+        if (resourceParts.length > 0) {
+          costHtml += `<p>📦 Recursos: <b style="color:var(--green);font-size:14px">${resourceParts.join(' | ')}</b></p>`;
+        }
+      }
+
+      // Show any other details
+      const extra = Object.keys(data).filter(k => k !== 'result' && k !== 'GoldCost' && k !== 'goldCost' && k !== 'Gold' && k !== '_proxy_elapsed_ms');
+      if (extra.length) {
+        costHtml += `<pre style="background:#0a0502;padding:4px;border:1px solid var(--border);border-radius:2px;font-size:10px;margin-top:4px">${JSON.stringify(data, null, 2)}</pre>`;
+      }
+    } else {
+      costHtml += `<p style="color:var(--red)">❌ Error: ${data.Message || data.message || 'Desconocido'}</p>`;
+    }
+    costHtml += `<div class="form-actions" style="margin-top:8px">
+      <button class="btn btn-green" onclick="executeActionWithConfirm()">✅ Confirmar y Ejecutar</button>
+      <button class="btn btn-dim" onclick="document.getElementById('flow-cost').style.display='none'">✖️ Volver</button>
+    </div>`;
+    costCard.innerHTML = costHtml;
+
+    // Show response
+    showResponse(data, elapsed, resp.status);
+
+    // If cost also contains user data, update dashboard
     if (data.result === 1 && data.User) {
       lastUserData = data;
       renderDashboard(data);
     }
-
-    return data;
   } catch (e) {
-    document.getElementById('resp-time').innerHTML = `❌ Error: ${e.message}`;
-    document.getElementById('resp-body').textContent = e.toString();
+    document.getElementById('resp-time').innerHTML = `❌ ${e.message}`;
   }
 }
 
-function callMap(action, extraParams) {
-  const troops = document.getElementById('userFilter').value || 'Archer.1.5/-/Infantry.1.5';
-  return call(`WORLDMAP?action=${action}&${extraParams}&Troops=${encodeURIComponent(troops)}`);
-}
+// ===================== EXECUTE ACTION =====================
+async function executeAction() {
+  const cat = ACTIONS[currentCat];
+  const action = cat.actions.find(a => a.name === currentAction);
+  if (!action) return;
 
-function renderDashboard(data) {
-  const u = data.User || data;
-  const p = u.Player || {};
-  document.getElementById('dash-content').innerHTML = `
-    <b>${p.UserName || '?'}</b> | Nivel: ${u.Hero?.Level || 1} | 
-    Reino: ${p.idKingdom} | Coord: [${(p.Coordinates||[]).join(',')}] |
-    Gold: <span style="color:var(--gold)">${u.Gold?.Quantity || 0}</span> |
-    Stamina: ${(p.Stamina||0).toFixed(0)}/${(p.StaminaCap||50)} |
-    VIP: ${u.VIP?.Level || 0} | 
-    Poder: ${u.Power?.Total || u.Power?.Troop || 0}
-  `;
-  
-  const res = u.Resources || {};
-  const resHtml = ['Food','Wood','Stone','Ore','Ecto'].map(r => {
-    const d = res[r] || {};
-    return `<div class="res-item"><span class="name">${r}</span><br><span class="val">${(d.Quantity||0).toLocaleString()}</span></div>`;
-  }).join('');
-  document.getElementById('resources').innerHTML = `<div class="res-item"><span class="name">Gold</span><br><span class="val" style="color:var(--gold)">${(u.Gold?.Quantity||0).toLocaleString()}</span></div>${resHtml}<div class="res-item"><span class="name">DarkRunes</span><br><span class="val">${(u.DarkRunes?.Quantity||0).toLocaleString()}</span></div>`;
+  const params = getFormParams();
+  const url = buildUrl(action.servlet, params);
 
-  const troopTypes = ['Infantry','Cavalry','Archer','Siege'];
-  let troopHtml = '';
-  if (u.Troops) {
-    troopTypes.forEach(t => {
-      const data = u.Troops[t];
-      if (data?.Troops?.length) {
-        data.Troops.forEach((lvl, i) => {
-          if (lvl.Active || lvl.Wounded) {
-            troopHtml += `<div class="troop-row">${t} L${lvl.Level||i+1}: <b>${lvl.Active||0}</b> / ${lvl.Wounded||0} h</div>`;
-          }
-        });
-      }
-    });
-  }
-  document.getElementById('troops').innerHTML = troopHtml || '<span style="color:var(--text-dim);font-size:11px">Sin tropas</span>';
+  document.getElementById('flow-cost').style.display = 'none';
+  document.getElementById('resp-time').innerHTML = '<span class="spinner"></span> Ejecutando...';
 
-  const blds = u.Buildings || [];
-  document.getElementById('buildings').innerHTML = blds.map(b => 
-    `🏗️ id:${b.idBuilding} Lvl:${b.Level} Node:${b.Node}`
-  ).join(' | ') || 'Sin edificios';
+  try {
+    const resp = await fetch(url);
+    const data = await resp.json();
+    const elapsed = data._proxy_elapsed_ms || 0;
+    addStatsEntry(`${action.servlet}?action=${currentAction}`, resp.status, elapsed, data);
 
-  // Update construct list from user data
-  renderConstructsFromUser(u);
-  // Update hero info
-  if (u.Hero) renderHeroInfo(u);
-}
+    showResponse(data, elapsed, resp.status);
 
-// ======================== MODULE A: CONSTRUCT TIMER ========================
-function renderConstructsFromUser(u) {
-  const constructs = u.Construct || [];
-  const list = document.getElementById('construct-list');
-  const badge = document.getElementById('construct-badge');
-  if (!constructs.length) {
-    list.innerHTML = '<span style="color:var(--text-dim)">Sin construcciones activas</span>';
-    badge.style.display = 'none';
-    return;
-  }
-  badge.style.display = 'inline';
-  badge.textContent = constructs.length;
-  list.innerHTML = constructs.map(c => {
-    const id = c._id?.$oid || c._id || '';
-    const endDate = c.EndDate?.$date || c.EndDate;
-    const startDate = c.StartDate?.$date || c.StartDate;
-    const totalSecs = c.constructionTime || 0;
-    const now = Date.now();
-    const endMs = new Date(endDate).getTime();
-    const startMs = new Date(startDate).getTime();
-    const remaining = Math.max(0, endMs - now);
-    const totalDuration = Math.max(1, endMs - startMs);
-    const pct = Math.min(100, ((1 - remaining / totalDuration) * 100));
-    const remainingSecs = Math.ceil(remaining / 1000);
-    return `<div class="construct-item" data-id="${id}">
-      <div><b>${c.Type || '?'}</b> ${c.idStuff || ''} | Node ${c.Location||0}</div>
-      <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
-      <div class="grid-2" style="font-size:10px">
-        <span>⏱️ <span class="countdown" data-end="${endMs}">${formatTime(remainingSecs)}</span></span>
-        <span style="text-align:right">
-          <button class="collect-btn" onclick="checkConstruct('${id}')">⏱️ Check</button>
-          <button class="collect-btn" onclick="speedUpGold('${id}')">💰 Gold</button>
-        </span>
-      </div>
+    // Show result card
+    const resultCard = document.getElementById('flow-result');
+    resultCard.style.display = 'block';
+
+    let resultHtml = `<h3>📋 Resultado: ${currentAction}</h3>`;
+    if (data.result === 1) {
+      resultHtml += `<p style="color:var(--green)">✅ Éxito</p>`;
+    } else if (data.result === 0) {
+      resultHtml += `<p style="color:var(--red)">❌ Falló: ${data.Message || data.message || ''}</p>`;
+    } else {
+      resultHtml += `<p style="color:var(--orange)">⚠️ Resultado: ${data.result} — ${data.Message || ''}</p>`;
+    }
+
+    // Show response data
+    resultHtml += `<div style="margin-top:4px">
+      <pre style="background:#0a0502;padding:4px;border:1px solid var(--border);border-radius:2px;font-size:10px;max-height:200px;overflow:auto">${JSON.stringify(data, null, 2).substring(0, 2000)}</pre>
     </div>`;
-  }).join('');
-  startCountdowns();
+
+    // CHECK FOR idConstruct → show watcher
+    const constructId = data.idConstruct || (data.Construct && (data.Construct._id?.$oid || data.Construct._id));
+    if (constructId) {
+      resultHtml += `<div style="margin-top:8px;padding:6px;background:#1a0f0a;border:1px solid var(--gold-dark);border-radius:3px">
+        <p style="color:var(--gold)">⏱️ ¡Construcción iniciada! <b>ID: ${constructId}</b></p>
+        <div class="form-actions">
+          <button class="btn btn-blue" onclick="checkConstruct('${constructId}')">⏱️ Ver Tiempo Restante</button>
+          <button class="btn btn-gold" onclick="speedUpConstruct('${constructId}')">💰 Acelerar (Oro)</button>
+        </div>
+      </div>`;
+      // Also add to watcher
+      addConstructWatcher(constructId, data);
+    }
+
+    // CHECK FOR March → show watcher + auto-poll
+    const marchData = data.March || data.march;
+    if (marchData) {
+      const marchId = marchData._id?.$oid || marchData._id || '';
+      if (marchId) {
+        resultHtml += `<div style="margin-top:8px;padding:6px;background:#1a0f0a;border:1px solid var(--blue);border-radius:3px">
+          <p style="color:var(--blue)">🚶 ¡Marcha creada! <b>ID: ${marchId}</b></p>
+          <div class="form-actions">
+            <button class="btn btn-blue" onclick="marchAction('getMarch','${marchId}')">🚶 Ver Marcha</button>
+            <button class="btn btn-red" onclick="marchAction('recall','${marchId}')">↩️ Retirar</button>
+            <button class="btn btn-gold" onclick="marchAction('goHome','${marchId}')">🏠 Volver</button>
+          </div>
+        </div>`;
+        addMarchWatcher(marchData);
+        // Start auto-poll monitoring (every 5s)
+        startMarchAutoPoll(marchId);
+      }
+    }
+
+    resultHtml += `<div class="form-actions" style="margin-top:8px">
+      <button class="btn btn-dim" onclick="document.getElementById('flow-result').style.display='none'; selectAction(currentCat, currentAction)">🔄 Nueva Acción</button>
+      <button class="btn btn-dim" onclick="cancelAction()">✖️ Cerrar</button>
+    </div>`;
+    resultCard.innerHTML = resultHtml;
+
+    // Update dashboard if user data present
+    if (data.result === 1 && data.User) {
+      lastUserData = data;
+      renderDashboard(data);
+    }
+  } catch (e) {
+    document.getElementById('resp-time').innerHTML = `❌ ${e.message}`;
+  }
 }
 
+// Confirm from cost preview
+async function executeActionWithConfirm() {
+  document.getElementById('flow-cost').style.display = 'none';
+  await executeAction();
+}
+
+// ===================== BUILD URL =====================
+function buildUrl(servlet, params) {
+  let url = PROXY + servlet;
+  let sep = '?';
+  Object.keys(params).forEach(k => {
+    if (params[k]) {
+      url += sep + encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+      sep = '&';
+    }
+  });
+  return url;
+}
+
+// ===================== SHOW RESPONSE =====================
+function showResponse(data, elapsed, status) {
+  const cls = elapsed > 5000 ? 'slow' : elapsed > 2000 ? 'medium' : 'fast';
+  document.getElementById('resp-time').innerHTML = `⏱️ <span class="${cls}">${elapsed}ms</span> | HTTP ${status} | ${JSON.stringify(data).length} bytes`;
+  document.getElementById('resp-body').textContent = JSON.stringify(data, null, 2);
+}
+
+// ===================== STATS =====================
+function addStatsEntry(endpoint, status, elapsed, data) {
+  callCount++;
+  totalElapsed += elapsed;
+  const cls = elapsed > 5000 ? 'slow' : elapsed > 2000 ? 'medium' : 'fast';
+  document.getElementById('stats-body').insertAdjacentHTML('afterbegin', `
+    <tr>
+      <td>${callCount}</td>
+      <td>${new Date().toLocaleTimeString()}</td>
+      <td>${endpoint}</td>
+      <td>${status}</td>
+      <td class="${cls}">${elapsed}</td>
+      <td>${(JSON.stringify(data).length/1024).toFixed(1)} KB</td>
+    </tr>
+  `);
+  document.getElementById('stats-count').textContent = callCount;
+  document.getElementById('stats-avg').textContent = ` | Prom: ${(totalElapsed/callCount).toFixed(0)}ms`;
+}
+
+// ===================== CONSTRUCT WATCHER =====================
+function addConstructWatcher(id, data) {
+  const container = document.getElementById('construct-list');
+  const watcher = document.getElementById('construct-watcher');
+  watcher.style.display = 'block';
+
+  // Parse EndDate from response if available
+  const c = data.Construct || data.construct || {};
+  const endDate = c.EndDate?.$date || c.EndDate;
+  const startDate = c.StartDate?.$date || c.StartDate;
+  const endMs = endDate ? new Date(endDate).getTime() : (Date.now() + 3600000);
+  const startMs = startDate ? new Date(startDate).getTime() : Date.now();
+  const totalDuration = Math.max(1, endMs - startMs);
+  const remaining = Math.max(0, endMs - Date.now());
+  const pct = totalDuration > 1 ? Math.min(100, ((1 - remaining / totalDuration) * 100)) : 0;
+
+  const item = document.createElement('div');
+  item.className = 'watcher-item';
+  item.dataset.id = id;
+  item.dataset.end = endMs;
+  item.dataset.total = totalDuration;
+  item.innerHTML = `
+    <div class="grid-2">
+      <div><b>${c.Type || 'Construcción'}</b> ${c.idStuff || ''} | Node ${c.Location || (data.Node || '?')}</div>
+      <div style="text-align:right">
+        <button class="btn btn-blue" style="font-size:9px;padding:1px 6px" onclick="checkConstruct('${id}')">⏱️</button>
+        <button class="btn btn-gold" style="font-size:9px;padding:1px 6px" onclick="speedUpConstruct('${id}')">💰</button>
+      </div>
+    </div>
+    <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
+    <div style="font-size:10px">⏱️ <span class="countdown" data-end="${endMs}">${formatTime(Math.ceil(remaining/1000))}</span></div>
+  `;
+  container.appendChild(item);
+  startWatcherCountdowns();
+}
+
+async function checkConstruct(id) {
+  await apiCall(`CONSTRUCT?action=remainingTime&idConstruct=${id}`);
+  // Mark as complete if needed
+  updateConstructWatchers();
+}
+
+async function speedUpConstruct(id) {
+  const r = await apiCall(`CONSTRUCT?action=speedUpGold&idConstruct=${id}`);
+  if (r && r.result === 1) {
+    // Remove watcher
+    const item = document.querySelector(`.watcher-item[data-id="${id}"]`);
+    if (item) item.remove();
+    checkWatcherVisibility();
+    setStatus(`✅ Construcción ${id} acelerada con oro`, 'ok');
+  }
+}
+
+function updateConstructWatchers() {
+  // Re-fetch user data to refresh
+  apiCall('CONSTRUCT?action=remainingTime&idConstruct=all', true).then(data => {
+    if (data && data.Constructs) {
+      // Remove watchers not in list
+      const activeIds = data.Constructs.map(c => c._id?.$oid || c._id);
+      document.querySelectorAll('#construct-list .watcher-item').forEach(el => {
+        if (!activeIds.includes(el.dataset.id)) el.remove();
+      });
+      checkWatcherVisibility();
+    }
+  }).catch(() => {});
+}
+
+// ===================== MARCH WATCHER =====================
+function addMarchWatcher(march) {
+  const container = document.getElementById('march-list');
+  const watcher = document.getElementById('march-watcher');
+  watcher.style.display = 'block';
+
+  const id = march._id?.$oid || march._id || '';
+  const status = march.Status || 'Departure';
+  const endDate = march.EndDate?.$date || march.EndDate;
+  const startDate = march.StartDate?.$date || march.StartDate;
+  const endMs = endDate ? new Date(endDate).getTime() : Date.now();
+  const startMs = startDate ? new Date(startDate).getTime() : Date.now();
+  const remaining = Math.max(0, endMs - Date.now());
+  const totalDuration = Math.max(1, endMs - startMs);
+  const pct = totalDuration > 1 ? Math.min(100, ((1 - remaining / totalDuration) * 100)) : 0;
+
+  const item = document.createElement('div');
+  item.className = 'watcher-item';
+  item.dataset.id = id;
+  item.dataset.end = endMs;
+  item.dataset.total = totalDuration;
+  item.innerHTML = `
+    <div class="grid-2">
+      <div><span class="status-${status}">●</span> <b>${march.Type || 'Marcha'}</b> <span class="march-status-text status-${status}">${status}</span></div>
+      <div style="text-align:right;font-size:9px">
+        [${(march.Origin?.Coordinates||['?','?']).join(',')}] → [${(march.Destiny?.Coordinates||['?','?']).join(',')}]
+      </div>
+    </div>
+    <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
+    <div class="grid-2" style="font-size:10px">
+      <span>⏱️ <span class="countdown" data-end="${endMs}">${formatTime(Math.ceil(remaining/1000))}</span></span>
+      <span style="text-align:right">
+        <button class="btn btn-blue" style="font-size:9px;padding:1px 6px" onclick="marchAction('getMarch','${id}')">🚶</button>
+        <button class="btn btn-red" style="font-size:9px;padding:1px 6px" onclick="marchAction('recall','${id}')">↩️</button>
+        <button class="btn btn-gold" style="font-size:9px;padding:1px 6px" onclick="marchAction('goHome','${id}')">🏠</button>
+      </span>
+    </div>
+  `;
+  container.appendChild(item);
+  startWatcherCountdowns();
+}
+
+async function marchAction(action, id) {
+  let url = `WORLDMAP?action=${action}&idMarch=${id}`;
+  if (action === 'acceleration') {
+    const idItem = prompt('idItem:') || '1001';
+    url += `&idItem=${idItem}`;
+  }
+  const r = await apiCall(url);
+  if (r && r.result === 1 && (action === 'recall' || action === 'goHome' || action === 'deleteMarch')) {
+    // Remove watcher if successful
+    const item = document.querySelector(`#march-list .watcher-item[data-id="${id}"]`);
+    if (item) item.remove();
+    checkWatcherVisibility();
+  }
+}
+
+// ===================== MARCH AUTO-POLL =====================
+function startMarchAutoPoll(marchId) {
+  // Clear existing interval for this march
+  if (marchPollIntervals[marchId]) {
+    clearInterval(marchPollIntervals[marchId]);
+  }
+
+  const poll = async () => {
+    try {
+      const url = `${PROXY}WORLDMAP?action=getMarch&idMarch=${marchId}&deviceId=${deviceId}&idUser=${userId}`;
+      const resp = await fetch(url);
+      const data = await resp.json();
+
+      if (data && data.result === 1) {
+        const march = data.March || data.march || {};
+        const status = march.Status || '';
+
+        // Update watcher in DOM
+        const item = document.querySelector(`#march-list .watcher-item[data-id="${marchId}"]`);
+        if (item) {
+          const endDate = march.EndDate?.$date || march.EndDate;
+          const startDate = march.StartDate?.$date || march.StartDate;
+          if (endDate) {
+            const endMs = new Date(endDate).getTime();
+            const startMs = startDate ? new Date(startDate).getTime() : Date.now();
+            item.dataset.end = endMs;
+            item.dataset.total = Math.max(1, endMs - startMs);
+            startWatcherCountdowns();
+          }
+
+          // Update status text and color
+          const statusSpan = item.querySelector('.march-status-text');
+          if (statusSpan) {
+            const oldClasses = Array.from(statusSpan.classList).filter(c => c.startsWith('status-'));
+            oldClasses.forEach(c => statusSpan.classList.remove(c));
+            statusSpan.classList.add(`status-${status}`);
+            statusSpan.textContent = status;
+          }
+
+          // If ended, mark complete and stop polling
+          if (status === 'Ended') {
+            clearInterval(marchPollIntervals[marchId]);
+            delete marchPollIntervals[marchId];
+            const bar = item.querySelector('.bar-fill');
+            if (bar) bar.style.width = '100%';
+            const cd = item.querySelector('.countdown');
+            if (cd) cd.textContent = '✅ Finalizada';
+            setStatus(`🚶 Marcha ${marchId} ha finalizado`, 'ok');
+          }
+        }
+      }
+    } catch (e) {
+      // Silent — network errors during poll are expected
+    }
+  };
+
+  // Poll immediately, then every 5s
+  poll();
+  marchPollIntervals[marchId] = setInterval(poll, 5000);
+}
+
+// ===================== COUNTDOWN TIMERS =====================
 function formatTime(secs) {
   if (secs <= 0) return '✅ Completado';
   const h = Math.floor(secs / 3600);
@@ -779,513 +1213,126 @@ function formatTime(secs) {
   return `${s}s`;
 }
 
-function startCountdowns() {
-  if (pollTimers.length) { pollTimers.forEach(t => clearInterval(t)); pollTimers = []; }
-  document.querySelectorAll('.countdown').forEach(el => {
+function startWatcherCountdowns() {
+  // Clear old timers
+  countdownTimers.forEach(t => clearInterval(t));
+  countdownTimers = [];
+
+  document.querySelectorAll('.watcher-item .countdown').forEach(el => {
     const end = parseInt(el.dataset.end);
     if (!end) return;
     const id = setInterval(() => {
       const remaining = Math.max(0, end - Date.now());
       const secs = Math.ceil(remaining / 1000);
       el.textContent = formatTime(secs);
-      // Update parent bar
-      const parent = el.closest('.construct-item') || el.closest('.march-item');
+      // Update bar
+      const parent = el.closest('.watcher-item');
       if (parent) {
         const bar = parent.querySelector('.bar-fill');
         if (bar) {
-          const total = parent.dataset.total ? parseInt(parent.dataset.total) : 1;
+          const total = parseInt(parent.dataset.total) || 1;
           const pct = Math.min(100, ((1 - remaining / total) * 100));
           bar.style.width = pct + '%';
         }
       }
       if (remaining <= 0) { clearInterval(id); }
     }, 1000);
-    pollTimers.push(id);
+    countdownTimers.push(id);
   });
 }
 
-async function checkConstruct(id) {
-  const r = await call(`CONSTRUCT?action=remainingTime&idConstruct=${id}`);
-  if (r && r.User) { renderDashboard(r); }
-  pollConstructTimers();
+function checkWatcherVisibility() {
+  const cw = document.getElementById('construct-watcher');
+  const mw = document.getElementById('march-watcher');
+  if (document.querySelectorAll('#construct-list .watcher-item').length === 0) cw.style.display = 'none';
+  if (document.querySelectorAll('#march-list .watcher-item').length === 0) mw.style.display = 'none';
 }
 
-async function speedUpGold(id) {
-  const r = await call(`CONSTRUCT?action=speedUpGold&idConstruct=${id}`);
-  if (r && r.User) { renderDashboard(r); }
-  pollConstructTimers();
-}
-
-function showConstructInput(action) {
-  const id = prompt('idConstruct:');
-  if (!id) return;
-  if (action === 'speedUp') {
-    const idItem = prompt('idItem:') || '1001';
-    const qty = prompt('Quantity:') || '1';
-    call(`CONSTRUCT?action=speedUp&idConstruct=${id}&idItem=${idItem}&Quantity=${qty}`);
-  } else if (action === 'speedUpGold') {
-    speedUpGold(id);
+// ===================== API CALL (generic) =====================
+async function apiCall(endpoint, silent=false) {
+  const start = performance.now();
+  let url = PROXY + endpoint;
+  if (!url.includes('deviceId=') && deviceId) url += (url.includes('?') ? '&' : '?') + 'deviceId=' + deviceId;
+  if (!url.includes('idUser=') && userId) url += '&idUser=' + userId;
+  if (!silent) {
+    document.getElementById('resp-time').innerHTML = '<span class="spinner"></span> Cargando...';
   }
-}
 
-let constructPollInterval = null;
-function pollConstructTimers() {
-  if (constructPollInterval) clearInterval(constructPollInterval);
-  const doPoll = async () => {
-    const r = await call('CONSTRUCT?action=remainingTime&idConstruct=all');
-    if (r && r.result === 1) {
-      if (r.User) renderDashboard(r);
-      // Render constructs from response
-      if (r.Constructs || r.constructs) {
-        const cs = r.Constructs || r.constructs;
-        document.getElementById('construct-list').innerHTML = cs.length ? cs.map(c => {
-          const remaining = c.RemainingTime || c.remainingTime || 0;
-          const id = c._id?.$oid || c._id || '';
-          return `<div class="construct-item" data-id="${id}">
-            <div><b>${c.Type||'?'}</b> ${c.idStuff||''} | Node ${c.Location||0}</div>
-            <div class="bar"><div class="bar-fill" style="width:${c.Percent||0}%"></div></div>
-            <div class="grid-2" style="font-size:10px">
-              <span>⏱️ ${formatTime(remaining)}</span>
-              <span style="text-align:right">
-                <button class="collect-btn" onclick="checkConstruct('${id}')">⏱️</button>
-                <button class="collect-btn" onclick="speedUpGold('${id}')">💰</button>
-              </span>
-            </div>
-          </div>`;
-        }).join('') : '<span style="color:var(--text-dim)">Sin construcciones</span>';
-      }
+  try {
+    const resp = await fetch(url);
+    const data = await resp.json();
+    const elapsed = data._proxy_elapsed_ms || Math.round(performance.now() - start);
+    if (!silent) {
+      showResponse(data, elapsed, resp.status);
     }
-  };
-  doPoll();
-  constructPollInterval = setInterval(doPoll, 15000);
-}
-
-// ======================== MODULE B: MARCH TRACKING ========================
-function showMarchInput(action) {
-  const id = prompt('idMarch:');
-  if (!id) return;
-  let url = `WORLDMAP?action=${action}&idMarch=${id}`;
-  if (action === 'acceleration') {
-    const idItem = prompt('idItem:') || '1001';
-    url += `&idItem=${idItem}`;
-  }
-  call(url);
-}
-
-function renderMarches(marches) {
-  const list = document.getElementById('march-list');
-  const badge = document.getElementById('march-badge');
-  if (!marches || !marches.length) {
-    list.innerHTML = '<span style="color:var(--text-dim)">Sin marchas activas</span>';
-    badge.style.display = 'none';
-    return;
-  }
-  badge.style.display = 'inline';
-  badge.textContent = marches.length;
-  
-  list.innerHTML = marches.map(m => {
-    const id = m._id?.$oid || m._id || '';
-    const status = m.Status || '?';
-    const startDate = m.StartDate?.$date || m.StartDate;
-    const endDate = m.EndDate?.$date || m.EndDate;
-    const now = Date.now();
-    const endMs = new Date(endDate).getTime();
-    const remaining = Math.max(0, endMs - now);
-    const totalDuration = Math.max(1, endMs - new Date(startDate).getTime());
-    const pct = totalDuration > 1 ? Math.min(100, ((1 - remaining / totalDuration) * 100)) : 0;
-    
-    return `<div class="march-item" data-id="${id}" data-total="${totalDuration}">
-      <div class="grid-2">
-        <div><span class="status-${status}">●</span> <b>${m.Type||'?'}</b> <span class="status-${status}">${status}</span></div>
-        <div style="text-align:right;font-size:10px">
-          [${(m.Origin?.Coordinates||[]).join(',')}] → [${(m.Destiny?.Coordinates||[]).join(',')}]
-        </div>
-      </div>
-      <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
-      <div class="grid-3" style="font-size:10px">
-        <span>⏱️ <span class="countdown" data-end="${endMs}">${formatTime(Math.ceil(remaining/1000))}</span></span>
-        <span>Troops: ${m.TotalTroops||0}</span>
-        <span style="text-align:right">
-          <button class="collect-btn" onclick="marchAction('recall','${id}')">↩️</button>
-          <button class="collect-btn" onclick="marchAction('goHome','${id}')">🏠</button>
-          <button class="collect-btn" onclick="marchAction('acceleration','${id}')">⚡</button>
-          <button class="collect-btn" onclick="if(confirm('Delete march?'))marchAction('deleteMarch','${id}')">🗑️</button>
-        </span>
-      </div>
-      ${m.Report ? `<div style="font-size:10px;color:var(--text-dim);margin-top:4px;border-top:1px solid var(--border);padding-top:3px">
-        <b>Reporte:</b> ${JSON.stringify(m.Report).substring(0,200)}</div>` : ''}
-    </div>`;
-  }).join('');
-  startCountdowns();
-}
-
-async function marchAction(action, id) {
-  let url = `WORLDMAP?action=${action}&idMarch=${id}`;
-  if (action === 'acceleration') {
-    const idItem = prompt('idItem for acceleration:') || '1001';
-    url += `&idItem=${idItem}`;
-  }
-  const r = await call(url);
-  if (r) pollMarchStatus();
-}
-
-let marchPollInterval = null;
-async function pollMarchStatus() {
-  if (marchPollInterval) clearInterval(marchPollInterval);
-  const doPoll = async () => {
-    // Use getQuadrant to get marches
-    const r = await call('WORLDMAP?action=getQuadrant&x=315&y=963');
-    if (r && r.Marches) {
-      renderMarches(r.Marches);
+    addStatsEntry(endpoint.split('?')[0] + '?' + (endpoint.match(/action=(\w+)/)?.[1]||'?'), resp.status, elapsed, data);
+    if (data.result === 1 && data.User) {
+      lastUserData = data;
+      renderDashboard(data);
     }
-    // Also get march report feed
-    if (lastUserData) {
-      call('MARCHREPORT?action=feed&_silent=1').then(d => {
-        if (d && d.Marches) renderMarches(d.Marches);
-      }).catch(()=>{});
+    return data;
+  } catch (e) {
+    if (!silent) {
+      document.getElementById('resp-time').innerHTML = `❌ ${e.message}`;
     }
-  };
-  await doPoll();
-  marchPollInterval = setInterval(doPoll, 20000);
-}
-
-// ======================== MODULE C: QUEST SYSTEM ========================
-async function loadQuests() {
-  // Try to get quest data from dictionaries or via QUEST feed
-  const feed = await call('QUEST?action=feed');
-  if (feed) renderQuests(feed);
-}
-
-function renderQuests(data) {
-  const normDiv = document.getElementById('quest-norm');
-  const dailyDiv = document.getElementById('quest-daily');
-  const feedDiv = document.getElementById('quest-feed');
-  
-  // Show feed data
-  feedDiv.innerHTML = data.Quests?.length ? data.Quests.map(q => 
-    `<div class="quest-item">
-      <span class="${q.Done ? 'done' : 'pending'}">${q.Done ? '✅' : '⬜'}</span> 
-      <b>${q.Name || q.idQuest || '?'}</b> | Progreso: ${q.Progress||0}/${q.Target||1}
-      ${q.Done ? `<button class="collect-btn" onclick="collectQuest(${q.idQuest})">🎁 Cobrar</button>` : ''}
-    </div>`
-  ).join('') : '<span style="color:var(--text-dim)">Sin datos de misiones</span>';
-  
-  // Show daily quests
-  if (data.Daily) {
-    dailyDiv.innerHTML = data.Daily.map(q => 
-      `<div class="quest-item">
-        <span class="${q.Done ? 'done' : 'pending'}">${q.Done ? '✅' : '⬜'}</span> 
-        <b>${q.Name || q.idQuest || '?'}</b> | Progreso: ${q.Progress||0}/${q.Target||1}
-        ${q.Done ? `<button class="collect-btn" onclick="collectQuestD(${q.idQuest})">🎁 Cobrar</button>` : ''}
-      </div>`
-    ).join('') || '<span style="color:var(--text-dim)">Sin diarias</span>';
+    return null;
   }
 }
 
-async function collectQuest(id) {
-  await call(`QUEST?action=rewards&idQuest=${id}`);
-  loadQuests();
-}
-
-async function collectQuestD(id) {
-  await call(`QUEST?action=rewardsD&idQuest=${id}`);
-  loadQuests();
-}
-
-// ======================== MODULE D: HERO MANAGEMENT ========================
-function showHeroInput(action) {
-  if (action === 'equipItem') {
-    const idItem = prompt('idItem:') || '1001';
-    const tier = prompt('Tier:') || '1';
-    call(`HERO?action=equipItem&idItem=${idItem}&Tier=${tier}`);
-  } else if (action === 'unequipItem') {
-    const idItem = prompt('idItem:') || '1001';
-    const tier = prompt('Tier:') || '1';
-    call(`HERO?action=unequipItem&idItem=${idItem}&Tier=${tier}`);
-  } else if (action === 'forge') {
-    const idHeroItem = prompt('idHeroItem (equipment ID):') || '1001';
-    const mats = prompt('Materials (Item.id.qty/-/...):') || 'Item.1001.1';
-    call(`BUILDINGS?action=forge&idHeroItem=${idHeroItem}&Materials=${encodeURIComponent(mats)}`);
-  } else if (action === 'changeHero') {
-    const idHero = prompt('idHero:') || '1';
-    const item = prompt('Use item? (true/false):') || 'false';
-    call(`HERO?action=changeHero&idHero=${idHero}&Item=${item}`);
-  } else if (action === 'execute') {
-    const idP = prompt('idPrisoner:');
-    if (idP) call(`HERO?action=execute&idPrisoner=${idP}`);
-  } else if (action === 'release') {
-    const idP = prompt('idPrisoner:');
-    if (idP) call(`HERO?action=release&idPrisoner=${idP}`);
-  } else if (action === 'poison') {
-    const idP = prompt('idPrisoner:');
-    const idItem = prompt('idItem:') || '1001';
-    const gold = prompt('Use Gold? (true/false):') || 'false';
-    if (idP) call(`HERO?action=poison&idPrisoner=${idP}&idItem=${idItem}&Gold=${gold}`);
+// ===================== LOGIN =====================
+async function doLogin() {
+  deviceId = document.getElementById('deviceId').value;
+  saveState();
+  const r = await apiCall('USER?action=login');
+  if (r && r.User) {
+    userId = r.User._id?.$oid || r.User._id || '';
+    saveState();
+    renderDashboard(r);
+    setStatus(`✅ Conectado: ${r.User.Player?.UserName || '?'} | idUser: ${userId}`, 'ok');
+    document.getElementById('conn-status').textContent = '🟢';
+    document.getElementById('conn-status').style.color = 'var(--green)';
+    document.getElementById('dash-summary').innerHTML = `<span class="ok">${r.User.Player?.UserName || '?'}</span>`;
   }
 }
 
-async function loadHeroStatus() {
-  const r = await call('HERO?action=status');
-  if (r) renderHeroInfo(r.User || r);
-}
-
-function renderHeroInfo(u) {
-  const hero = u.Hero || {};
-  const div = document.getElementById('hero-content');
-  let html = `<div class="grid-2">
-    <div><b>${hero.Name || 'Héroe'}</b> | Nivel ${hero.Level || 1} | XP ${hero.XP||0}/${hero.XpCap||100}</div>
-    <div style="text-align:right">HP: ${hero.HP||0} | ATK: ${hero.Attack||0} | DEF: ${hero.Defense||0}</div>
-  </div>`;
-  
-  if (hero.Skills?.length) {
-    html += `<h4>Habilidades</h4><div class="grid-2">`;
-    hero.Skills.forEach(s => {
-      html += `<div style="font-size:10px;background:#1a0f0a;padding:2px 4px;border:1px solid var(--border);border-radius:2px">
-        ${s.Name || 'Skill'} Lv.${s.Level||0} ${s.Active ? '✅' : '⏳'}</div>`;
-    });
-    html += `</div>`;
-  }
-  
-  if (hero.Items?.length) {
-    html += `<h4>Items equipados</h4><div style="font-size:10px">`;
-    hero.Items.forEach((item, i) => {
-      html += `<span style="background:#1a0f0a;padding:1px 4px;margin:1px;border:1px solid var(--border);border-radius:2px;display:inline-block">
-        ${item.Name||`Item ${item.idItem}`} T${item.Tier||0}</span>`;
-    });
-    html += `</div>`;
-  }
-
-  // Prisoners
-  const prisoners = u.Prisoners || [];
-  if (prisoners.length) {
-    html += `<h4>Prisioneros (${prisoners.length})</h4><div style="font-size:10px;max-height:80px;overflow-y:auto">`;
-    prisoners.forEach(p => {
-      html += `<div style="padding:1px 0">🔗 ${p.Name||p.idHero||'?'} | ${p.Status||'?'}</div>`;
-    });
-    html += `</div>`;
-  }
-  
-  div.innerHTML = html;
-}
-
-// ======================== MODULE E: ALLIANCE ========================
-function showAllianceInput(action) {
-  if (action === 'create') {
-    const name = prompt('Alliance Name:') || 'TestAlliance';
-    const slogan = prompt('Slogan:') || 'Test';
-    call(`ALLIANCE?action=create&Name=${encodeURIComponent(name)}&Slogan=${encodeURIComponent(slogan)}`);
-  } else if (action === 'search') {
-    const q = prompt('Search term:') || 'Test';
-    call(`ALLIANCE?action=search&Search=${encodeURIComponent(q)}`);
-  } else if (action === 'join') {
-    const id = prompt('idAlliance:');
-    if (id) call(`ALLIANCE?action=join&idAlliance=${id}`);
-  } else if (action === 'chat') {
-    const msg = prompt('Message:') || 'Hello!';
-    call(`ALLIANCE?action=chat&Message=${encodeURIComponent(msg)}`);
-  } else if (action === 'askHelp') {
-    const id = prompt('idConstruct:');
-    if (id) call(`ALLIANCE?action=askHelp&idConstruct=${id}`);
-  } else if (action === 'sendHelp') {
-    const uid = prompt('UserID:');
-    const idc = prompt('idConstruct:');
-    if (uid && idc) call(`ALLIANCE?action=sendHelp&UserID=${uid}&idConstruct=${idc}`);
-  } else if (action === 'requestShards') {
-    const idw = prompt('idWarlord:') || '1001';
-    call(`ALLIANCE?action=requestShards&idWarlord=${idw}`);
-  } else if (action === 'donateShards') {
-    const uid = prompt('UserID to donate to:');
-    if (uid) call(`ALLIANCE?action=donateShards&UserID=${uid}`);
-  } else if (action === 'changeSlogan') {
-    const s = prompt('New Slogan:') || 'NewSlogan';
-    call(`ALLIANCE?action=changeSlogan&Slogan=${encodeURIComponent(s)}`);
-  } else if (action === 'kick') {
-    const uid = prompt('UserID to kick:');
-    if (uid) call(`ALLIANCE?action=kick&UserID=${uid}`);
-  } else if (action === 'answerRequest') {
-    const uid = prompt('UserID:');
-    const ans = prompt('Accept? (true/false):') || 'true';
-    if (uid) call(`ALLIANCE?action=answerRequest&UserID=${uid}&Answer=${ans}`);
-  } else if (action === 'changeRank') {
-    const uid = prompt('UserID:');
-    const rank = prompt('New Rank (int):') || '1';
-    if (uid) call(`ALLIANCE?action=changeRank&UserID=${uid}&Rank=${rank}`);
-  }
-}
-
-async function loadAlliance() {
-  const r = await call('ALLIANCE?action=get');
-  if (r && r.Alliance) renderAlliance(r.Alliance);
-}
-
-function renderAlliance(alliance) {
-  const div = document.getElementById('alliance-content');
-  div.innerHTML = `
-    <div class="grid-2">
-      <div><b>${alliance.Name || '?'}</b> | Nivel ${alliance.Level||1}</div>
-      <div style="text-align:right">Miembros: ${alliance.Members?.length||0}</div>
+// ===================== DASHBOARD =====================
+function renderDashboard(data) {
+  const u = data.User || data;
+  const p = u.Player || {};
+  const html = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;font-size:10px">
+      <div><b>${p.UserName || '?'}</b> | Nv. ${u.Hero?.Level || 1}</div>
+      <div style="text-align:right">Reino: ${p.idKingdom || '?'} [${(p.Coordinates||['?','?']).join(',')}]</div>
+      <div>💰 <span style="color:var(--gold)">${(u.Gold?.Quantity||0).toLocaleString()}</span></div>
+      <div style="text-align:right">⚡ ${(p.Stamina||0).toFixed(0)}/${(p.StaminaCap||50)}</div>
+      <div>💎 VIP ${u.VIP?.Level || 0}</div>
+      <div style="text-align:right">⚔️ Poder: ${(u.Power?.Total || u.Power?.Troop || 0).toLocaleString()}</div>
     </div>
-    <div style="font-size:10px;color:var(--text-dim)">${alliance.Slogan||''} | Poder: ${alliance.Power||0}</div>
-    ${alliance.Members?.length ? `<h4>Miembros</h4><div style="font-size:10px;max-height:100px;overflow-y:auto">` +
-      alliance.Members.map(m => `<div>${m.UserName||'?'} | Rango ${m.Rank||0}</div>`).join('') + `</div>` : ''}
   `;
+  document.getElementById('dash-content').innerHTML = html;
+
+  // Resources
+  const res = u.Resources || {};
+  const resNames = ['Food','Wood','Stone','Ore','Ecto'];
+  let resHtml = `<div class="res-grid" style="margin-top:4px">`;
+  resHtml += `<div class="res-item"><span class="name">💰 Gold</span><br><span class="val" style="color:var(--gold)">${(u.Gold?.Quantity||0).toLocaleString()}</span></div>`;
+  resNames.forEach(r => {
+    const d = res[r] || {};
+    resHtml += `<div class="res-item"><span class="name">${r}</span><br><span class="val">${(d.Quantity||0).toLocaleString()}</span></div>`;
+  });
+  resHtml += `<div class="res-item"><span class="name">💠 DarkRunes</span><br><span class="val">${(u.DarkRunes?.Quantity||0).toLocaleString()}</span></div>`;
+  resHtml += `</div>`;
+  document.getElementById('dash-resources').innerHTML = resHtml;
 }
 
-// ======================== MODULE F: CHAT/MAIL ========================
-function showChatInput(action) {
-  if (action === 'addPrivate') {
-    const uid = prompt('UserID:');
-    const msg = prompt('Message:') || 'Hello!';
-    if (uid) call(`CHAT?action=addPrivate&UserID=${uid}&Message=${encodeURIComponent(msg)}`);
-  } else if (action === 'addGroup') {
-    const name = prompt('Group name:') || 'Test Group';
-    const uids = prompt('UserIDs (comma-separated):') || '';
-    if (uids) call(`CHAT?action=addGroup&Name=${encodeURIComponent(name)}&UserIDs=${encodeURIComponent(uids)}`);
-  } else if (action === 'kingdomMsg') {
-    const msg = prompt('Message:') || 'Hello kingdom!';
-    call(`KINGDOMCHAT?action=addMessage&Message=${encodeURIComponent(msg)}`);
-  }
+function setStatus(msg, cls='') {
+  document.getElementById('status-bar').innerHTML = `⚡ ${msg}`;
 }
 
-function showMailInput(action) {
-  if (action === 'markRead') {
-    const id = prompt('Mail ID:');
-    if (id) call(`MAIL?action=markRead&id=${id}`);
-  } else if (action === 'collectRewards') {
-    const id = prompt('Mail ID:');
-    if (id) call(`MAIL?action=collectRewards&idMail=${id}`);
-  }
-}
+// ===================== INIT =====================
+renderCategories();
 
-async function loadChatMail() {
-  const chat = await call('CHAT?action=feed');
-  if (chat) renderChat(chat);
-  const kingdom = await call('KINGDOMCHAT?action=feed');
-  if (kingdom) renderKingdomChat(kingdom);
-  const mail = await call('MAIL?action=feed');
-  if (mail) renderMail(mail);
-}
-
-function renderChat(data) {
-  const div = document.getElementById('chat-private');
-  if (data.Chats?.length) {
-    div.innerHTML = data.Chats.slice(0, 20).map(c => 
-      `<div style="padding:2px 0;border-bottom:1px solid var(--border);font-size:10px">
-        <b>${c.UserName||'?'}:</b> ${c.Message||''} 
-        <span style="color:var(--text-dim)">${c.Date ? new Date(c.Date.$date||c.Date).toLocaleTimeString() : ''}</span>
-      </div>`
-    ).join('');
-  } else {
-    div.innerHTML = '<span style="color:var(--text-dim)">Sin mensajes</span>';
-  }
-}
-
-function renderKingdomChat(data) {
-  const div = document.getElementById('chat-kingdom');
-  if (data.Chats?.length) {
-    div.innerHTML = data.Chats.slice(0, 20).map(c => 
-      `<div style="padding:2px 0;border-bottom:1px solid var(--border);font-size:10px">
-        <b>${c.UserName||'?'}:</b> ${c.Message||''}
-      </div>`
-    ).join('');
-  } else {
-    div.innerHTML = '<span style="color:var(--text-dim)">Sin mensajes del reino</span>';
-  }
-}
-
-function renderMail(data) {
-  const div = document.getElementById('mail-feed');
-  if (data.Mails?.length) {
-    div.innerHTML = data.Mails.slice(0, 20).map(m => 
-      `<div style="padding:2px 0;border-bottom:1px solid var(--border);font-size:10px">
-        <b>${m.Title||m.Subject||'Mail'}</b> ${m.Read ? '' : '📧'} 
-        <span style="color:var(--text-dim)">${m.Date ? new Date(m.Date.$date||m.Date).toLocaleDateString() : ''}</span>
-        ${m.Rewards ? `<button class="collect-btn" onclick="call('MAIL?action=collectRewards&idMail=${m._id?.$oid||m._id||''}')">🎁</button>` : ''}
-      </div>`
-    ).join('');
-  } else {
-    div.innerHTML = '<span style="color:var(--text-dim)">Sin correo</span>';
-  }
-}
-
-// ======================== MODULE G: DEMO/ADMIN TOOLS ========================
-function showDebugInput(action) {
-  if (action === 'cutTimePrisoners') {
-    const ft = prompt('ForcedTime (seconds):') || '60';
-    call(`DEMO?action=cutTimePrisoners&ForcedTime=${ft}`);
-  } else if (action === 'resetDate') {
-    const name = prompt('Name (e.g. Daily, DailyReward):') || 'Daily';
-    call(`DEMO?action=resetDate&Name=${encodeURIComponent(name)}`);
-  }
-}
-
-// ======================== MODULE H: OTHER ENDPOINTS ========================
-function showWarlordInput(action) {
-  if (action === 'levelupW') {
-    const id = prompt('idWarlord:') || '1001';
-    call(`WARLORDS?action=levelupW&idWarlord=${id}`);
-  } else if (action === 'chest') {
-    const id = prompt('idItem:') || '1001';
-    const qty = prompt('Quantity:') || '1';
-    call(`WARLORDS?action=chest&idItem=${id}&Quantity=${qty}`);
-  }
-}
-
-function showItemInput(action) {
-  if (action === 'purchase') {
-    const id = prompt('idItem:') || '1001';
-    const qty = prompt('Quantity:') || '1';
-    call(`ITEMS?action=purchase&idItem=${id}&Quantity=${qty}`);
-  } else if (action === 'use') {
-    const id = prompt('idItem:') || '1001';
-    const qty = prompt('Quantity:') || '1';
-    call(`ITEMS?action=use&idItem=${id}&Quantity=${qty}`);
-  } else if (action === 'materialChest') {
-    const id = prompt('idItem:') || '1001';
-    const qty = prompt('Quantity:') || '1';
-    call(`ITEMS?action=materialChest&idItem=${id}&Quantity=${qty}`);
-  } else if (action === 'incStamina') {
-    const id = prompt('idItem:') || '1001';
-    const qty = prompt('Quantity:') || '1';
-    call(`ITEMS?action=incStamina&idItem=${id}&Quantity=${qty}`);
-  } else if (action === 'advancedTeleport') {
-    const x = prompt('x:') || '400';
-    const y = prompt('y:') || '500';
-    call(`ITEMS?action=advancedTeleport&x=${x}&y=${y}`);
-  }
-}
-
-function showVipInput(action) {
-  if (action === 'activate') {
-    const id = prompt('idItem:') || '1001';
-    call(`VIP?action=activate&idItem=${id}`);
-  }
-}
-
-function showIapInput(action) {
-  if (action === 'IAPpurchase') {
-    const receipt = prompt('Receipt JSON:') || '{"productId":"test"}';
-    const payload = prompt('developerPayload (optional):') || '';
-    call(`IAP?action=IAPpurchase&receipt=${encodeURIComponent(receipt)}&developerPayload=${encodeURIComponent(payload)}`);
-  }
-}
-
-function showSocialInput(action) {
-  if (action === 'sendRequest') {
-    const uid = prompt('UserID:');
-    if (uid) call(`SOCIAL?action=sendRequest&UserID=${uid}`);
-  } else if (action === 'unFriend') {
-    const uid = prompt('UserID:');
-    if (uid) call(`SOCIAL?action=unFriend&UserID=${uid}`);
-  } else if (action === 'changeAvatar') {
-    const id = prompt('idAvatar:') || '1';
-    const item = prompt('Use item? (true/false):') || 'false';
-    call(`AVATAR?action=changeAvatar&idAvatar=${id}&Item=${item}`);
-  }
-}
-
-// Init
-loadState();
+// Auto-login if deviceId exists
 if (deviceId) {
   setTimeout(doLogin, 500);
 }
