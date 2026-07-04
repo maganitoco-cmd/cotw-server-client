@@ -28,55 +28,65 @@ body {
   height: 100vh;
   overflow: hidden;
 }
-/* Header */
 #header {
   background: linear-gradient(180deg, #3a2010, #2a1508);
   border-bottom: 2px solid var(--gold-dark);
-  padding: 8px 16px;
+  padding: 6px 12px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 10px;
   flex-shrink: 0;
+  flex-wrap: wrap;
 }
-#header h1 { color: var(--gold); font-size: 18px; }
-#header input, #header button {
+#header h1 { color: var(--gold); font-size: 16px; white-space: nowrap; }
+#header input, #header select {
   background: var(--panel);
   border: 1px solid var(--border);
   color: var(--text);
-  padding: 4px 8px;
+  padding: 3px 6px;
   border-radius: 3px;
   font-family: inherit;
-  font-size: 13px;
+  font-size: 12px;
 }
 #header button {
   background: var(--gold-dark);
+  border: 1px solid var(--border);
   color: #fff;
+  padding: 4px 10px;
+  border-radius: 3px;
+  font-family: inherit;
+  font-size: 12px;
   cursor: pointer;
   font-weight: bold;
 }
 #header button:hover { background: var(--gold); }
-/* Main layout */
-#main {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
-/* Left panel — actions */
+#main { display: flex; flex: 1; overflow: hidden; }
 #actions {
   width: 280px;
   background: var(--panel);
   border-right: 1px solid var(--border);
   overflow-y: auto;
-  padding: 8px;
+  padding: 4px 6px;
   flex-shrink: 0;
 }
-#actions h3 {
-  color: var(--gold);
-  font-size: 14px;
-  margin: 8px 0 4px;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 2px;
+.module-group {
+  margin-bottom: 4px;
 }
+.module-group h3 {
+  color: var(--gold);
+  font-size: 13px;
+  padding: 4px 6px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  user-select: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.module-group h3:hover { background: var(--highlight); }
+.module-group h3 .toggle { font-size: 10px; color: var(--text-dim); }
+.module-body { display: none; padding: 2px 0; }
+.module-body.open { display: block; }
 .action-btn {
   display: block;
   width: 100%;
@@ -84,85 +94,73 @@ body {
   border: 1px solid var(--border);
   color: var(--text);
   text-align: left;
-  padding: 4px 8px;
-  margin: 2px 0;
+  padding: 3px 6px;
+  margin: 1px 0;
   cursor: pointer;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 11px;
   border-radius: 2px;
 }
 .action-btn:hover { background: var(--highlight); color: var(--gold); }
-.action-btn .endpoint { color: var(--text-dim); font-size: 10px; }
-/* Center — game view */
+.action-btn .endpoint { color: var(--text-dim); font-size: 9px; }
+.action-btn .badge { float: right; font-size: 9px; padding: 0 4px; border-radius: 2px; }
+.badge-green { background: var(--green); color: #fff; }
+.badge-gold { background: var(--gold-dark); color: #fff; }
+.badge-blue { background: var(--blue); color: #fff; }
 #game {
   flex: 1;
-  padding: 12px;
+  padding: 8px;
   overflow-y: auto;
 }
 .card {
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 4px;
-  padding: 12px;
-  margin-bottom: 12px;
+  padding: 10px;
+  margin-bottom: 8px;
 }
 .card h3 {
   color: var(--gold);
-  font-size: 14px;
-  margin-bottom: 8px;
+  font-size: 13px;
+  margin-bottom: 6px;
   border-bottom: 1px solid var(--border);
-  padding-bottom: 4px;
+  padding-bottom: 3px;
 }
-.resource-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 6px;
+.card h4 {
+  color: var(--gold-dark);
+  font-size: 12px;
+  margin: 6px 0 3px;
 }
-.res-item {
-  background: #1a0f0a;
+.card .countdown { color: var(--gold); font-family: monospace; font-size: 14px; }
+.resource-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 4px; }
+.res-item { background: #1a0f0a; padding: 4px; border: 1px solid var(--border); border-radius: 2px; font-size: 11px; }
+.res-item .name { color: var(--gold); }
+.res-item .val { font-size: 14px; font-weight: bold; }
+.troop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; font-size: 10px; }
+.troop-row { background: #1a0f0a; padding: 2px 4px; border: 1px solid var(--border); border-radius: 2px; }
+#response {
+  width: 340px;
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  padding: 6px;
+  overflow-y: auto;
+  flex-shrink: 0;
+  font-size: 11px;
+}
+#response h3 { color: var(--gold); font-size: 13px; margin-bottom: 3px; }
+#response pre {
+  background: #0a0502;
   padding: 6px;
   border: 1px solid var(--border);
   border-radius: 3px;
-  font-size: 12px;
-}
-.res-item .name { color: var(--gold); }
-.res-item .val { font-size: 16px; font-weight: bold; }
-.troop-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 4px;
-  font-size: 11px;
-}
-.troop-row { 
-  background: #1a0f0a;
-  padding: 3px 6px;
-  border: 1px solid var(--border);
-  border-radius: 2px;
-}
-/* Right panel — response */
-#response {
-  width: 350px;
-  background: var(--panel);
-  border-left: 1px solid var(--border);
-  padding: 8px;
-  overflow-y: auto;
-  flex-shrink: 0;
-}
-#response h3 { color: var(--gold); font-size: 14px; margin-bottom: 4px; }
-#response pre {
-  background: #0a0502;
-  padding: 8px;
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  font-size: 11px;
-  max-height: 300px;
+  font-size: 10px;
+  max-height: 400px;
   overflow: auto;
   white-space: pre-wrap;
   word-break: break-all;
 }
-/* Bottom — stats panel */
 #stats-panel {
-  height: 180px;
+  height: 160px;
   background: var(--panel);
   border-top: 2px solid var(--gold-dark);
   overflow-y: auto;
@@ -170,118 +168,347 @@ body {
 }
 #stats-panel h3 {
   color: var(--gold);
-  font-size: 13px;
-  padding: 6px 12px;
+  font-size: 12px;
+  padding: 4px 10px;
   position: sticky;
   top: 0;
   background: var(--panel);
   border-bottom: 1px solid var(--border);
 }
-.stats-table {
-  width: 100%;
-  font-size: 11px;
-  border-collapse: collapse;
-}
-.stats-table th {
-  background: #2a1508;
-  color: var(--gold);
-  text-align: left;
-  padding: 4px 8px;
-  position: sticky;
-  top: 28px;
-}
-.stats-table td {
-  padding: 3px 8px;
-  border-bottom: 1px solid var(--border);
-}
+.stats-table { width: 100%; font-size: 10px; border-collapse: collapse; }
+.stats-table th { background: #2a1508; color: var(--gold); text-align: left; padding: 3px 6px; position: sticky; top: 24px; }
+.stats-table td { padding: 2px 6px; border-bottom: 1px solid var(--border); }
 .stats-table tr:hover td { background: var(--highlight); }
 .slow { color: var(--red); }
 .medium { color: #e67e22; }
 .fast { color: var(--green); }
-/* Status bar */
-#status {
-  background: #0a0502;
-  border-top: 1px solid var(--border);
-  padding: 4px 12px;
-  font-size: 11px;
-  color: var(--text-dim);
-  flex-shrink: 0;
-}
+#status { background: #0a0502; border-top: 1px solid var(--border); padding: 3px 10px; font-size: 10px; color: var(--text-dim); flex-shrink: 0; }
 #status .ok { color: var(--green); }
 #status .err { color: var(--red); }
-.spinner {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border: 2px solid var(--text-dim);
-  border-top: 2px solid var(--gold);
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
+.spinner { display: inline-block; width: 10px; height: 10px; border: 2px solid var(--text-dim); border-top: 2px solid var(--gold); border-radius: 50%; animation: spin 0.6s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+.inline-input { width: 60px; background: #1a0f0a; border: 1px solid var(--border); color: var(--text); padding: 2px 4px; border-radius: 2px; font-size: 10px; font-family: inherit; }
+.inline-input-wide { width: 120px; }
+.construct-item, .march-item, .quest-item, .hero-item, .alliance-item, .chat-item, .mail-item {
+  background: #1a0f0a;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 6px;
+  margin: 4px 0;
+  font-size: 11px;
+}
+.construct-item .bar, .march-item .bar {
+  height: 4px;
+  background: #2a1508;
+  border-radius: 2px;
+  margin: 4px 0;
+  overflow: hidden;
+}
+.construct-item .bar-fill, .march-item .bar-fill {
+  height: 100%;
+  background: var(--gold);
+  transition: width 1s linear;
+}
+.march-item .status-Departure { color: var(--blue); }
+.march-item .status-Return { color: #e67e22; }
+.march-item .status-Ended { color: var(--text-dim); }
+.march-item .status-Gather { color: var(--green); }
+.march-item .status-Camping { color: var(--text-dim); }
+.march-item .status-Ruins { color: var(--gold); }
+.march-item .status-Reinforcements { color: var(--blue); }
+.quest-item .done { color: var(--green); }
+.quest-item .pending { color: var(--text-dim); }
+.collect-btn {
+  background: var(--gold-dark);
+  color: #fff;
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 10px;
+  font-family: inherit;
+}
+.collect-btn:hover { background: var(--gold); }
+.section-tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+.section-tabs button {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 3px 8px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 10px;
+  font-family: inherit;
+}
+.section-tabs button.active {
+  background: var(--gold-dark);
+  color: #fff;
+  border-color: var(--gold);
+}
+.section-tab-content { display: none; }
+.section-tab-content.active { display: block; }
+@media (max-width: 900px) {
+  #actions { width: 200px; }
+  #response { width: 250px; }
+}
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; }
 </style>
 </head>
 <body>
 <div id="header">
   <h1>⚔️ COTW Test Client</h1>
-  <input type="text" id="deviceId" value="4df64994e692f5a00be2d29faefd8c7c50119a20" size="45">
+  <input type="text" id="deviceId" value="4df64994e692f5a00be2d29faefd8c7c50119a20" size="40">
   <button onclick="doLogin()">🔑 Login</button>
-  <span style="margin-left:auto;font-size:12px;color:var(--text-dim)">
-    <input type="text" id="userFilter" placeholder="idUser o params..." size="20" style="width:160px">
+  <span style="margin-left:auto;font-size:11px;color:var(--text-dim);display:flex;gap:4px;align-items:center">
+    <input type="text" id="userFilter" placeholder="Troops / params..." size="16" style="width:120px">
+    <span id="conn-status" style="color:var(--text-dim)">⚪</span>
+    <span id="timer-display" style="font-family:monospace;font-size:11px"></span>
   </span>
 </div>
 <div id="main">
   <div id="actions">
-    <h3>👤 USER</h3>
-    <button class="action-btn" onclick="call('USER?action=login')"><span class="endpoint">GET</span> login</button>
-    <button class="action-btn" onclick="call('USER?action=getDictionaries')"><span class="endpoint">GET</span> getDictionaries</button>
-    <button class="action-btn" onclick="call('USER?action=getLanguage')"><span class="endpoint">GET</span> getLanguage</button>
-    <button class="action-btn" onclick="call('USER?action=dailyReward')"><span class="endpoint">GET</span> dailyReward</button>
-    <h3>🏗️ BUILDINGS</h3>
-    <button class="action-btn" onclick="call('BUILDINGS?action=construct&idBuilding=1001&Node=1')"><span class="endpoint">GET</span> construct</button>
-    <button class="action-btn" onclick="call('BUILDINGS?action=levelUpB&Node=1')"><span class="endpoint">GET</span> levelUpB</button>
-    <button class="action-btn" onclick="call('BUILDINGS?action=train&idBuilding=1002&Level=1&Quantity=10')"><span class="endpoint">GET</span> train</button>
-    <button class="action-btn" onclick="call('BUILDINGS?action=heal&Troops=Infantry.1.10')"><span class="endpoint">GET</span> heal</button>
-    <button class="action-btn" onclick="call('BUILDINGS?action=research&idResearch=1')"><span class="endpoint">GET</span> research</button>
-    <button class="action-btn" onclick="call('BUILDINGS?action=forge&idHeroItem=1001&Materials=Item.1001.1')"><span class="endpoint">GET</span> forge</button>
-    <button class="action-btn" onclick="call('BUILDINGS?action=wish')"><span class="endpoint">GET</span> wish</button>
-    <button class="action-btn" onclick="call('BUILDINGS?action=skills&idSkill=1')"><span class="endpoint">GET</span> skills</button>
-    <h3>⏱️ CONSTRUCT</h3>
-    <button class="action-btn" onclick="call('CONSTRUCT?action=remainingTime')"><span class="endpoint">GET</span> remainingTime</button>
-    <button class="action-btn" onclick="call('CONSTRUCT?action=speedUpGold')"><span class="endpoint">GET</span> speedUpGold</button>
-    <h3>🗺️ WORLDMAP</h3>
-    <button class="action-btn" onclick="callMap('attack', 'x=315&y=963&UserID=588b9fddd382d6ba25c3c3d6')"><span class="endpoint">GET</span> attack</button>
-    <button class="action-btn" onclick="callMap('gather', 'x=402&y=348')"><span class="endpoint">GET</span> gather</button>
-    <button class="action-btn" onclick="callMap('monster', 'x=243&y=113')"><span class="endpoint">GET</span> monster</button>
-    <button class="action-btn" onclick="callMap('scout', 'x=315&y=963&UserID=588b9fddd382d6ba25c3c3d6')"><span class="endpoint">GET</span> scout</button>
-    <button class="action-btn" onclick="callMap('ruins', 'x=99&y=383&Mode=Easy')"><span class="endpoint">GET</span> ruins</button>
-    <button class="action-btn" onclick="callMap('camping', 'x=313&y=962')"><span class="endpoint">GET</span> camping</button>
-    <button class="action-btn" onclick="call('WORLDMAP?action=getQuadrant&x=315&y=963')"><span class="endpoint">GET</span> getQuadrant</button>
-    <button class="action-btn" onclick="call('WORLDMAP?action=getMarch')"><span class="endpoint">GET</span> getMarch</button>
-    <h3>⚔️ HERO</h3>
-    <button class="action-btn" onclick="call('HERO?action=status')"><span class="endpoint">GET</span> status</button>
-    <button class="action-btn" onclick="call('HERO?action=levelUpH')"><span class="endpoint">GET</span> levelUpH</button>
-    <h3>🎰 GAMBLE</h3>
-    <button class="action-btn" onclick="call('GAMBLE?action=spin&Side=1')"><span class="endpoint">GET</span> spin</button>
-    <button class="action-btn" onclick="call('GAMBLE?action=flip&Slot=1')"><span class="endpoint">GET</span> flip</button>
-    <h3>👹 WARLORDS</h3>
-    <button class="action-btn" onclick="call('WARLORDS?action=summon&Warlords=1001.5/-/2001.5')"><span class="endpoint">GET</span> summon</button>
-    <h3>🛒 ITEMS</h3>
-    <button class="action-btn" onclick="call('ITEMS?action=purchase&idItem=1001&Quantity=1')"><span class="endpoint">GET</span> purchase</button>
-    <h3>🏰 ALLIANCE</h3>
-    <button class="action-btn" onclick="call('ALLIANCE?action=get')"><span class="endpoint">GET</span> get</button>
-    <button class="action-btn" onclick="call('ALLIANCE?action=search&Search=Test')"><span class="endpoint">GET</span> search</button>
-    <h3>💎 VIP / IAP</h3>
-    <button class="action-btn" onclick="call('VIP?action=activate&idItem=1')"><span class="endpoint">GET</span> activate</button>
-    <button class="action-btn" onclick="call('VIP?action=levelUpV')"><span class="endpoint">GET</span> levelUpV</button>
-    <h3>📧 MAIL / QUEST</h3>
-    <button class="action-btn" onclick="call('MAIL?action=feed')"><span class="endpoint">GET</span> feed</button>
-    <button class="action-btn" onclick="call('QUEST?action=rewards')"><span class="endpoint">GET</span> rewards</button>
+    <div class="module-group">
+      <h3 onclick="toggleModule(this)">👤 USER <span class="toggle">+</span></h3>
+      <div class="module-body open">
+        <button class="action-btn" onclick="call('USER?action=login')"><span class="endpoint">GET</span> login</button>
+        <button class="action-btn" onclick="call('USER?action=getDictionaries')"><span class="endpoint">GET</span> getDictionaries</button>
+        <button class="action-btn" onclick="call('USER?action=getLanguage')"><span class="endpoint">GET</span> getLanguage</button>
+        <button class="action-btn" onclick="call('USER?action=dailyReward')"><span class="endpoint">GET</span> dailyReward</button>
+        <button class="action-btn" onclick="call('USER?action=reset')"><span class="endpoint">GET</span> reset</button>
+        <button class="action-btn" onclick="call('USER?action=changeLanguage&Language=es')"><span class="endpoint">GET</span> changeLanguage</button>
+      </div>
+    </div>
+    <div class="module-group">
+      <h3 onclick="toggleModule(this)">🏗️ BUILDINGS <span class="toggle">+</span></h3>
+      <div class="module-body open">
+        <button class="action-btn" onclick="call('BUILDINGS?action=construct&idBuilding=1001&Node=1')"><span class="endpoint">GET</span> construct</button>
+        <button class="action-btn" onclick="call('BUILDINGS?action=levelUpB&Node=1')"><span class="endpoint">GET</span> levelUpB</button>
+        <button class="action-btn" onclick="call('BUILDINGS?action=train&idBuilding=2015&Level=1&Quantity=10')"><span class="endpoint">GET</span> train</button>
+        <button class="action-btn" onclick="call('BUILDINGS?action=heal&Troops=Infantry.1.10')"><span class="endpoint">GET</span> heal</button>
+        <button class="action-btn" onclick="call('BUILDINGS?action=research&idResearch=1')"><span class="endpoint">GET</span> research</button>
+        <button class="action-btn" onclick="call('BUILDINGS?action=forge&idHeroItem=1001&Materials=Item.1001.1')"><span class="endpoint">GET</span> forge</button>
+        <button class="action-btn" onclick="call('BUILDINGS?action=wish')"><span class="endpoint">GET</span> wish</button>
+        <button class="action-btn" onclick="call('BUILDINGS?action=skills&idSkill=1')"><span class="endpoint">GET</span> skills</button>
+        <button class="action-btn" onclick="call('BUILDINGS?action=traps&TrapType=Rocks&Level=1&Quantity=5')"><span class="endpoint">GET</span> traps</button>
+        <button class="action-btn" onclick="call('BUILDINGS?action=collect&Node=1')"><span class="endpoint">GET</span> collect</button>
+        <button class="action-btn" onclick="call('BUILDINGS?action=recruitBuilder')"><span class="endpoint">GET</span> recruitBuilder</button>
+        <button class="action-btn" onclick="call('BUILDINGS?action=boost&Node=1&idItem=1001')"><span class="endpoint">GET</span> boost</button>
+        <button class="action-btn" onclick="call('BUILDINGS?action=demolish&Node=1')"><span class="endpoint">GET</span> demolish</button>
+        <button class="action-btn" onclick="call('BUILDINGS?action=GOLDconstruct&idBuilding=1001&Node=1')"><span class="endpoint">GET</span> GOLDconstruct</button>
+        <button class="action-btn" onclick="call('BUILDINGS?action=GOLDtrain&idBuilding=2015&Level=1&Quantity=10')"><span class="endpoint">GET</span> GOLDtrain</button>
+        <button class="action-btn" onclick="call('BUILDINGS?action=GOLDheal&Troops=Infantry.1.10')"><span class="endpoint">GET</span> GOLDheal</button>
+        <button class="action-btn" onclick="call('BUILDINGS?action=GOLDlevelUpB&Node=1')"><span class="endpoint">GET</span> GOLDlevelUpB</button>
+        <button class="action-btn" onclick="call('BUILDINGS?action=synthesizeMaterials&Material=Item.1001&Tier=1')"><span class="endpoint">GET</span> synthesizeMaterials</button>
+        <button class="action-btn" onclick="call('BUILDINGS?action=disassemble&idItem=1001&Tier=1')"><span class="endpoint">GET</span> disassemble</button>
+      </div>
+    </div>
+    <div class="module-group">
+      <h3 onclick="toggleModule(this)">⏱️ CONSTRUCT TIMER <span class="toggle">+</span></h3>
+      <div class="module-body open">
+        <button class="action-btn" onclick="call('CONSTRUCT?action=remainingTime&idConstruct=all')"><span class="endpoint badge-blue">POLL</span> remainingTime (all)</button>
+        <button class="action-btn" onclick="showConstructInput('speedUp')"><span class="endpoint badge-gold">ITEM</span> speedUp</button>
+        <button class="action-btn" onclick="showConstructInput('speedUpGold')"><span class="endpoint badge-gold">GOLD</span> speedUpGold</button>
+        <button class="action-btn" onclick="pollConstructTimers()"><span class="endpoint badge-green">AUTO</span> 🔄 Auto-Poll</button>
+      </div>
+    </div>
+    <div class="module-group">
+      <h3 onclick="toggleModule(this)">🗺️ WORLDMAP <span class="toggle">+</span></h3>
+      <div class="module-body open">
+        <button class="action-btn" onclick="callMap('attack', 'x=315&y=963&UserID=588b9fddd382d6ba25c3c3d6')"><span class="endpoint">GET</span> attack</button>
+        <button class="action-btn" onclick="callMap('gather', 'x=402&y=348')"><span class="endpoint">GET</span> gather</button>
+        <button class="action-btn" onclick="callMap('monster', 'x=243&y=113')"><span class="endpoint">GET</span> monster</button>
+        <button class="action-btn" onclick="callMap('scout', 'x=315&y=963&UserID=588b9fddd382d6ba25c3c3d6')"><span class="endpoint">GET</span> scout</button>
+        <button class="action-btn" onclick="callMap('ruins', 'x=99&y=383&Mode=Easy')"><span class="endpoint">GET</span> ruins</button>
+        <button class="action-btn" onclick="callMap('camping', 'x=313&y=962')"><span class="endpoint">GET</span> camping</button>
+        <button class="action-btn" onclick="callMap('gatherAttack', 'x=402&y=348')"><span class="endpoint">GET</span> gatherAttack</button>
+        <button class="action-btn" onclick="callMap('campingAttack', 'x=313&y=962')"><span class="endpoint">GET</span> campingAttack</button>
+        <button class="action-btn" onclick="callMap('sendResources', 'x=315&y=963&UserID=588b9fddd382d6ba25c3c3d6&Resources=Food.100/-/Wood.100')"><span class="endpoint">GET</span> sendResources</button>
+        <button class="action-btn" onclick="callMap('sendReinforcements', 'x=315&y=963&UserID=588b9fddd382d6ba25c3c3d6')"><span class="endpoint">GET</span> sendReinforcements</button>
+        <button class="action-btn" onclick="call('WORLDMAP?action=getQuadrant&x=315&y=963')"><span class="endpoint">GET</span> getQuadrant</button>
+        <button class="action-btn" onclick="call('WORLDMAP?action=getMonsters')"><span class="endpoint">GET</span> getMonsters</button>
+        <button class="action-btn" onclick="call('WORLDMAP?action=findResource&Level=1&idBuilding=1001')"><span class="endpoint">GET</span> findResource</button>
+        <button class="action-btn" onclick="call('WORLDMAP?action=findMonster&Level=1')"><span class="endpoint">GET</span> findMonster</button>
+        <button class="action-btn" onclick="call('WORLDMAP?action=findRuins')"><span class="endpoint">GET</span> findRuins</button>
+        <button class="action-btn" onclick="call('WORLDMAP?action=getWatchTowerReports')"><span class="endpoint">GET</span> watchTowerReports</button>
+        <button class="action-btn" onclick="call('WORLDMAP?action=teleportInvite&UserID=588b9fddd382d6ba25c3c3d6')"><span class="endpoint">GET</span> teleportInvite</button>
+      </div>
+    </div>
+    <div class="module-group">
+      <h3 onclick="toggleModule(this)">🚶 MARCH TRACKING <span class="toggle">+</span></h3>
+      <div class="module-body open">
+        <button class="action-btn" onclick="showMarchInput('getMarch')"><span class="endpoint">GET</span> getMarch</button>
+        <button class="action-btn" onclick="showMarchInput('syncMarch')"><span class="endpoint">GET</span> syncMarch</button>
+        <button class="action-btn" onclick="showMarchInput('recall')"><span class="endpoint">GET</span> recall</button>
+        <button class="action-btn" onclick="showMarchInput('acceleration')"><span class="endpoint badge-blue">ITEM</span> acceleration</button>
+        <button class="action-btn" onclick="showMarchInput('goHome')"><span class="endpoint">GET</span> goHome</button>
+        <button class="action-btn" onclick="showMarchInput('deleteMarch')"><span class="endpoint badge-red" style="color:var(--red)">DEL</span> deleteMarch</button>
+        <button class="action-btn" onclick="pollMarchStatus()"><span class="endpoint badge-green">AUTO</span> 🔄 Auto-Poll Marches</button>
+        <button class="action-btn" onclick="call('MARCHREPORT?action=feed')"><span class="endpoint">GET</span> marchReport feed</button>
+        <button class="action-btn" onclick="call('MARCHREPORT?action=marchDayCount')"><span class="endpoint">GET</span> marchDayCount</button>
+        <button class="action-btn" onclick="call('MARCHREPORT?action=reinforcements')"><span class="endpoint">GET</span> reinforcements</button>
+      </div>
+    </div>
+    <div class="module-group">
+      <h3 onclick="toggleModule(this)">🎯 QUESTS <span class="toggle">+</span></h3>
+      <div class="module-body open">
+        <button class="action-btn" onclick="call('QUEST?action=rewards&idQuest=0')"><span class="endpoint">GET</span> rewards (by id)</button>
+        <button class="action-btn" onclick="call('QUEST?action=collectQ')"><span class="endpoint">GET</span> collectQ (all quests)</button>
+        <button class="action-btn" onclick="call('QUEST?action=rewardsD&idQuest=0')"><span class="endpoint">GET</span> rewardsD (daily by id)</button>
+        <button class="action-btn" onclick="call('QUEST?action=collectD')"><span class="endpoint">GET</span> collectD (all daily)</button>
+        <button class="action-btn" onclick="call('QUEST?action=feed')"><span class="endpoint">GET</span> quest feed</button>
+      </div>
+    </div>
+    <div class="module-group">
+      <h3 onclick="toggleModule(this)">⚔️ HERO <span class="toggle">+</span></h3>
+      <div class="module-body open">
+        <button class="action-btn" onclick="call('HERO?action=status')"><span class="endpoint">GET</span> status</button>
+        <button class="action-btn" onclick="call('HERO?action=levelUpH')"><span class="endpoint">GET</span> levelUpH</button>
+        <button class="action-btn" onclick="showHeroInput('changeHero')"><span class="endpoint">GET</span> changeHero</button>
+        <button class="action-btn" onclick="showHeroInput('equipItem')"><span class="endpoint">GET</span> equipItem</button>
+        <button class="action-btn" onclick="showHeroInput('unequipItem')"><span class="endpoint">GET</span> unequipItem</button>
+        <button class="action-btn" onclick="showHeroInput('forge')"><span class="endpoint">GET</span> forge (custom)</button>
+        <button class="action-btn" onclick="call('HERO?action=prisonFeed')"><span class="endpoint">GET</span> prisonFeed</button>
+        <button class="action-btn" onclick="call('HERO?action=pitFeed')"><span class="endpoint">GET</span> pitFeed</button>
+        <button class="action-btn" onclick="call('HERO?action=activateSkill')"><span class="endpoint">GET</span> activateSkill</button>
+        <button class="action-btn" onclick="showHeroInput('execute')"><span class="endpoint">GET</span> execute prisoner</button>
+        <button class="action-btn" onclick="showHeroInput('release')"><span class="endpoint">GET</span> release prisoner</button>
+        <button class="action-btn" onclick="call('HERO?action=resurrection')"><span class="endpoint">GET</span> resurrection</button>
+        <button class="action-btn" onclick="call('HERO?action=escape')"><span class="endpoint">GET</span> escape prisoner</button>
+        <button class="action-btn" onclick="showHeroInput('poison')"><span class="endpoint">GET</span> poison prisoner</button>
+      </div>
+    </div>
+    <div class="module-group">
+      <h3 onclick="toggleModule(this)">🏰 ALLIANCE <span class="toggle">+</span></h3>
+      <div class="module-body open">
+        <button class="action-btn" onclick="call('ALLIANCE?action=get')"><span class="endpoint">GET</span> get (my alliance)</button>
+        <button class="action-btn" onclick="showAllianceInput('create')"><span class="endpoint">GET</span> create</button>
+        <button class="action-btn" onclick="showAllianceInput('search')"><span class="endpoint">GET</span> search</button>
+        <button class="action-btn" onclick="showAllianceInput('join')"><span class="endpoint">GET</span> join</button>
+        <button class="action-btn" onclick="call('ALLIANCE?action=leave')"><span class="endpoint">GET</span> leave</button>
+        <button class="action-btn" onclick="call('ALLIANCE?action=getMembersDetails')"><span class="endpoint">GET</span> members</button>
+        <button class="action-btn" onclick="call('ALLIANCE?action=chatFeed')"><span class="endpoint">GET</span> chatFeed</button>
+        <button class="action-btn" onclick="showAllianceInput('chat')"><span class="endpoint">GET</span> chat (send)</button>
+        <button class="action-btn" onclick="showAllianceInput('askHelp')"><span class="endpoint">GET</span> askHelp</button>
+        <button class="action-btn" onclick="showAllianceInput('sendHelp')"><span class="endpoint">GET</span> sendHelp</button>
+        <button class="action-btn" onclick="showAllianceInput('requestShards')"><span class="endpoint">GET</span> requestShards</button>
+        <button class="action-btn" onclick="showAllianceInput('donateShards')"><span class="endpoint">GET</span> donateShards</button>
+        <button class="action-btn" onclick="showAllianceInput('changeSlogan')"><span class="endpoint">GET</span> changeSlogan</button>
+        <button class="action-btn" onclick="showAllianceInput('kick')"><span class="endpoint">GET</span> kick member</button>
+        <button class="action-btn" onclick="showAllianceInput('answerRequest')"><span class="endpoint">GET</span> answerRequest</button>
+        <button class="action-btn" onclick="showAllianceInput('changeRank')"><span class="endpoint">GET</span> changeRank</button>
+      </div>
+    </div>
+    <div class="module-group">
+      <h3 onclick="toggleModule(this)">💬 CHAT / MAIL <span class="toggle">+</span></h3>
+      <div class="module-body open">
+        <button class="action-btn" onclick="call('CHAT?action=feed')"><span class="endpoint">GET</span> chat feed</button>
+        <button class="action-btn" onclick="showChatInput('addPrivate')"><span class="endpoint">GET</span> private message</button>
+        <button class="action-btn" onclick="showChatInput('addGroup')"><span class="endpoint">GET</span> create group</button>
+        <button class="action-btn" onclick="call('KINGDOMCHAT?action=feed')"><span class="endpoint">GET</span> kingdom feed</button>
+        <button class="action-btn" onclick="showChatInput('kingdomMsg')"><span class="endpoint">GET</span> kingdom message</button>
+        <button class="action-btn" onclick="call('MAIL?action=feed')"><span class="endpoint">GET</span> mail feed</button>
+        <button class="action-btn" onclick="showMailInput('markRead')"><span class="endpoint">GET</span> mark read</button>
+        <button class="action-btn" onclick="showMailInput('collectRewards')"><span class="endpoint">GET</span> collect mail rewards</button>
+        <button class="action-btn" onclick="call('CHAT?action=markRead')"><span class="endpoint">GET</span> chat markRead</button>
+      </div>
+    </div>
+    <div class="module-group">
+      <h3 onclick="toggleModule(this)">🎰 GAMBLE <span class="toggle">+</span></h3>
+      <div class="module-body open">
+        <button class="action-btn" onclick="call('GAMBLE?action=spin')"><span class="endpoint">GET</span> spin</button>
+        <button class="action-btn" onclick="call('GAMBLE?action=flip&Slot=1')"><span class="endpoint">GET</span> flip</button>
+        <button class="action-btn" onclick="call('GAMBLE?action=giveUp')"><span class="endpoint">GET</span> giveUp</button>
+      </div>
+    </div>
+    <div class="module-group">
+      <h3 onclick="toggleModule(this)">👹 WARLORDS <span class="toggle">+</span></h3>
+      <div class="module-body open">
+        <button class="action-btn" onclick="call('WARLORDS?action=summon&Warlords=1001.5')"><span class="endpoint">GET</span> summon</button>
+        <button class="action-btn" onclick="showWarlordInput('levelupW')"><span class="endpoint">GET</span> levelupW</button>
+        <button class="action-btn" onclick="showWarlordInput('chest')"><span class="endpoint">GET</span> chest</button>
+        <button class="action-btn" onclick="call('WARLORDS?action=dungeon')"><span class="endpoint">GET</span> dungeon</button>
+      </div>
+    </div>
+    <div class="module-group">
+      <h3 onclick="toggleModule(this)">🛒 ITEMS <span class="toggle">+</span></h3>
+      <div class="module-body open">
+        <button class="action-btn" onclick="showItemInput('purchase')"><span class="endpoint">GET</span> purchase</button>
+        <button class="action-btn" onclick="showItemInput('use')"><span class="endpoint">GET</span> use</button>
+        <button class="action-btn" onclick="showItemInput('materialChest')"><span class="endpoint">GET</span> materialChest</button>
+        <button class="action-btn" onclick="showItemInput('incStamina')"><span class="endpoint">GET</span> incStamina</button>
+        <button class="action-btn" onclick="call('ITEMS?action=randomTeleport')"><span class="endpoint">GET</span> randomTeleport</button>
+        <button class="action-btn" onclick="showItemInput('advancedTeleport')"><span class="endpoint">GET</span> advancedTeleport</button>
+        <button class="action-btn" onclick="call('ITEMS?action=cityDefense')"><span class="endpoint">GET</span> cityDefense shield</button>
+        <button class="action-btn" onclick="call('ITEMS?action=timeItems')"><span class="endpoint">GET</span> timeItems</button>
+        <button class="action-btn" onclick="call('ITEMS?action=buyUse&idItem=1001&Quantity=1')"><span class="endpoint">GET</span> buyUse</button>
+      </div>
+    </div>
+    <div class="module-group">
+      <h3 onclick="toggleModule(this)">💎 VIP / IAP <span class="toggle">+</span></h3>
+      <div class="module-body open">
+        <button class="action-btn" onclick="showVipInput('activate')"><span class="endpoint">GET</span> activate</button>
+        <button class="action-btn" onclick="call('VIP?action=levelUpV')"><span class="endpoint">GET</span> levelUpV</button>
+        <button class="action-btn" onclick="showIapInput('IAPpurchase')"><span class="endpoint">GET</span> IAPpurchase</button>
+        <button class="action-btn" onclick="call('IAP?action=rewardsViewed')"><span class="endpoint">GET</span> rewardsViewed</button>
+      </div>
+    </div>
+    <div class="module-group">
+      <h3 onclick="toggleModule(this)">🌐 SOCIAL / RANKING <span class="toggle">+</span></h3>
+      <div class="module-body open">
+        <button class="action-btn" onclick="call('RANKING?action=feed')"><span class="endpoint">GET</span> ranking feed</button>
+        <button class="action-btn" onclick="call('SOCIAL?action=getUsersData')"><span class="endpoint">GET</span> social data</button>
+        <button class="action-btn" onclick="showSocialInput('sendRequest')"><span class="endpoint">GET</span> friend request</button>
+        <button class="action-btn" onclick="showSocialInput('unFriend')"><span class="endpoint">GET</span> unFriend</button>
+        <button class="action-btn" onclick="call('TUTORIAL?action=finish&Index=0')"><span class="endpoint">GET</span> tutorial finish</button>
+        <button class="action-btn" onclick="call('BOOKMARKS?action=add&Name=Test&Type=city&x=315&y=963')"><span class="endpoint">GET</span> add bookmark</button>
+        <button class="action-btn" onclick="call('AVATAR?action=incHappiness')"><span class="endpoint">GET</span> incHappiness</button>
+        <button class="action-btn" onclick="showSocialInput('changeAvatar')"><span class="endpoint">GET</span> changeAvatar</button>
+      </div>
+    </div>
+    <div class="module-group">
+      <h3 onclick="toggleModule(this)">🛠️ DEMO/ADMIN <span class="toggle">+</span></h3>
+      <div class="module-body open">
+        <h4 style="color:var(--gold-dark);font-size:11px;padding:2px 4px">👤 User Mgmt</h4>
+        <button class="action-btn" onclick="call('DEMO?action=backupUser')"><span class="endpoint badge-green">DEMO</span> backupUser</button>
+        <button class="action-btn" onclick="call('DEMO?action=snapshotUser&name=test')"><span class="endpoint badge-green">DEMO</span> snapshotUser</button>
+        <button class="action-btn" onclick="call('DEMO?action=restoreUser')"><span class="endpoint badge-green">DEMO</span> restoreUser</button>
+        <button class="action-btn" onclick="call('DEMO?action=resetUsr&x=315&y=963')"><span class="endpoint badge-green">DEMO</span> resetUsr</button>
+        <h4 style="color:var(--gold-dark);font-size:11px;padding:2px 4px">💰 Resources</h4>
+        <button class="action-btn" onclick="call('DEMO?action=putGold')"><span class="endpoint badge-gold">DEMO</span> putGold</button>
+        <button class="action-btn" onclick="call('DEMO?action=putAllItems')"><span class="endpoint badge-gold">DEMO</span> putAllItems</button>
+        <button class="action-btn" onclick="call('DEMO?action=putAllTroops')"><span class="endpoint badge-gold">DEMO</span> putAllTroops</button>
+        <button class="action-btn" onclick="call('DEMO?action=putAllWarlords')"><span class="endpoint badge-gold">DEMO</span> putAllWarlords</button>
+        <button class="action-btn" onclick="call('DEMO?action=addItem&idItem=1001&Quantity=10')"><span class="endpoint badge-gold">DEMO</span> addItem</button>
+        <h4 style="color:var(--gold-dark);font-size:11px;padding:2px 4px">🗺️ Map</h4>
+        <button class="action-btn" onclick="call('WORLDMAP?action=newMap')"><span class="endpoint badge-blue">MAP</span> newMap</button>
+        <button class="action-btn" onclick="call('DEMO?action=populateAlliance&idAlliance=test&Quantity=5')"><span class="endpoint badge-blue">MAP</span> populateAlliance</button>
+        <button class="action-btn" onclick="call('DEMO?action=populateMarches')"><span class="endpoint badge-blue">MAP</span> populateMarches</button>
+        <h4 style="color:var(--gold-dark);font-size:11px;padding:2px 4px">🐛 Debug</h4>
+        <button class="action-btn" onclick="showDebugInput('cutTimePrisoners')"><span class="endpoint badge-red">DBG</span> cutTimePrisoners</button>
+        <button class="action-btn" onclick="showDebugInput('resetDate')"><span class="endpoint badge-red">DBG</span> resetDate</button>
+        <button class="action-btn" onclick="call('DEMO?action=deleteCrons')"><span class="endpoint badge-red">DBG</span> deleteCrons</button>
+        <button class="action-btn" onclick="call('DEMO?action=activateShield')"><span class="endpoint badge-red">DBG</span> activateShield</button>
+        <button class="action-btn" onclick="call('DEMO?action=deactivateShield')"><span class="endpoint badge-red">DBG</span> deactivateShield</button>
+        <button class="action-btn" onclick="call('DEMO?action=activateBurn')"><span class="endpoint badge-red">DBG</span> activateBurn</button>
+        <button class="action-btn" onclick="call('DEMO?action=resetActiveSkillsCD')"><span class="endpoint badge-red">DBG</span> resetSkillsCD</button>
+        <button class="action-btn" onclick="call('DEMO?action=cleanMarches')"><span class="endpoint badge-red">DBG</span> cleanMarches</button>
+        <button class="action-btn" onclick="call('DEMO?action=halveValues&collectionName=TimeValues&arrayName=ConstructionTimes')"><span class="endpoint badge-red">DBG</span> halveValues</button>
+        <button class="action-btn" onclick="call('DEMO?action=modifyTimeValues&collectionName=TimeValues&value=0.1')"><span class="endpoint badge-red">DBG</span> modifyTimeValues *0.1</button>
+        <button class="action-btn" onclick="call('DEMO?action=getMarches')"><span class="endpoint badge-red">DBG</span> getMarches</button>
+        <button class="action-btn" onclick="call('DEMO?action=stopJobs')"><span class="endpoint badge-red">DBG</span> stopJobs</button>
+      </div>
+    </div>
   </div>
   <div id="game">
     <div class="card" id="dashboard">
       <h3>🏰 Reino</h3>
-      <div id="dash-content" style="color:var(--text-dim);">Haz login para ver tu reino...</div>
+      <div id="dash-content" style="color:var(--text-dim);font-size:12px">Haz login para ver tu reino...</div>
     </div>
     <div class="card">
       <h3>📊 Recursos</h3>
@@ -293,21 +520,60 @@ body {
     </div>
     <div class="card">
       <h3>🏗️ Edificios</h3>
-      <div id="buildings" style="font-size:12px;color:var(--text-dim)"></div>
+      <div id="buildings" style="font-size:11px;color:var(--text-dim)"></div>
+    </div>
+    <div class="card" id="cards-construct">
+      <h3>⏱️ Construcciones Activas <span id="construct-badge" class="badge badge-gold" style="display:none"></span></h3>
+      <div id="construct-list" style="font-size:11px;color:var(--text-dim)">Sin construcciones activas</div>
+    </div>
+    <div class="card" id="cards-marches">
+      <h3>🚶 Marchas Activas <span id="march-badge" class="badge badge-blue" style="display:none"></span></h3>
+      <div id="march-list" style="font-size:11px;color:var(--text-dim)">Sin marchas activas</div>
+    </div>
+    <div class="card" id="cards-quests">
+      <h3>🎯 Misiones</h3>
+      <div class="section-tabs">
+        <button class="active" onclick="switchQuestTab(this,'quest-norm')">Normales</button>
+        <button onclick="switchQuestTab(this,'quest-daily')">Diarias</button>
+        <button onclick="switchQuestTab(this,'quest-feed')">Feed</button>
+      </div>
+      <div id="quest-norm" class="section-tab-content active" style="font-size:11px"></div>
+      <div id="quest-daily" class="section-tab-content" style="font-size:11px"></div>
+      <div id="quest-feed" class="section-tab-content" style="font-size:11px"></div>
+    </div>
+    <div class="card" id="cards-hero">
+      <h3>⚔️ Héroe</h3>
+      <div id="hero-content" style="font-size:11px;color:var(--text-dim)">Usa HERO?action=status para ver</div>
+    </div>
+    <div class="card" id="cards-alliance">
+      <h3>🏰 Alianza</h3>
+      <div id="alliance-content" style="font-size:11px;color:var(--text-dim)">Usa ALLIANCE?action=get para ver</div>
+    </div>
+    <div class="card" id="cards-chatmail">
+      <h3>💬 Chat / Mail</h3>
+      <div class="section-tabs">
+        <button class="active" onclick="switchChatTab(this,'chat-private')">Chat</button>
+        <button onclick="switchChatTab(this,'chat-kingdom')">Kingdom</button>
+        <button onclick="switchChatTab(this,'mail-feed')">Mail</button>
+      </div>
+      <div id="chat-private" class="section-tab-content active" style="font-size:11px;max-height:200px;overflow-y:auto"></div>
+      <div id="chat-kingdom" class="section-tab-content" style="font-size:11px;max-height:200px;overflow-y:auto"></div>
+      <div id="mail-feed" class="section-tab-content" style="font-size:11px;max-height:200px;overflow-y:auto"></div>
+    </div>
+    <div class="card" id="cards-waritems">
+      <h3>👹 Warlords / 🛒 Items</h3>
+      <div id="waritems-content" style="font-size:11px;color:var(--text-dim)">Usa los botones del panel izquierdo</div>
     </div>
   </div>
   <div id="response">
-    <h3>📋 Response</h3>
-    <div id="resp-time" style="font-size:11px;margin-bottom:4px"></div>
+    <h3>📋 Response <span id="resp-time" style="font-size:10px;font-weight:normal"></span></h3>
     <pre id="resp-body">Selecciona una acción...</pre>
   </div>
 </div>
 <div id="stats-panel">
-  <h3>📈 API Calls</h3>
+  <h3>📈 API Calls (<span id="stats-count">0</span>) <span id="stats-avg" style="font-size:10px;font-weight:normal;color:var(--text-dim)"></span></h3>
   <table class="stats-table">
-    <thead><tr>
-      <th>#</th><th>Timestamp</th><th>Endpoint</th><th>Status</th><th>Elapsed (ms)</th><th>Size</th>
-    </tr></thead>
+    <thead><tr><th>#</th><th>Hora</th><th>Endpoint</th><th>Status</th><th>ms</th><th>Size</th></tr></thead>
     <tbody id="stats-body"></tbody>
   </table>
 </div>
@@ -315,12 +581,32 @@ body {
 
 <script>
 const PROXY = window.location.origin + '/api/';
-let userId = '', deviceId = '', callCount = 0;
+let userId = '', deviceId = '', callCount = 0, totalElapsed = 0, pollTimers = [], lastUserData = null;
 
 function loadState() {
   deviceId = localStorage.getItem('cotw_deviceId') || document.getElementById('deviceId').value;
   document.getElementById('deviceId').value = deviceId;
   userId = localStorage.getItem('cotw_userId') || '';
+}
+
+function toggleModule(el) {
+  const body = el.nextElementSibling;
+  body.classList.toggle('open');
+  el.querySelector('.toggle').textContent = body.classList.contains('open') ? '−' : '+';
+}
+
+function switchQuestTab(btn, id) {
+  document.querySelectorAll('#cards-quests .section-tabs button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('#cards-quests .section-tab-content').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+function switchChatTab(btn, id) {
+  document.querySelectorAll('#cards-chatmail .section-tabs button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('#cards-chatmail .section-tab-content').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('active');
 }
 
 async function doLogin() {
@@ -331,84 +617,42 @@ async function doLogin() {
     userId = r.User._id?.$oid || r.User._id || '';
     localStorage.setItem('cotw_userId', userId);
     renderDashboard(r);
-    document.getElementById('status-text').innerHTML = 
-      `<span class="ok">✅ Conectado: ${r.User.Player?.UserName || '?'} | idUser: ${userId}</span>`;
+    document.getElementById('status-text').innerHTML = `<span class="ok">✅ Conectado: ${r.User.Player?.UserName || '?'} | idUser: ${userId}</span>`;
+    document.getElementById('conn-status').style.color = 'var(--green)';
+    document.getElementById('conn-status').textContent = '🟢';
+    // Auto-load modules
+    autoLoadModules();
   }
 }
 
-function renderDashboard(data) {
-  const u = data.User || data;
-  // Kingdom info
-  const p = u.Player || {};
-  document.getElementById('dash-content').innerHTML = `
-    <b>${p.UserName || '?'}</b> | Nivel: ${u.Hero?.Level || 1} | 
-    Reino: ${p.idKingdom} | Coord: [${(p.Coordinates||[]).join(',')}] |
-    Gold: <span style="color:var(--gold)">${u.Gold?.Quantity || 0}</span> |
-    Stamina: ${(p.Stamina||0).toFixed(0)}/${(p.StaminaCap||50)} |
-    VIP: ${u.VIP?.Level || 0}
-  `;
-  
-  // Resources
-  const res = u.Resources || {};
-  const resHtml = ['Food','Wood','Stone','Ore','Ecto'].map(r => {
-    const d = res[r] || {};
-    return `<div class="res-item"><span class="name">${r}</span><br><span class="val">${(d.Quantity||0).toLocaleString()}</span></div>`;
-  }).join('');
-  document.getElementById('resources').innerHTML = `<div class="res-item"><span class="name">Gold</span><br><span class="val" style="color:var(--gold)">${(u.Gold?.Quantity||0).toLocaleString()}</span></div>` + resHtml;
-  
-  // Troops
-  const troopTypes = ['Infantry','Cavalry','Archer','Siege'];
-  let troopHtml = '';
-  if (u.Troops) {
-    troopTypes.forEach(t => {
-      const data = u.Troops[t];
-      if (data?.Troops) {
-        data.Troops.forEach((lvl, i) => {
-          troopHtml += `<div class="troop-row">${t} L${lvl.Level||i+1}: <b>${lvl.Active||0}</b> act / ${lvl.Wounded||0} wnd / ${lvl.Dead||0} dead</div>`;
-        });
-      }
-    });
-  }
-  document.getElementById('troops').innerHTML = troopHtml || '<span style="color:var(--text-dim);font-size:12px">Sin tropas</span>';
-  
-  // Buildings
-  const blds = u.Buildings || [];
-  document.getElementById('buildings').innerHTML = blds.map(b => 
-    `🏗️ id:${b.idBuilding} Lvl:${b.Level} Node:${b.Node}`
-  ).join(' | ') || 'Sin edificios';
-}
-
-function callMap(action, extraParams) {
-  const troops = document.getElementById('userFilter').value || 'Archer.1.5/-/Infantry.1.5';
-  return call(`WORLDMAP?action=${action}&${extraParams}&Troops=${encodeURIComponent(troops)}`);
+function autoLoadModules() {
+  pollConstructTimers();
+  pollMarchStatus();
+  loadQuests();
+  loadHeroStatus();
+  loadAlliance();
+  loadChatMail();
 }
 
 async function call(endpoint) {
   const start = performance.now();
   callCount++;
   let url = PROXY + endpoint;
-  // Append deviceId if not present
-  if (!url.includes('deviceId=') && deviceId) {
-    url += (url.includes('?') ? '&' : '?') + 'deviceId=' + deviceId;
-  }
-  if (!url.includes('idUser=') && userId) {
-    url += '&idUser=' + userId;
-  }
-  
+  if (!url.includes('deviceId=') && deviceId) url += (url.includes('?') ? '&' : '?') + 'deviceId=' + deviceId;
+  if (!url.includes('idUser=') && userId) url += '&idUser=' + userId;
+
   document.getElementById('resp-time').innerHTML = '<span class="spinner"></span> Loading...';
   document.getElementById('resp-body').textContent = 'Loading...';
-  
+
   try {
     const resp = await fetch(url);
     const data = await resp.json();
     const elapsed = data._proxy_elapsed_ms || Math.round(performance.now() - start);
-    
-    // Show response
-    document.getElementById('resp-time').innerHTML = 
-      `⏱️ <span class="${elapsed > 5000 ? 'slow' : elapsed > 2000 ? 'medium' : 'fast'}">${elapsed}ms</span> | HTTP ${resp.status} | ${JSON.stringify(data).length} bytes`;
+    totalElapsed += elapsed;
+
+    document.getElementById('resp-time').innerHTML = `⏱️ <span class="${elapsed > 5000 ? 'slow' : elapsed > 2000 ? 'medium' : 'fast'}">${elapsed}ms</span> | HTTP ${resp.status} | ${JSON.stringify(data).length} bytes`;
     document.getElementById('resp-body').textContent = JSON.stringify(data, null, 2);
-    
-    // Add stats
+
     const cls = elapsed > 5000 ? 'slow' : elapsed > 2000 ? 'medium' : 'fast';
     document.getElementById('stats-body').insertAdjacentHTML('afterbegin', `
       <tr>
@@ -420,16 +664,623 @@ async function call(endpoint) {
         <td>${(JSON.stringify(data).length/1024).toFixed(1)} KB</td>
       </tr>
     `);
-    
-    // Auto-update dashboard on login
+    document.getElementById('stats-count').textContent = callCount;
+    document.getElementById('stats-avg').textContent = ` | avg: ${(totalElapsed/callCount).toFixed(0)}ms`;
+
     if (data.result === 1 && data.User) {
+      lastUserData = data;
       renderDashboard(data);
     }
-    
+
     return data;
   } catch (e) {
     document.getElementById('resp-time').innerHTML = `❌ Error: ${e.message}`;
     document.getElementById('resp-body').textContent = e.toString();
+  }
+}
+
+function callMap(action, extraParams) {
+  const troops = document.getElementById('userFilter').value || 'Archer.1.5/-/Infantry.1.5';
+  return call(`WORLDMAP?action=${action}&${extraParams}&Troops=${encodeURIComponent(troops)}`);
+}
+
+function renderDashboard(data) {
+  const u = data.User || data;
+  const p = u.Player || {};
+  document.getElementById('dash-content').innerHTML = `
+    <b>${p.UserName || '?'}</b> | Nivel: ${u.Hero?.Level || 1} | 
+    Reino: ${p.idKingdom} | Coord: [${(p.Coordinates||[]).join(',')}] |
+    Gold: <span style="color:var(--gold)">${u.Gold?.Quantity || 0}</span> |
+    Stamina: ${(p.Stamina||0).toFixed(0)}/${(p.StaminaCap||50)} |
+    VIP: ${u.VIP?.Level || 0} | 
+    Poder: ${u.Power?.Total || u.Power?.Troop || 0}
+  `;
+  
+  const res = u.Resources || {};
+  const resHtml = ['Food','Wood','Stone','Ore','Ecto'].map(r => {
+    const d = res[r] || {};
+    return `<div class="res-item"><span class="name">${r}</span><br><span class="val">${(d.Quantity||0).toLocaleString()}</span></div>`;
+  }).join('');
+  document.getElementById('resources').innerHTML = `<div class="res-item"><span class="name">Gold</span><br><span class="val" style="color:var(--gold)">${(u.Gold?.Quantity||0).toLocaleString()}</span></div>${resHtml}<div class="res-item"><span class="name">DarkRunes</span><br><span class="val">${(u.DarkRunes?.Quantity||0).toLocaleString()}</span></div>`;
+
+  const troopTypes = ['Infantry','Cavalry','Archer','Siege'];
+  let troopHtml = '';
+  if (u.Troops) {
+    troopTypes.forEach(t => {
+      const data = u.Troops[t];
+      if (data?.Troops?.length) {
+        data.Troops.forEach((lvl, i) => {
+          if (lvl.Active || lvl.Wounded) {
+            troopHtml += `<div class="troop-row">${t} L${lvl.Level||i+1}: <b>${lvl.Active||0}</b> / ${lvl.Wounded||0} h</div>`;
+          }
+        });
+      }
+    });
+  }
+  document.getElementById('troops').innerHTML = troopHtml || '<span style="color:var(--text-dim);font-size:11px">Sin tropas</span>';
+
+  const blds = u.Buildings || [];
+  document.getElementById('buildings').innerHTML = blds.map(b => 
+    `🏗️ id:${b.idBuilding} Lvl:${b.Level} Node:${b.Node}`
+  ).join(' | ') || 'Sin edificios';
+
+  // Update construct list from user data
+  renderConstructsFromUser(u);
+  // Update hero info
+  if (u.Hero) renderHeroInfo(u);
+}
+
+// ======================== MODULE A: CONSTRUCT TIMER ========================
+function renderConstructsFromUser(u) {
+  const constructs = u.Construct || [];
+  const list = document.getElementById('construct-list');
+  const badge = document.getElementById('construct-badge');
+  if (!constructs.length) {
+    list.innerHTML = '<span style="color:var(--text-dim)">Sin construcciones activas</span>';
+    badge.style.display = 'none';
+    return;
+  }
+  badge.style.display = 'inline';
+  badge.textContent = constructs.length;
+  list.innerHTML = constructs.map(c => {
+    const id = c._id?.$oid || c._id || '';
+    const endDate = c.EndDate?.$date || c.EndDate;
+    const startDate = c.StartDate?.$date || c.StartDate;
+    const totalSecs = c.constructionTime || 0;
+    const now = Date.now();
+    const endMs = new Date(endDate).getTime();
+    const startMs = new Date(startDate).getTime();
+    const remaining = Math.max(0, endMs - now);
+    const totalDuration = Math.max(1, endMs - startMs);
+    const pct = Math.min(100, ((1 - remaining / totalDuration) * 100));
+    const remainingSecs = Math.ceil(remaining / 1000);
+    return `<div class="construct-item" data-id="${id}">
+      <div><b>${c.Type || '?'}</b> ${c.idStuff || ''} | Node ${c.Location||0}</div>
+      <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
+      <div class="grid-2" style="font-size:10px">
+        <span>⏱️ <span class="countdown" data-end="${endMs}">${formatTime(remainingSecs)}</span></span>
+        <span style="text-align:right">
+          <button class="collect-btn" onclick="checkConstruct('${id}')">⏱️ Check</button>
+          <button class="collect-btn" onclick="speedUpGold('${id}')">💰 Gold</button>
+        </span>
+      </div>
+    </div>`;
+  }).join('');
+  startCountdowns();
+}
+
+function formatTime(secs) {
+  if (secs <= 0) return '✅ Completado';
+  const h = Math.floor(secs / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  const s = secs % 60;
+  if (h > 0) return `${h}h ${m}m ${s}s`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
+}
+
+function startCountdowns() {
+  if (pollTimers.length) { pollTimers.forEach(t => clearInterval(t)); pollTimers = []; }
+  document.querySelectorAll('.countdown').forEach(el => {
+    const end = parseInt(el.dataset.end);
+    if (!end) return;
+    const id = setInterval(() => {
+      const remaining = Math.max(0, end - Date.now());
+      const secs = Math.ceil(remaining / 1000);
+      el.textContent = formatTime(secs);
+      // Update parent bar
+      const parent = el.closest('.construct-item') || el.closest('.march-item');
+      if (parent) {
+        const bar = parent.querySelector('.bar-fill');
+        if (bar) {
+          const total = parent.dataset.total ? parseInt(parent.dataset.total) : 1;
+          const pct = Math.min(100, ((1 - remaining / total) * 100));
+          bar.style.width = pct + '%';
+        }
+      }
+      if (remaining <= 0) { clearInterval(id); }
+    }, 1000);
+    pollTimers.push(id);
+  });
+}
+
+async function checkConstruct(id) {
+  const r = await call(`CONSTRUCT?action=remainingTime&idConstruct=${id}`);
+  if (r && r.User) { renderDashboard(r); }
+  pollConstructTimers();
+}
+
+async function speedUpGold(id) {
+  const r = await call(`CONSTRUCT?action=speedUpGold&idConstruct=${id}`);
+  if (r && r.User) { renderDashboard(r); }
+  pollConstructTimers();
+}
+
+function showConstructInput(action) {
+  const id = prompt('idConstruct:');
+  if (!id) return;
+  if (action === 'speedUp') {
+    const idItem = prompt('idItem:') || '1001';
+    const qty = prompt('Quantity:') || '1';
+    call(`CONSTRUCT?action=speedUp&idConstruct=${id}&idItem=${idItem}&Quantity=${qty}`);
+  } else if (action === 'speedUpGold') {
+    speedUpGold(id);
+  }
+}
+
+let constructPollInterval = null;
+function pollConstructTimers() {
+  if (constructPollInterval) clearInterval(constructPollInterval);
+  const doPoll = async () => {
+    const r = await call('CONSTRUCT?action=remainingTime&idConstruct=all');
+    if (r && r.result === 1) {
+      if (r.User) renderDashboard(r);
+      // Render constructs from response
+      if (r.Constructs || r.constructs) {
+        const cs = r.Constructs || r.constructs;
+        document.getElementById('construct-list').innerHTML = cs.length ? cs.map(c => {
+          const remaining = c.RemainingTime || c.remainingTime || 0;
+          const id = c._id?.$oid || c._id || '';
+          return `<div class="construct-item" data-id="${id}">
+            <div><b>${c.Type||'?'}</b> ${c.idStuff||''} | Node ${c.Location||0}</div>
+            <div class="bar"><div class="bar-fill" style="width:${c.Percent||0}%"></div></div>
+            <div class="grid-2" style="font-size:10px">
+              <span>⏱️ ${formatTime(remaining)}</span>
+              <span style="text-align:right">
+                <button class="collect-btn" onclick="checkConstruct('${id}')">⏱️</button>
+                <button class="collect-btn" onclick="speedUpGold('${id}')">💰</button>
+              </span>
+            </div>
+          </div>`;
+        }).join('') : '<span style="color:var(--text-dim)">Sin construcciones</span>';
+      }
+    }
+  };
+  doPoll();
+  constructPollInterval = setInterval(doPoll, 15000);
+}
+
+// ======================== MODULE B: MARCH TRACKING ========================
+function showMarchInput(action) {
+  const id = prompt('idMarch:');
+  if (!id) return;
+  let url = `WORLDMAP?action=${action}&idMarch=${id}`;
+  if (action === 'acceleration') {
+    const idItem = prompt('idItem:') || '1001';
+    url += `&idItem=${idItem}`;
+  }
+  call(url);
+}
+
+function renderMarches(marches) {
+  const list = document.getElementById('march-list');
+  const badge = document.getElementById('march-badge');
+  if (!marches || !marches.length) {
+    list.innerHTML = '<span style="color:var(--text-dim)">Sin marchas activas</span>';
+    badge.style.display = 'none';
+    return;
+  }
+  badge.style.display = 'inline';
+  badge.textContent = marches.length;
+  
+  list.innerHTML = marches.map(m => {
+    const id = m._id?.$oid || m._id || '';
+    const status = m.Status || '?';
+    const startDate = m.StartDate?.$date || m.StartDate;
+    const endDate = m.EndDate?.$date || m.EndDate;
+    const now = Date.now();
+    const endMs = new Date(endDate).getTime();
+    const remaining = Math.max(0, endMs - now);
+    const totalDuration = Math.max(1, endMs - new Date(startDate).getTime());
+    const pct = totalDuration > 1 ? Math.min(100, ((1 - remaining / totalDuration) * 100)) : 0;
+    
+    return `<div class="march-item" data-id="${id}" data-total="${totalDuration}">
+      <div class="grid-2">
+        <div><span class="status-${status}">●</span> <b>${m.Type||'?'}</b> <span class="status-${status}">${status}</span></div>
+        <div style="text-align:right;font-size:10px">
+          [${(m.Origin?.Coordinates||[]).join(',')}] → [${(m.Destiny?.Coordinates||[]).join(',')}]
+        </div>
+      </div>
+      <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
+      <div class="grid-3" style="font-size:10px">
+        <span>⏱️ <span class="countdown" data-end="${endMs}">${formatTime(Math.ceil(remaining/1000))}</span></span>
+        <span>Troops: ${m.TotalTroops||0}</span>
+        <span style="text-align:right">
+          <button class="collect-btn" onclick="marchAction('recall','${id}')">↩️</button>
+          <button class="collect-btn" onclick="marchAction('goHome','${id}')">🏠</button>
+          <button class="collect-btn" onclick="marchAction('acceleration','${id}')">⚡</button>
+          <button class="collect-btn" onclick="if(confirm('Delete march?'))marchAction('deleteMarch','${id}')">🗑️</button>
+        </span>
+      </div>
+      ${m.Report ? `<div style="font-size:10px;color:var(--text-dim);margin-top:4px;border-top:1px solid var(--border);padding-top:3px">
+        <b>Reporte:</b> ${JSON.stringify(m.Report).substring(0,200)}</div>` : ''}
+    </div>`;
+  }).join('');
+  startCountdowns();
+}
+
+async function marchAction(action, id) {
+  let url = `WORLDMAP?action=${action}&idMarch=${id}`;
+  if (action === 'acceleration') {
+    const idItem = prompt('idItem for acceleration:') || '1001';
+    url += `&idItem=${idItem}`;
+  }
+  const r = await call(url);
+  if (r) pollMarchStatus();
+}
+
+let marchPollInterval = null;
+async function pollMarchStatus() {
+  if (marchPollInterval) clearInterval(marchPollInterval);
+  const doPoll = async () => {
+    // Use getQuadrant to get marches
+    const r = await call('WORLDMAP?action=getQuadrant&x=315&y=963');
+    if (r && r.Marches) {
+      renderMarches(r.Marches);
+    }
+    // Also get march report feed
+    if (lastUserData) {
+      call('MARCHREPORT?action=feed&_silent=1').then(d => {
+        if (d && d.Marches) renderMarches(d.Marches);
+      }).catch(()=>{});
+    }
+  };
+  await doPoll();
+  marchPollInterval = setInterval(doPoll, 20000);
+}
+
+// ======================== MODULE C: QUEST SYSTEM ========================
+async function loadQuests() {
+  // Try to get quest data from dictionaries or via QUEST feed
+  const feed = await call('QUEST?action=feed');
+  if (feed) renderQuests(feed);
+}
+
+function renderQuests(data) {
+  const normDiv = document.getElementById('quest-norm');
+  const dailyDiv = document.getElementById('quest-daily');
+  const feedDiv = document.getElementById('quest-feed');
+  
+  // Show feed data
+  feedDiv.innerHTML = data.Quests?.length ? data.Quests.map(q => 
+    `<div class="quest-item">
+      <span class="${q.Done ? 'done' : 'pending'}">${q.Done ? '✅' : '⬜'}</span> 
+      <b>${q.Name || q.idQuest || '?'}</b> | Progreso: ${q.Progress||0}/${q.Target||1}
+      ${q.Done ? `<button class="collect-btn" onclick="collectQuest(${q.idQuest})">🎁 Cobrar</button>` : ''}
+    </div>`
+  ).join('') : '<span style="color:var(--text-dim)">Sin datos de misiones</span>';
+  
+  // Show daily quests
+  if (data.Daily) {
+    dailyDiv.innerHTML = data.Daily.map(q => 
+      `<div class="quest-item">
+        <span class="${q.Done ? 'done' : 'pending'}">${q.Done ? '✅' : '⬜'}</span> 
+        <b>${q.Name || q.idQuest || '?'}</b> | Progreso: ${q.Progress||0}/${q.Target||1}
+        ${q.Done ? `<button class="collect-btn" onclick="collectQuestD(${q.idQuest})">🎁 Cobrar</button>` : ''}
+      </div>`
+    ).join('') || '<span style="color:var(--text-dim)">Sin diarias</span>';
+  }
+}
+
+async function collectQuest(id) {
+  await call(`QUEST?action=rewards&idQuest=${id}`);
+  loadQuests();
+}
+
+async function collectQuestD(id) {
+  await call(`QUEST?action=rewardsD&idQuest=${id}`);
+  loadQuests();
+}
+
+// ======================== MODULE D: HERO MANAGEMENT ========================
+function showHeroInput(action) {
+  if (action === 'equipItem') {
+    const idItem = prompt('idItem:') || '1001';
+    const tier = prompt('Tier:') || '1';
+    call(`HERO?action=equipItem&idItem=${idItem}&Tier=${tier}`);
+  } else if (action === 'unequipItem') {
+    const idItem = prompt('idItem:') || '1001';
+    const tier = prompt('Tier:') || '1';
+    call(`HERO?action=unequipItem&idItem=${idItem}&Tier=${tier}`);
+  } else if (action === 'forge') {
+    const idHeroItem = prompt('idHeroItem (equipment ID):') || '1001';
+    const mats = prompt('Materials (Item.id.qty/-/...):') || 'Item.1001.1';
+    call(`BUILDINGS?action=forge&idHeroItem=${idHeroItem}&Materials=${encodeURIComponent(mats)}`);
+  } else if (action === 'changeHero') {
+    const idHero = prompt('idHero:') || '1';
+    const item = prompt('Use item? (true/false):') || 'false';
+    call(`HERO?action=changeHero&idHero=${idHero}&Item=${item}`);
+  } else if (action === 'execute') {
+    const idP = prompt('idPrisoner:');
+    if (idP) call(`HERO?action=execute&idPrisoner=${idP}`);
+  } else if (action === 'release') {
+    const idP = prompt('idPrisoner:');
+    if (idP) call(`HERO?action=release&idPrisoner=${idP}`);
+  } else if (action === 'poison') {
+    const idP = prompt('idPrisoner:');
+    const idItem = prompt('idItem:') || '1001';
+    const gold = prompt('Use Gold? (true/false):') || 'false';
+    if (idP) call(`HERO?action=poison&idPrisoner=${idP}&idItem=${idItem}&Gold=${gold}`);
+  }
+}
+
+async function loadHeroStatus() {
+  const r = await call('HERO?action=status');
+  if (r) renderHeroInfo(r.User || r);
+}
+
+function renderHeroInfo(u) {
+  const hero = u.Hero || {};
+  const div = document.getElementById('hero-content');
+  let html = `<div class="grid-2">
+    <div><b>${hero.Name || 'Héroe'}</b> | Nivel ${hero.Level || 1} | XP ${hero.XP||0}/${hero.XpCap||100}</div>
+    <div style="text-align:right">HP: ${hero.HP||0} | ATK: ${hero.Attack||0} | DEF: ${hero.Defense||0}</div>
+  </div>`;
+  
+  if (hero.Skills?.length) {
+    html += `<h4>Habilidades</h4><div class="grid-2">`;
+    hero.Skills.forEach(s => {
+      html += `<div style="font-size:10px;background:#1a0f0a;padding:2px 4px;border:1px solid var(--border);border-radius:2px">
+        ${s.Name || 'Skill'} Lv.${s.Level||0} ${s.Active ? '✅' : '⏳'}</div>`;
+    });
+    html += `</div>`;
+  }
+  
+  if (hero.Items?.length) {
+    html += `<h4>Items equipados</h4><div style="font-size:10px">`;
+    hero.Items.forEach((item, i) => {
+      html += `<span style="background:#1a0f0a;padding:1px 4px;margin:1px;border:1px solid var(--border);border-radius:2px;display:inline-block">
+        ${item.Name||`Item ${item.idItem}`} T${item.Tier||0}</span>`;
+    });
+    html += `</div>`;
+  }
+
+  // Prisoners
+  const prisoners = u.Prisoners || [];
+  if (prisoners.length) {
+    html += `<h4>Prisioneros (${prisoners.length})</h4><div style="font-size:10px;max-height:80px;overflow-y:auto">`;
+    prisoners.forEach(p => {
+      html += `<div style="padding:1px 0">🔗 ${p.Name||p.idHero||'?'} | ${p.Status||'?'}</div>`;
+    });
+    html += `</div>`;
+  }
+  
+  div.innerHTML = html;
+}
+
+// ======================== MODULE E: ALLIANCE ========================
+function showAllianceInput(action) {
+  if (action === 'create') {
+    const name = prompt('Alliance Name:') || 'TestAlliance';
+    const slogan = prompt('Slogan:') || 'Test';
+    call(`ALLIANCE?action=create&Name=${encodeURIComponent(name)}&Slogan=${encodeURIComponent(slogan)}`);
+  } else if (action === 'search') {
+    const q = prompt('Search term:') || 'Test';
+    call(`ALLIANCE?action=search&Search=${encodeURIComponent(q)}`);
+  } else if (action === 'join') {
+    const id = prompt('idAlliance:');
+    if (id) call(`ALLIANCE?action=join&idAlliance=${id}`);
+  } else if (action === 'chat') {
+    const msg = prompt('Message:') || 'Hello!';
+    call(`ALLIANCE?action=chat&Message=${encodeURIComponent(msg)}`);
+  } else if (action === 'askHelp') {
+    const id = prompt('idConstruct:');
+    if (id) call(`ALLIANCE?action=askHelp&idConstruct=${id}`);
+  } else if (action === 'sendHelp') {
+    const uid = prompt('UserID:');
+    const idc = prompt('idConstruct:');
+    if (uid && idc) call(`ALLIANCE?action=sendHelp&UserID=${uid}&idConstruct=${idc}`);
+  } else if (action === 'requestShards') {
+    const idw = prompt('idWarlord:') || '1001';
+    call(`ALLIANCE?action=requestShards&idWarlord=${idw}`);
+  } else if (action === 'donateShards') {
+    const uid = prompt('UserID to donate to:');
+    if (uid) call(`ALLIANCE?action=donateShards&UserID=${uid}`);
+  } else if (action === 'changeSlogan') {
+    const s = prompt('New Slogan:') || 'NewSlogan';
+    call(`ALLIANCE?action=changeSlogan&Slogan=${encodeURIComponent(s)}`);
+  } else if (action === 'kick') {
+    const uid = prompt('UserID to kick:');
+    if (uid) call(`ALLIANCE?action=kick&UserID=${uid}`);
+  } else if (action === 'answerRequest') {
+    const uid = prompt('UserID:');
+    const ans = prompt('Accept? (true/false):') || 'true';
+    if (uid) call(`ALLIANCE?action=answerRequest&UserID=${uid}&Answer=${ans}`);
+  } else if (action === 'changeRank') {
+    const uid = prompt('UserID:');
+    const rank = prompt('New Rank (int):') || '1';
+    if (uid) call(`ALLIANCE?action=changeRank&UserID=${uid}&Rank=${rank}`);
+  }
+}
+
+async function loadAlliance() {
+  const r = await call('ALLIANCE?action=get');
+  if (r && r.Alliance) renderAlliance(r.Alliance);
+}
+
+function renderAlliance(alliance) {
+  const div = document.getElementById('alliance-content');
+  div.innerHTML = `
+    <div class="grid-2">
+      <div><b>${alliance.Name || '?'}</b> | Nivel ${alliance.Level||1}</div>
+      <div style="text-align:right">Miembros: ${alliance.Members?.length||0}</div>
+    </div>
+    <div style="font-size:10px;color:var(--text-dim)">${alliance.Slogan||''} | Poder: ${alliance.Power||0}</div>
+    ${alliance.Members?.length ? `<h4>Miembros</h4><div style="font-size:10px;max-height:100px;overflow-y:auto">` +
+      alliance.Members.map(m => `<div>${m.UserName||'?'} | Rango ${m.Rank||0}</div>`).join('') + `</div>` : ''}
+  `;
+}
+
+// ======================== MODULE F: CHAT/MAIL ========================
+function showChatInput(action) {
+  if (action === 'addPrivate') {
+    const uid = prompt('UserID:');
+    const msg = prompt('Message:') || 'Hello!';
+    if (uid) call(`CHAT?action=addPrivate&UserID=${uid}&Message=${encodeURIComponent(msg)}`);
+  } else if (action === 'addGroup') {
+    const name = prompt('Group name:') || 'Test Group';
+    const uids = prompt('UserIDs (comma-separated):') || '';
+    if (uids) call(`CHAT?action=addGroup&Name=${encodeURIComponent(name)}&UserIDs=${encodeURIComponent(uids)}`);
+  } else if (action === 'kingdomMsg') {
+    const msg = prompt('Message:') || 'Hello kingdom!';
+    call(`KINGDOMCHAT?action=addMessage&Message=${encodeURIComponent(msg)}`);
+  }
+}
+
+function showMailInput(action) {
+  if (action === 'markRead') {
+    const id = prompt('Mail ID:');
+    if (id) call(`MAIL?action=markRead&id=${id}`);
+  } else if (action === 'collectRewards') {
+    const id = prompt('Mail ID:');
+    if (id) call(`MAIL?action=collectRewards&idMail=${id}`);
+  }
+}
+
+async function loadChatMail() {
+  const chat = await call('CHAT?action=feed');
+  if (chat) renderChat(chat);
+  const kingdom = await call('KINGDOMCHAT?action=feed');
+  if (kingdom) renderKingdomChat(kingdom);
+  const mail = await call('MAIL?action=feed');
+  if (mail) renderMail(mail);
+}
+
+function renderChat(data) {
+  const div = document.getElementById('chat-private');
+  if (data.Chats?.length) {
+    div.innerHTML = data.Chats.slice(0, 20).map(c => 
+      `<div style="padding:2px 0;border-bottom:1px solid var(--border);font-size:10px">
+        <b>${c.UserName||'?'}:</b> ${c.Message||''} 
+        <span style="color:var(--text-dim)">${c.Date ? new Date(c.Date.$date||c.Date).toLocaleTimeString() : ''}</span>
+      </div>`
+    ).join('');
+  } else {
+    div.innerHTML = '<span style="color:var(--text-dim)">Sin mensajes</span>';
+  }
+}
+
+function renderKingdomChat(data) {
+  const div = document.getElementById('chat-kingdom');
+  if (data.Chats?.length) {
+    div.innerHTML = data.Chats.slice(0, 20).map(c => 
+      `<div style="padding:2px 0;border-bottom:1px solid var(--border);font-size:10px">
+        <b>${c.UserName||'?'}:</b> ${c.Message||''}
+      </div>`
+    ).join('');
+  } else {
+    div.innerHTML = '<span style="color:var(--text-dim)">Sin mensajes del reino</span>';
+  }
+}
+
+function renderMail(data) {
+  const div = document.getElementById('mail-feed');
+  if (data.Mails?.length) {
+    div.innerHTML = data.Mails.slice(0, 20).map(m => 
+      `<div style="padding:2px 0;border-bottom:1px solid var(--border);font-size:10px">
+        <b>${m.Title||m.Subject||'Mail'}</b> ${m.Read ? '' : '📧'} 
+        <span style="color:var(--text-dim)">${m.Date ? new Date(m.Date.$date||m.Date).toLocaleDateString() : ''}</span>
+        ${m.Rewards ? `<button class="collect-btn" onclick="call('MAIL?action=collectRewards&idMail=${m._id?.$oid||m._id||''}')">🎁</button>` : ''}
+      </div>`
+    ).join('');
+  } else {
+    div.innerHTML = '<span style="color:var(--text-dim)">Sin correo</span>';
+  }
+}
+
+// ======================== MODULE G: DEMO/ADMIN TOOLS ========================
+function showDebugInput(action) {
+  if (action === 'cutTimePrisoners') {
+    const ft = prompt('ForcedTime (seconds):') || '60';
+    call(`DEMO?action=cutTimePrisoners&ForcedTime=${ft}`);
+  } else if (action === 'resetDate') {
+    const name = prompt('Name (e.g. Daily, DailyReward):') || 'Daily';
+    call(`DEMO?action=resetDate&Name=${encodeURIComponent(name)}`);
+  }
+}
+
+// ======================== MODULE H: OTHER ENDPOINTS ========================
+function showWarlordInput(action) {
+  if (action === 'levelupW') {
+    const id = prompt('idWarlord:') || '1001';
+    call(`WARLORDS?action=levelupW&idWarlord=${id}`);
+  } else if (action === 'chest') {
+    const id = prompt('idItem:') || '1001';
+    const qty = prompt('Quantity:') || '1';
+    call(`WARLORDS?action=chest&idItem=${id}&Quantity=${qty}`);
+  }
+}
+
+function showItemInput(action) {
+  if (action === 'purchase') {
+    const id = prompt('idItem:') || '1001';
+    const qty = prompt('Quantity:') || '1';
+    call(`ITEMS?action=purchase&idItem=${id}&Quantity=${qty}`);
+  } else if (action === 'use') {
+    const id = prompt('idItem:') || '1001';
+    const qty = prompt('Quantity:') || '1';
+    call(`ITEMS?action=use&idItem=${id}&Quantity=${qty}`);
+  } else if (action === 'materialChest') {
+    const id = prompt('idItem:') || '1001';
+    const qty = prompt('Quantity:') || '1';
+    call(`ITEMS?action=materialChest&idItem=${id}&Quantity=${qty}`);
+  } else if (action === 'incStamina') {
+    const id = prompt('idItem:') || '1001';
+    const qty = prompt('Quantity:') || '1';
+    call(`ITEMS?action=incStamina&idItem=${id}&Quantity=${qty}`);
+  } else if (action === 'advancedTeleport') {
+    const x = prompt('x:') || '400';
+    const y = prompt('y:') || '500';
+    call(`ITEMS?action=advancedTeleport&x=${x}&y=${y}`);
+  }
+}
+
+function showVipInput(action) {
+  if (action === 'activate') {
+    const id = prompt('idItem:') || '1001';
+    call(`VIP?action=activate&idItem=${id}`);
+  }
+}
+
+function showIapInput(action) {
+  if (action === 'IAPpurchase') {
+    const receipt = prompt('Receipt JSON:') || '{"productId":"test"}';
+    const payload = prompt('developerPayload (optional):') || '';
+    call(`IAP?action=IAPpurchase&receipt=${encodeURIComponent(receipt)}&developerPayload=${encodeURIComponent(payload)}`);
+  }
+}
+
+function showSocialInput(action) {
+  if (action === 'sendRequest') {
+    const uid = prompt('UserID:');
+    if (uid) call(`SOCIAL?action=sendRequest&UserID=${uid}`);
+  } else if (action === 'unFriend') {
+    const uid = prompt('UserID:');
+    if (uid) call(`SOCIAL?action=unFriend&UserID=${uid}`);
+  } else if (action === 'changeAvatar') {
+    const id = prompt('idAvatar:') || '1';
+    const item = prompt('Use item? (true/false):') || 'false';
+    call(`AVATAR?action=changeAvatar&idAvatar=${id}&Item=${item}`);
   }
 }
 
