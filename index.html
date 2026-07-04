@@ -325,6 +325,10 @@ body {
           <h4 style="color:var(--gold);font-size:12px;margin-bottom:4px;margin-top:8px">🚶 Marchas Activas</h4>
           <div id="march-list"></div>
         </div>
+        <div id="mis-edificios-card" class="form-card" style="margin-top:8px;display:none">
+          <h3>🏗️ Mis Edificios</h3>
+          <div id="mis-edificios-content" style="font-size:11px;color:var(--text-dim)">Inicia sesión para ver datos...</div>
+        </div>
       </div>
     </div>
     <div class="form-card" id="flow-form" style="display:none"></div>
@@ -362,6 +366,52 @@ let lastUserData = null;
 let countdownTimers = [];
 let marchPollIntervals = {};
 let selectedCat = null;
+
+// ===================== BUILDING NAMES =====================
+const BUILDING_NAMES = {
+  1001: '🏰 Castillo',
+  1002: '🏛️ Cuartel',
+  1003: '🏥 Hospital',
+  1004: '🔨 Forja',
+  1005: '📜 Academia',
+  1006: '🔧 Taller',
+  1007: '🏪 Mercado',
+  1008: '📦 Almacén',
+  2001: '🌾 Granja',
+  2002: '🪵 Aserradero',
+  2003: '🪨 Cantera',
+  2004: '⛏️ Mina',
+  2005: '🏦 Almacén',
+  2006: '🏗️ Torre Vigía',
+  2015: '⚔️ Campo Entrenamiento'
+};
+
+function getBuildingName(id) {
+  return BUILDING_NAMES[parseInt(id)] || `Edificio #${id}`;
+}
+
+function getBuildingLevelAtNode(node, userBuildings) {
+  if (!userBuildings || !userBuildings.length) return null;
+  return userBuildings.find(b => String(b.Node) === String(node)) || null;
+}
+
+function getRequisitesHtml(reqs, userBuildings) {
+  if (!reqs || !reqs.length) return '';
+  const buildingReqs = reqs.filter(r => String(r.Type).toLowerCase() === 'building');
+  if (!buildingReqs.length) return '';
+  const items = buildingReqs.map(r => {
+    const name = getBuildingName(r.id);
+    const lv = r.Level;
+    const met = userBuildings ? userBuildings.some(ub => String(ub.idBuilding) === String(r.id) && parseInt(ub.Level) >= parseInt(r.Level)) : false;
+    const icon = met ? '✅' : '❌';
+    const cls = met ? '' : 'color:var(--red)';
+    return `<span style="${cls}">${icon} ${name} Lv.${lv}</span>`;
+  });
+  return `<div style="margin-top:8px;padding:6px;background:#1a0f0a;border:1px solid var(--border);border-radius:3px;font-size:11px">
+    <span style="color:var(--orange)">⚠️ Requisitos:</span><br>
+    ${items.join(', ')}
+  </div>`;
+}
 
 // ===================== ACTION DEFINITIONS =====================
 // Each action: {name, servlet, params: [{key, label, default, help}], costAction, splitParams}
@@ -731,6 +781,45 @@ function selectAction(catName, actionName) {
       paramsHtml += `<div class="form-row"><span class="help-text">💡 ${p.help}</span></div>`;
     }
   });
+
+  // Show requisites for building actions (construct, levelUpB, train, research)
+  const BUILDING_REQ_ACTIONS = ['construct', 'levelUpB', 'train', 'research'];
+  if (BUILDING_REQ_ACTIONS.includes(actionName)) {
+    const bp = (lastUserData && lastUserData.BuildingProgressions) || [];
+    const userBuildings = (lastUserData && lastUserData.User && lastUserData.User.Buildings) || [];
+    let reqs = null;
+    if (actionName === 'construct') {
+      const idB = action.params.find(p => p.key === 'idBuilding')?.default || '1001';
+      const prog = bp.find(b => String(b.idBuilding) === String(idB) && String(b.Level) === '1');
+      if (prog) reqs = prog.Requisites || null;
+    } else if (actionName === 'levelUpB') {
+      const node = action.params.find(p => p.key === 'Node')?.default || '1';
+      const buildingAtNode = getBuildingLevelAtNode(node, userBuildings);
+      if (buildingAtNode) {
+        const targetLv = parseInt(buildingAtNode.Level) + 1;
+        const prog = bp.find(b => String(b.idBuilding) === String(buildingAtNode.idBuilding) && String(b.Level) === String(targetLv));
+        if (prog) reqs = prog.Requisites || null;
+      }
+    } else if (actionName === 'train') {
+      const idB = action.params.find(p => p.key === 'idBuilding')?.default || '2015';
+      const lv = action.params.find(p => p.key === 'Level')?.default || '1';
+      const prog = bp.find(b => String(b.idBuilding) === String(idB) && String(b.Level) === String(lv));
+      if (prog) reqs = prog.Requisites || null;
+    } else if (actionName === 'research') {
+      const idR = action.params.find(p => p.key === 'idResearch')?.default || '1';
+      const rp = (lastUserData && (lastUserData.ResearchProgressions || lastUserData.SkillProgressions || []));
+      if (rp.length) {
+        const found = rp.find(r => String(r.idResearch || r.idSkill || r._id) === String(idR));
+        if (found) reqs = found.Requisites || null;
+      }
+      // Fallback: try BuildingProgressions with idBuilding=1005 (Academia)
+      if (!reqs) {
+        const prog = bp.find(b => String(b.idBuilding) === '1005' && String(b.Level) === String(idR));
+        if (prog) reqs = prog.Requisites || null;
+      }
+    }
+    paramsHtml += `<div id="requisites-container">` + getRequisitesHtml(reqs, userBuildings) + `</div>`;
+  }
 
   // Show cost preview button for cost actions
   const hasCost = hasCostPreview(action);
@@ -1299,6 +1388,8 @@ async function doLogin() {
 function renderDashboard(data) {
   const u = data.User || data;
   const p = u.Player || {};
+  const buildings = u.Buildings || [];
+  const bp = (data.BuildingProgressions || lastUserData?.BuildingProgressions || []);
   const html = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;font-size:10px">
       <div><b>${p.UserName || '?'}</b> | Nv. ${u.Hero?.Level || 1}</div>
@@ -1307,6 +1398,17 @@ function renderDashboard(data) {
       <div style="text-align:right">⚡ ${(p.Stamina||0).toFixed(0)}/${(p.StaminaCap||50)}</div>
       <div>💎 VIP ${u.VIP?.Level || 0}</div>
       <div style="text-align:right">⚔️ Poder: ${(u.Power?.Total || u.Power?.Troop || 0).toLocaleString()}</div>
+    </div>
+    <div id="dash-buildings" style="margin-top:6px;font-size:10px">
+      <div style="color:var(--gold);font-size:11px;margin-bottom:3px;border-bottom:1px solid var(--border);padding-bottom:2px">🏗️ Edificios (${buildings.length})</div>
+      ${buildings.length ? buildings.map(b => {
+        const name = getBuildingName(b.idBuilding);
+        const prog = bp.find(p => String(p.idBuilding) === String(b.idBuilding) && String(p.Level) === String(b.Level));
+        return `<div style="display:flex;justify-content:space-between;padding:1px 0">
+          <span>${name}</span>
+          <span>Lv.${b.Level} ${b.Node ? `[Node ${b.Node}]` : ''}</span>
+        </div>`;
+      }).join('') : '<div style="color:var(--text-dim)">Sin edificios</div>'}
     </div>
   `;
   document.getElementById('dash-content').innerHTML = html;
@@ -1323,6 +1425,77 @@ function renderDashboard(data) {
   resHtml += `<div class="res-item"><span class="name">💠 DarkRunes</span><br><span class="val">${(u.DarkRunes?.Quantity||0).toLocaleString()}</span></div>`;
   resHtml += `</div>`;
   document.getElementById('dash-resources').innerHTML = resHtml;
+
+  // Update Mis Edificios card
+  renderMisEdificios(data);
+}
+
+function renderMisEdificios(data) {
+  const card = document.getElementById('mis-edificios-card');
+  const content = document.getElementById('mis-edificios-content');
+  if (!card || !content) return;
+  const u = data.User || data;
+  const buildings = u.Buildings || [];
+  const bp = (data.BuildingProgressions || lastUserData?.BuildingProgressions || []);
+  if (!buildings.length) {
+    card.style.display = 'none';
+    return;
+  }
+  card.style.display = 'block';
+  const resourceNames = {'Food':'🍗 Comida','Wood':'🪵 Madera','Stone':'🪨 Piedra','Ore':'⛏️ Mineral','Ecto':'🔮 Ecto'};
+  let html = '';
+  buildings.forEach(b => {
+    const name = getBuildingName(b.idBuilding);
+    const currentProg = bp.find(p => String(p.idBuilding) === String(b.idBuilding) && String(p.Level) === String(b.Level));
+    const nextProg = bp.find(p => String(p.idBuilding) === String(b.idBuilding) && String(p.Level) === String(parseInt(b.Level)+1));
+    const time = currentProg ? (currentProg.Time || nextProg?.Time || null) : null;
+    const cost = currentProg ? currentProg.Cost : null;
+    const rewards = currentProg ? currentProg.Rewards : null;
+
+    html += `<div style="background:#1a0f0a;border:1px solid var(--border);border-radius:3px;padding:6px;margin-bottom:4px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-weight:bold;font-size:12px">${name}</span>
+        <span style="color:var(--gold);font-size:12px">Lv.${b.Level} ${b.Node ? `[Node ${b.Node}]` : ''}</span>
+      </div>`;
+
+    // Next level info if available
+    if (nextProg) {
+      const nextTime = nextProg.Time;
+      const nextCosts = nextProg.Cost;
+      const nextReqs = nextProg.Requisites;
+      if (nextTime || nextCosts || nextReqs) {
+        html += `<div style="margin-top:4px;font-size:10px;color:var(--text-dim)">`;
+        if (nextTime) {
+          html += `<span>⏱️ Próximo Lv.${parseInt(b.Level)+1}: ${Math.ceil(nextTime/60)}m</span>`;
+        }
+        if (nextCosts && nextCosts.length) {
+          const resParts = nextCosts
+            .filter(c => c.Type === 'Resources')
+            .map(c => `${resourceNames[c.Name] || c.Name}: ${(c.Quantity||0).toLocaleString()}`);
+          if (resParts.length) {
+            html += `<br><span>📦 Costo: ${resParts.join(' | ')}</span>`;
+          }
+        }
+        // Show next level requisites
+        const reqHtml = getRequisitesHtml(nextReqs, buildings);
+        if (reqHtml) {
+          html += `<br>${reqHtml.replace('margin-top:8px', 'margin-top:2px')}`;
+        }
+        html += `</div>`;
+      }
+    } else {
+      html += `<div style="margin-top:4px;font-size:10px;color:var(--gold-dark)">🏆 Nivel máximo alcanzado</div>`;
+    }
+
+    // Current level rewards
+    if (rewards && rewards.length) {
+      const rewardParts = rewards.map(r => `${r.Type}: ${r.Quantity || r.Hp || ''}`).join(', ');
+      html += `<div style="margin-top:2px;font-size:9px;color:var(--green)">🏅 Recompensas: ${rewardParts}</div>`;
+    }
+
+    html += `</div>`;
+  });
+  content.innerHTML = html;
 }
 
 function setStatus(msg, cls='') {
