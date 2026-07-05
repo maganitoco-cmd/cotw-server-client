@@ -330,88 +330,47 @@ def count_speedup_items(data):
 # ── GOLD SAFETY NET: try speedUpItems first, speedUpGold as last resort ────
 
 def try_complete_construct(cid, label="", phase="", current_th_level=None):
-    """
-    Try to complete construct using:
-      1. speedUpGold (gold safety net - PRIMARY — bootstrap quest economy)
-      2. speedUpItems (quest items - SECONDARY)
-    
-    Returns True if construct seems done.
-    Tracks gold/items usage and TH level of first gold use.
-    """
+    """Try to complete construct using gold or items."""
     global GOLD_USED, ITEMS_USED_COUNT, GOLD_FIRST_TH_LEVEL
     
     if not cid:
         return False
+    
+    # STEP 1: speedUpGold FIRST (don't call remainingTime — it auto-completes)
+    print(f"    {label}: speedUpGold...")
+    speed_r = api(f"CONSTRUCT?action=speedUpGold&idConstruct={cid}", phase=phase, action=f"speedUpGold_{label}")
+    if speed_r and speed_r.get("result") == 1:
+        cost = 100
+        GOLD_USED += cost
+        if GOLD_FIRST_TH_LEVEL is None and current_th_level is not None:
+            GOLD_FIRST_TH_LEVEL = current_th_level
+            print(f"    ** PRIMER USO DE GOLD en TH Lvl {current_th_level} **")
+        print(f"    {label}: speedUpGold OK (total gold: {GOLD_USED})")
+        return True
+    elif speed_r:
+        msg = speed_r.get("Message", "")[:150]
+        print(f"    {label}: speedUpGold: {msg}")
+    
+    # STEP 2: speedUpItems
+    time_items = api("ITEMS?action=timeItems", silent=True, phase=phase, action="timeItems")
+    if time_items and time_items.get("result") == 1:
+        for si in (time_items.get("Items", []) or [])[:5]:
+            sid = si.get("idItem", "1001")
+            sqty = min(si.get("Quantity", 1) or 1, 5)
+            sp_r = api(f"CONSTRUCT?action=speedUpItems&idConstruct={cid}&Items={sid}.{sqty}",
+                       silent=True, phase=phase, action=f"speedUpItems_{label}")
+            if sp_r and sp_r.get("result") == 1:
+                ITEMS_USED_COUNT += sqty
+                print(f"    {label}: speedUpItems OK (Item #{sid})")
+                return True
+    
+    # STEP 3: remainingTime as last resort
     time.sleep(1)
     r = api(f"CONSTRUCT?action=remainingTime&idConstruct={cid}", silent=True, phase=phase, action=f"remainingTime_{label}")
-    if r and r.get("result") == 1:
-        remaining = r.get("RemainingTime", 999)
-        status = r.get("Status", r.get("status", ""))
-        print(f"    {label}: remainingTime={remaining}s status={status}")
-        if isinstance(remaining, (int, float)):
-            if remaining <= 1:
-                return True
-            
-            # ── STEP 1: speedUpGold FIRST (bootstrap quest economy) ──
-            print(f"    {label}: speedUpGold...")
-            speed_r = api(f"CONSTRUCT?action=speedUpGold&idConstruct={cid}", silent=True, phase=phase, action=f"speedUpGold_{label}")
-            if speed_r and speed_r.get("result") == 1:
-                cost_obj = speed_r.get("Cost", {}) or speed_r.get("cost", {})
-                cost = cost_obj.get("Gold", cost_obj.get("Quantity", 0)) if isinstance(cost_obj, dict) else 0
-                if not cost:
-                    cost = 100
-                GOLD_USED += cost
-                if GOLD_FIRST_TH_LEVEL is None and current_th_level is not None:
-                    GOLD_FIRST_TH_LEVEL = current_th_level
-                    print(f"    ⚠️  ** PRIMER USO DE GOLD en TH Lvl {current_th_level} **")
-                print(f"    {label}: 💰 speedUpGold OK (cost={cost}, total gold used: {GOLD_USED})")
-                return True
-            elif speed_r and speed_r.get("result") == -1:
-                msg = speed_r.get("Message", "")[:150] if speed_r else ""
-                print(f"    {label}: speedUpGold falló ({msg}), probando items...")
-            
-            # ── STEP 2: Try speedUpItems (quest items - SECONDARY) ──
-            time_items_data = api("ITEMS?action=timeItems", silent=True, phase=phase, action="timeItems")
-            if time_items_data and time_items_data.get("result") == 1:
-                items_list = time_items_data.get("Items", []) or []
-                if items_list:
-                    for si in items_list[:5]:
-                        sid = si.get("idItem", "1001")
-                        sqty = min(si.get("Quantity", 1) or 1, 5)
-                        sp_r = api(f"CONSTRUCT?action=speedUpItems&idConstruct={cid}&Items={sid}.{sqty}",
-                                   silent=True, phase=phase, action=f"speedUpItems_{label}")
-                        if sp_r and sp_r.get("result") == 1:
-                            ITEMS_USED_COUNT += sqty
-                            print(f"    {label}: ⏱️ speedUpItems OK (Item #{sid} x{sqty}) [items used total: {ITEMS_USED_COUNT}]")
-                            return True
-                        elif sp_r and sp_r.get("result") == -1:
-                            msg = sp_r.get("Message", "")
-                            if "RESOURCES" in msg.upper() or "ITEM" in msg.upper():
-                                continue
-                            break
-            
-            # ── STEP 3: Last resort — use items from inventory directly
-            # ... (existing fallback stays unchanged)
-                print(f"    {label}: speedUpGold → {msg if msg else 'failed'}")
-                
-                # Try waiting and retrying
-                print(f"    {label}: Esperando 3s y reintentando...")
-                time.sleep(3)
-                r2 = api(f"CONSTRUCT?action=remainingTime&idConstruct={cid}", silent=True, phase=phase, action=f"remainingTime2_{label}")
-                if r2 and r2.get("result") == 1:
-                    rem2 = r2.get("RemainingTime", 999)
-                    print(f"    {label}: retry remainingTime={rem2}s")
-                    if rem2 <= 1 or rem2 < remaining:
-                        return rem2 <= 1
-    elif r and r.get("result") == -1:
-        msg = r.get("Message", "")[:200]
-        if "not" in msg.lower() or "exist" in msg.lower() or "invalid" in msg.lower():
-            print(f"    {label}: constructo ya completado ({msg[:80]})")
-            return True
-        print(f"    {label}: remainingTime error: {msg}")
+    if r and r.get("result") == 1 and r.get("RemainingTime", 999) <= 1:
+        return True
+    
     return False
-
-
 def refresh(phase=""):
     """Re-login and return data."""
     data = api("USER?action=loginJustUser", silent=True, phase=phase, action="refresh")
