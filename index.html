@@ -429,7 +429,7 @@ body {
   <input type="text" id="deviceId" value="4df64994e692f5a00be2d29faefd8c7c50119a20" size="30">
   <button onclick="doLogin()">🔑 Iniciar Sesión</button>
   <button onclick="refreshDashboard()" style="background:var(--blue)">🔄 Refrescar</button>
-  <button onclick="showActionModal('Usuario','getDictionaries')" style="background:var(--text-dim)">📖 Diccionarios</button>
+  <button onclick="loadDictionaries()" style="background:var(--text-dim)" id="btn-dicts">📖 Diccionarios</button>
   <span style="margin-left:auto;font-size:10px;display:flex;gap:4px;align-items:center">
     <span id="conn-status" style="color:var(--text-dim)">⚪</span>
     <span id="dash-summary" style="color:var(--text-dim)">Sin sesión</span>
@@ -451,6 +451,7 @@ body {
     <button class="nav-item" onclick="scrollToSection('chat')">💬 Chat/Correo</button>
     <button class="nav-item" onclick="scrollToSection('admin')">🛠️ Admin</button>
     <button class="nav-item" onclick="scrollToSection('acciones')">📋 Acciones</button>
+    <button class="nav-item" onclick="showDiccionarios()">📚 Diccionarios</button>
   </div>
 
   <!-- CENTER DASHBOARD -->
@@ -511,25 +512,90 @@ let lastUserData = null;
 let countdownTimers = [];
 let marchPollIntervals = {};
 let modalState = null; // {cat, action, params, costParams}
+let DICTS = null; // cached dictionaries from getDictionaries
+
+// Load cached dictionaries from localStorage
+try {
+  const cached = localStorage.getItem('cotw_dicts');
+  if (cached) DICTS = JSON.parse(cached);
+} catch(e) { DICTS = null; }
 
 // ===================== BUILDING NAMES =====================
 const BUILDING_NAMES = {
-  1001: '🏰 Castillo',
-  1002: '🏛️ Cuartel',
-  1003: '🏥 Hospital',
-  1004: '🔨 Forja',
-  1005: '📜 Academia',
-  1006: '🔧 Taller',
-  1007: '🏪 Mercado',
-  1008: '📦 Almacén',
-  2001: '🌾 Granja',
-  2002: '🪵 Aserradero',
-  2003: '🪨 Cantera',
-  2004: '⛏️ Mina',
-  2005: '🏦 Almacén',
-  2006: '🏗️ Torre Vigía',
-  2015: '⚔️ Campo Entrenamiento'
+  1001: '🏰 Townhall',
+  1002: '🏛️ Wall',
+  1003: '🔭 Watch tower',
+  2001: '🏦 Vault',
+  2002: '📚 Academy',
+  2003: '💊 Hospital',
+  2004: '🏪 Market',
+  2005: '🔒 Prison',
+  2006: '🏛️ Embassy',
+  2007: '🔨 Forge',
+  2008: '🕳️ Pit',
+  2009: '🌟 Wishing Well',
+  2010: '🏅 Hall of heroes',
+  2011: '💣 Siege factory',
+  2012: '🏹 Archer',
+  2013: '🐴 Stable',
+  2014: '⚔️ Barracks',
+  2015: '👹 Warlord gate',
+  3001: '🪨 Stone mine',
+  3002: '🌾 Farm',
+  3003: '🪵 Sawmill',
+  3004: '⛏️ Ore mine',
+  3005: '🔮 Ecto pool'
 };
+
+// ===================== NODE VALIDATION =====================
+const NODE_RULES = {
+  // idBuilding: allowed nodes or function
+};
+
+function getValidNodes(buildingId) {
+  const id = parseInt(buildingId);
+  // Warlord gate: only node 101
+  if (id === 2015) return [101];
+  // Wishing Well: only node 18
+  if (id === 2009) return [18];
+  // Pit: only node 7
+  if (id === 2008) return [7];
+  // Embassy (2006) / Vault (2001): only nodes 8-9
+  if (id === 2006 || id === 2001) return [8, 9];
+  // Ecto pool (3005): only nodes 102,103,104,109,114,115,117
+  if (id === 3005) return [102, 103, 104, 109, 114, 115, 117];
+  // Resource mines (3001-3004): nodes 105+ excluding 109,114,115,117
+  if (id >= 3001 && id <= 3004) {
+    const nodes = [];
+    for (let n = 105; n <= 150; n++) {
+      if (![109, 114, 115, 117].includes(n)) nodes.push(n);
+    }
+    return nodes;
+  }
+  // Regular buildings (1001-2014): nodes 1-18
+  if (id >= 1001 && id <= 2014) {
+    return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
+  }
+  return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
+}
+
+function getNodeValidationHtml(buildingId) {
+  const validNodes = getValidNodes(buildingId);
+  const id = parseInt(buildingId);
+  let desc = '';
+  if (id === 2015) desc = '🏰 Solo en nodo 101';
+  else if (id === 2009) desc = '🌟 Solo en nodo 18';
+  else if (id === 2008) desc = '🕳️ Solo en nodo 7';
+  else if (id === 2006 || id === 2001) desc = '🏛️ Solo en nodos 8-9';
+  else if (id === 3005) desc = '🔮 Solo en nodos 102-117 (excepto excl.)';
+  else if (id >= 3001 && id <= 3004) desc = '⛏️ Nodos de recurso (105+)';
+  else desc = '🏘️ Nodos 1-18';
+  const nodeStr = validNodes.length > 15 ? validNodes.slice(0, 10).join(', ') + '...' : validNodes.join(', ');
+  return `<div style="margin-top:4px;padding:3px 6px;background:#1a0f0a;border:1px solid var(--border);border-radius:3px;font-size:9px;color:var(--text-dim)">
+    📍 ${desc}<br>
+    <span style="color:var(--gold);font-size:8px">Nodos: ${nodeStr}</span>
+  </div>`;
+}
 
 function getBuildingName(id) {
   return BUILDING_NAMES[parseInt(id)] || `Edificio #${id}`;
@@ -835,6 +901,33 @@ function saveState() {
 }
 loadState();
 
+// ===================== DICTIONARIES CACHE =====================
+async function loadDictionaries() {
+  const url = buildUrl('USER', { action: 'getDictionaries', deviceId, idUser: userId });
+  document.getElementById('resp-time').innerHTML = '<span class="spinner"></span> Cargando diccionarios...';
+  try {
+    const resp = await fetch(url);
+    const data = await resp.json();
+    const elapsed = data._proxy_elapsed_ms || 0;
+    addStatsEntry('USER?action=getDictionaries', resp.status, elapsed, data);
+    showResponse(data, elapsed, resp.status);
+    if (data.result === 1) {
+      DICTS = data;
+      localStorage.setItem('cotw_dicts', JSON.stringify(data));
+      setStatus(`✅ ${Object.keys(data).length} diccionarios cargados y cacheados`, 'ok');
+      // Refresh dashboard if visible to get cost preview data
+      if (lastUserData && lastUserData.User) {
+        renderDashboard(lastUserData);
+      }
+    } else {
+      setStatus('❌ Error al cargar diccionarios', 'err');
+    }
+  } catch (e) {
+    document.getElementById('resp-time').innerHTML = `❌ ${e.message}`;
+    setStatus(`❌ ${e.message}`, 'err');
+  }
+}
+
 // ===================== SCROLL NAV =====================
 function scrollToSection(id) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -857,7 +950,7 @@ function renderDashboard(data) {
   const marches = u.Marches || [];
   const warlords = u.Warlords || [];
   const alliance = u.Alliance || {};
-  const bp = (data.BuildingProgressions || lastUserData?.BuildingProgressions || []);
+  const bp = (data.BuildingProgressions || lastUserData?.BuildingProgressions || DICTS?.BuildingProgressions || []);
   const activeConstructions = (data.Constructs || constructs || []);
 
   // Update connection status
@@ -1201,9 +1294,149 @@ function renderDashboard(data) {
   document.getElementById('dash-content').innerHTML = html;
 }
 
+// ===================== DICCIONARIOS VIEWER =====================
+function showDiccionarios() {
+  // Update nav highlight
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelector('.nav-item[onclick*="showDiccionarios"]')?.classList.add('active');
+
+  if (!DICTS || !Object.keys(DICTS).length) {
+    document.getElementById('dash-content').innerHTML = `<div class="dash-section" id="section-diccionarios">
+      <h2>📚 Diccionarios</h2>
+      <div style="padding:20px;text-align:center;color:var(--text-dim)">
+        <p style="font-size:14px;margin-bottom:10px">📖 No hay diccionarios cargados</p>
+        <button class="btn btn-gold" onclick="loadDictionaries()">📖 Cargar Diccionarios</button>
+        <p style="margin-top:10px;font-size:10px">Usa el botón 📖 Diccionarios en la cabecera o haz clic aquí</p>
+      </div>
+    </div>`;
+    document.getElementById('dash-placeholder').style.display = 'none';
+    return;
+  }
+
+  let html = `<div class="dash-section" id="section-diccionarios">
+    <h2>📚 Diccionarios <span class="badge">${Object.keys(DICTS).length} tablas</span></h2>
+    <div style="margin-bottom:6px;display:flex;gap:4px;flex-wrap:wrap">
+      <button class="btn btn-blue btn-sm" onclick="loadDictionaries()">🔄 Recargar</button>
+      <button class="btn btn-dim btn-sm" onclick="expandAllDicts()">📖 Expandir Todo</button>
+      <button class="btn btn-dim btn-sm" onclick="collapseAllDicts()">📕 Colapsar Todo</button>
+    </div>`;
+
+  // Ordered list of dictionaries to display
+  const dictKeys = Object.keys(DICTS);
+  const priorityKeys = [
+    'BuildingProgressions', 'ResearchProgressions', 'SkillProgressions',
+    'Items', 'Heroes', 'HeroItems', 'Troops', 'Traps', 'Warlords',
+    'GoldStore', 'VIP', 'LevelProgression',
+    'Quests', 'DailyQuests', 'DailyRewards',
+    'LangBuildings', 'LangResearchs', 'LangSkills', 'LangItems',
+    'LangTroops', 'LangHeroes', 'LangWarlords', 'LangQuests'
+  ];
+  const sortedKeys = priorityKeys.filter(k => dictKeys.includes(k));
+  const remainingKeys = dictKeys.filter(k => !priorityKeys.includes(k));
+  const allKeys = [...sortedKeys, ...remainingKeys];
+
+  allKeys.forEach((key, idx) => {
+    const dict = DICTS[key];
+    if (!dict) return;
+    const items = Array.isArray(dict) ? dict : (dict.Items || dict.items || [dict]);
+    if (!items.length) {
+      html += `<details class="dict-section" data-dict="${key}">
+        <summary style="cursor:pointer;padding:4px 6px;background:var(--card-bg);border:1px solid var(--border);border-radius:3px;margin-bottom:3px;font-size:11px;color:var(--text-dim)">
+          📭 ${key} <span style="color:var(--text-dim);font-size:9px">(vacío)</span>
+        </summary>
+      </details>`;
+      return;
+    }
+
+    const sampleKeys = items.length > 0 ? Object.keys(items[0] || {}).filter(k => typeof items[0][k] !== 'object' || items[0][k] === null) : [];
+    const idField = sampleKeys.find(k => k.toLowerCase() === 'id' || k.toLowerCase() === '_id' || k.toLowerCase().includes('id')) || sampleKeys[0];
+    const nameField = sampleKeys.find(k => k.toLowerCase().includes('name') || k.toLowerCase().includes('desc')) || '';
+
+    html += `<details class="dict-section" data-dict="${key}">
+      <summary style="cursor:pointer;padding:5px 8px;background:var(--card-bg);border:1px solid var(--border);border-radius:3px;margin-bottom:3px;font-size:11px">
+        <span style="color:var(--gold);font-weight:bold">🗂️ ${key}</span>
+        <span style="color:var(--text-dim);font-size:9px;margin-left:6px">${items.length} registros</span>
+        <span style="float:right;color:var(--text-dim);font-size:9px">${sampleKeys.length} campos</span>
+      </summary>
+      <div style="overflow-x:auto;max-height:400px;overflow-y:auto;margin-top:2px">
+        <table class="stats-table" style="font-size:9px;width:100%">
+          <thead><tr>`;
+
+    // Headers: pick meaningful fields
+    const columnNames = getDictColumns(items);
+    columnNames.forEach(col => {
+      html += `<th>${col}</th>`;
+    });
+
+    html += `</tr></thead><tbody>`;
+    const MAX_DISPLAY = 200;
+    items.slice(0, MAX_DISPLAY).forEach((item, i) => {
+      html += `<tr>`;
+      columnNames.forEach(col => {
+        const val = item[col];
+        let display = '';
+        if (val === null || val === undefined) {
+          display = '<span style="color:var(--text-dim)">-</span>';
+        } else if (Array.isArray(val)) {
+          display = `<span style="color:var(--gold);font-size:8px">[${val.length}]</span>`;
+        } else if (typeof val === 'object') {
+          const str = JSON.stringify(val).slice(0, 40);
+          display = `<span style="color:var(--blue);font-size:8px">${str}${str.length >= 40 ? '…' : ''}</span>`;
+        } else {
+          display = String(val);
+        }
+        html += `<td>${display}</td>`;
+      });
+      html += `</tr>`;
+    });
+    if (items.length > MAX_DISPLAY) {
+      html += `<tr><td colspan="${columnNames.length}" style="color:var(--gold-dark);text-align:center;font-size:9px;padding:4px">
+        ... ${items.length - MAX_DISPLAY} registros más ...
+      </td></tr>`;
+    }
+    html += `</tbody></table></div>
+    </details>`;
+  });
+
+  html += `</div>`;
+
+  document.getElementById('dash-content').innerHTML = html;
+  document.getElementById('dash-placeholder').style.display = 'none';
+}
+
+function getDictColumns(items) {
+  if (!items.length) return [];
+  // Collect all keys
+  const allKeys = new Set();
+  items.slice(0, 50).forEach(item => {
+    if (item && typeof item === 'object') {
+      Object.keys(item).forEach(k => allKeys.add(k));
+    }
+  });
+  // Priority ordering
+  const priority = ['_id', 'id', 'idBuilding', 'idResearch', 'idSkill', 'idItem', 'idHero',
+    'idDemon', 'Level', 'idTroop', 'Name', 'Title', 'Description',
+    'Time', 'Cost', 'Requisites', 'Rewards', 'Quantity', 'Price',
+    'Type', 'Tier', 'Rarity', 'Power', 'Hp', 'Attack', 'Defense', 'Speed',
+    'GoldCost', 'Gold', 'Wood', 'Stone', 'Ore', 'Food', 'Ecto',
+    'Node', 'Location', 'Status', 'Icon', 'ArmyType', 'TroopType',
+    'TroopName', 'Flag', 'active', 'order'];
+  const ordered = priority.filter(k => allKeys.has(k));
+  const remaining = Array.from(allKeys).filter(k => !priority.includes(k));
+  return [...ordered, ...remaining];
+}
+
+function expandAllDicts() {
+  document.querySelectorAll('.dict-section').forEach(d => d.open = true);
+}
+
+function collapseAllDicts() {
+  document.querySelectorAll('.dict-section').forEach(d => d.open = false);
+}
+
 // ========== BUILDING LEVEL UP (SPECIAL FLOW) ==========
 async function buildingLevelUp(node, idBuilding, currentLevel) {
-  const bp = (lastUserData && lastUserData.BuildingProgressions) || [];
+  const bp = (lastUserData && lastUserData.BuildingProgressions) || (DICTS && DICTS.BuildingProgressions) || [];
   const nextProg = bp.find(p => String(p.idBuilding) === String(idBuilding) && String(p.Level) === String(parseInt(currentLevel)+1));
   
   // Show modal with cost
@@ -1275,13 +1508,15 @@ function showActionModal(catName, actionName, presetParams) {
   // Show requisites for building actions
   const BUILDING_REQ = ['construct', 'levelUpB', 'train', 'research'];
   if (BUILDING_REQ.includes(actionName)) {
-    const bp = (lastUserData && lastUserData.BuildingProgressions) || [];
+    const bp = (lastUserData && lastUserData.BuildingProgressions) || (DICTS && DICTS.BuildingProgressions) || [];
     const userBuildings = (lastUserData && lastUserData.User && lastUserData.User.Buildings) || [];
     let reqs = null;
     if (actionName === 'construct') {
       const idB = presetParams?.idBuilding || action.params.find(p => p.key === 'idBuilding')?.default || '1001';
       const prog = bp.find(b => String(b.idBuilding) === String(idB) && String(b.Level) === '1');
       if (prog) reqs = prog.Requisites || null;
+      // Add node validation for construct
+      html += getNodeValidationHtml(idB);
     } else if (actionName === 'train') {
       const idB = presetParams?.idBuilding || action.params.find(p => p.key === 'idBuilding')?.default || '2015';
       const lv = presetParams?.Level || action.params.find(p => p.key === 'Level')?.default || '1';
@@ -1363,7 +1598,7 @@ async function previewCostFromModal(catName, actionName, formParams, costAction)
       let costHtml = `<h4>💰 Costo: <span style="color:var(--gold);font-size:16px">${JSON.stringify(goldCost)}</span></h4>`;
       
       // Also look up from BuildingProgressions
-      const bp = (lastUserData && lastUserData.BuildingProgressions) || [];
+      const bp = (lastUserData && lastUserData.BuildingProgressions) || (DICTS && DICTS.BuildingProgressions) || [];
       const idBuilding = formParams.idBuilding;
       const level = formParams.Level || '1';
       let resourceCosts = null;
