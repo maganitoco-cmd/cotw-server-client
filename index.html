@@ -608,12 +608,45 @@ const BUILDING_NAMES = {
   3005: '🔮 Ecto pool'
 };
 
+// ===================== LOCKED NODES =====================
+const LOCKED_NODES = {
+  0: [102,103,104,105,109,110,111,112,113,124,125,126,127,128,129,130,131,132,133],
+  1: [102,103,104,105,109,110,111,112,113,130,131,132,133],
+  2: [130,131,132,133]
+};
+
+function getLockedNodesThreshold(townhallLevel) {
+  const lv = parseInt(townhallLevel) || 0;
+  if (lv <= 4) return 0;
+  if (lv <= 9) return 1;
+  if (lv <= 14) return 2;
+  return -1; // Townhall 15+: no locked nodes
+}
+
+function getUserTownhallLevel() {
+  try {
+    const buildings = (lastUserData && lastUserData.User && lastUserData.User.Buildings) || [];
+    const townhall = buildings.find(b => String(b.idBuilding) === '1001'); // Townhall = 1001
+    return townhall ? parseInt(townhall.Level) || 0 : 0;
+  } catch(e) { return 0; }
+}
+
+// ===================== GAME CONSTANTS =====================
+const CRAFTING_MATERIALS = ['DemonBlood','AncientWood','Silk','Mana','MagicalDust','MonsterFang','DemonHorn','Scales','Pelt','Feathers','Herbs','Mithril','Ruby','Saphire','Emerald'];
+const HERO_NAMES = ['Michael','Marion','Hellen','Dwavin','Zet'];
+const AVATAR_NAMES = ['Kara','Milandra','Sebastian'];
+const LANGUAGES = ['English','Spanish'];
+const BOOKMARK_TYPES = ['Mark','Friend','Enemy'];
+const RUINS_TIMES = {Easy:900, Normal:3600, Difficult:14400, Hell:28800};
+const TRAP_TYPES = ['Rocks','Arrows','Barricades','BearTraps'];
+const TROOP_TYPES = {2014:'Infantry', 2013:'Cavalry', 2011:'Siege', 2012:'Archer'};
+
 // ===================== NODE VALIDATION =====================
 const NODE_RULES = {
   // idBuilding: allowed nodes or function
 };
 
-function getValidNodes(buildingId) {
+function getValidNodes(buildingId, userTownhallLevel) {
   const id = parseInt(buildingId);
   // Warlord gate: only node 101
   if (id === 2015) return [101];
@@ -640,8 +673,31 @@ function getValidNodes(buildingId) {
   return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
 }
 
-function getNodeValidationHtml(buildingId) {
-  const validNodes = getValidNodes(buildingId);
+function getLockedNodesForLevel(townhallLevel) {
+  if (!townhallLevel && townhallLevel !== 0) return [];
+  const threshold = getLockedNodesThreshold(townhallLevel);
+  if (threshold < 0) return [];
+  return LOCKED_NODES[threshold] || [];
+}
+
+function isNodeLocked(node, townhallLevel) {
+  const locked = getLockedNodesForLevel(townhallLevel);
+  return locked.includes(parseInt(node));
+}
+
+function getNodeOptionsHtml(validNodes, selectedNode, townhallLv) {
+  const locked = getLockedNodesForLevel(townhallLv);
+  return validNodes.map(n => {
+    const isLocked = locked.includes(n);
+    const sel = String(n) === String(selectedNode) && !isLocked ? 'selected' : '';
+    const disabled = isLocked ? 'disabled' : '';
+    const label = isLocked ? `🔒 Nodo ${n}` : `Nodo ${n}`;
+    return `<option value="${n}" ${sel} ${disabled} style="${isLocked ? 'color:#5a4a3a;text-decoration:line-through' : ''}">${label}</option>`;
+  }).join('');
+}
+
+function getNodeValidationHtml(buildingId, userTownhallLevel) {
+  const validNodes = getValidNodes(buildingId, userTownhallLevel);
   const id = parseInt(buildingId);
   let desc = '';
   if (id === 2015) desc = '🏰 Solo en nodo 101';
@@ -668,14 +724,13 @@ function onConstructBuildingChange() {
   const nodeSelect = document.getElementById('m-Node');
   if (!bldSelect || !nodeSelect) return;
   const buildingId = bldSelect.value;
-  const validNodes = getValidNodes(buildingId);
-  nodeSelect.innerHTML = validNodes.map(n =>
-    `<option value="${n}">Nodo ${n}</option>`
-  ).join('');
+  const townhallLv = getUserTownhallLevel();
+  const validNodes = getValidNodes(buildingId, townhallLv);
+  nodeSelect.innerHTML = getNodeOptionsHtml(validNodes, '', townhallLv);
   // Also update the node validation info display
   const reqDiv = document.getElementById('modal-requisites');
   if (reqDiv) {
-    reqDiv.innerHTML = getNodeValidationHtml(buildingId);
+    reqDiv.innerHTML = getNodeValidationHtml(buildingId, townhallLv);
   }
 }
 
@@ -1604,21 +1659,54 @@ function showActionModal(catName, actionName, presetParams) {
         </select>
       </div>`;
     } else if (actionName === 'construct' && p.key === 'Node') {
-      // Node dropdown filtered by selected building
+      // Node dropdown filtered by selected building and locked nodes
       const defaultBuilding = presetParams?.idBuilding || action.params.find(x => x.key === 'idBuilding')?.default || '1001';
-      const validNodes = getValidNodes(defaultBuilding);
+      const townhallLv = getUserTownhallLevel();
+      const validNodes = getValidNodes(defaultBuilding, townhallLv);
       const defaultNode = validNodes.includes(parseInt(presetVal)) ? presetVal : String(validNodes[0] || '1');
       html += `<div class="form-row">
         <label>${p.label}</label>
         <select id="m-${p.key}">
-          ${validNodes.map(n => `<option value="${n}" ${String(n) === defaultNode ? 'selected' : ''}>Nodo ${n}</option>`).join('')}
+          ${getNodeOptionsHtml(validNodes, defaultNode, townhallLv)}
         </select>
       </div>`;
     } else {
-      html += `<div class="form-row">
-        <label>${p.label}</label>
-        <input type="text" id="m-${p.key}" value="${presetVal}" placeholder="${p.help || ''}">
-      </div>`;
+      // Check for game constant dropdown selectors
+      let dropdownOptions = null;
+      let dropdownLabel = '';
+      if (actionName === 'changeHero' && p.key === 'idHero') {
+        dropdownOptions = HERO_NAMES.map((h, i) => ({value: String(i+1), label: h}));
+        dropdownLabel = 'Héroe';
+      } else if (actionName === 'changeLanguage' && p.key === 'Language') {
+        dropdownOptions = LANGUAGES.map(l => ({value: l === 'English' ? 'en' : 'es', label: l}));
+        dropdownLabel = 'Idioma';
+      } else if (actionName === 'ruins' && p.key === 'Mode') {
+        dropdownOptions = Object.keys(RUINS_TIMES).map(m => ({value: m, label: m + ' (' + RUINS_TIMES[m] + 's)'}));
+        dropdownLabel = 'Modo';
+      } else if ((actionName === 'traps' || actionName === 'GOLDtraps') && p.key === 'TrapType') {
+        dropdownOptions = TRAP_TYPES.map(t => ({value: t, label: t}));
+        dropdownLabel = 'Tipo Trampa';
+      } else if (actionName === 'train' && p.key === 'idBuilding') {
+        dropdownOptions = Object.keys(TROOP_TYPES).map(id => ({value: id, label: TROOP_TYPES[id]}));
+        dropdownLabel = 'Edificio';
+      } else if (actionName === 'synthesizeMaterials' && p.key === 'Material') {
+        dropdownOptions = CRAFTING_MATERIALS.map(m => ({value: 'Item.' + m, label: m}));
+        dropdownLabel = 'Material';
+      }
+      if (dropdownOptions) {
+        const selectedVal = dropdownOptions.some(o => o.value === presetVal) ? presetVal : dropdownOptions[0].value;
+        html += `<div class="form-row">
+          <label>${p.label}</label>
+          <select id="m-${p.key}">
+            ${dropdownOptions.map(o => `<option value="${o.value}" ${o.value === selectedVal ? 'selected' : ''}>${o.label}</option>`).join('')}
+          </select>
+        </div>`;
+      } else {
+        html += `<div class="form-row">
+          <label>${p.label}</label>
+          <input type="text" id="m-${p.key}" value="${presetVal}" placeholder="${p.help || ''}">
+        </div>`;
+      }
     }
   });
 
@@ -1633,7 +1721,7 @@ function showActionModal(catName, actionName, presetParams) {
       const prog = bp.find(b => String(b.idBuilding) === String(idB) && String(b.Level) === '1');
       if (prog) reqs = prog.Requisites || null;
       // Add node validation for construct
-      html += getNodeValidationHtml(idB);
+      html += getNodeValidationHtml(idB, getUserTownhallLevel());
     } else if (actionName === 'train') {
       const idB = presetParams?.idBuilding || action.params.find(p => p.key === 'idBuilding')?.default || '2015';
       const lv = presetParams?.Level || action.params.find(p => p.key === 'Level')?.default || '1';
