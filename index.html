@@ -305,6 +305,8 @@ body {
 }
 .watcher-item .bar { height: 3px; background: #2a1508; border-radius: 2px; margin: 3px 0; overflow: hidden; }
 .watcher-item .bar-fill { height: 100%; background: var(--gold); transition: width 1s linear; }
+.dash-card .bar { height: 4px; background: #2a1508; border-radius: 2px; margin: 4px 0; overflow: hidden; }
+.dash-card .bar-fill { height: 100%; background: var(--gold); transition: width 1s linear; }
 .countdown { color: var(--gold); font-family: 'Courier New', monospace; font-size: 12px; }
 .status-Departure { color: var(--blue); }
 .status-Return { color: var(--orange); }
@@ -1022,14 +1024,29 @@ function renderDashboard(data) {
     const activeCons = activeConstructions.filter(c => String(c.Location || c.Node) === String(b.Node) && c.Type === 'Construct');
     const hasActive = activeCons.length > 0;
 
-    html += `<div class="dash-card">
+    html += `<div class="dash-card"${hasActive ? ` data-total="${(()=>{const _c=activeCons[0];const _ed=_c.EndDate?.$date||_c.EndDate;const _sd=_c.StartDate?.$date||_c.StartDate;return _ed?Math.max(1,new Date(_ed).getTime()-new Date(_sd||Date.now()).getTime()):1})()}"` : ''}>
       <div class="card-header">
         <span class="card-title">${name}</span>
         <span class="card-level">Lv.${b.Level} ${b.Node ? `[${b.Node}]` : ''}</span>
       </div>
       <div class="card-stats">⚔️ Poder: ${(b.Power || 0).toLocaleString()} ${b.Hp ? '| ❤️ '+b.Hp : ''}</div>`;
     if (hasActive) {
-      html += `<div class="card-timer">⏱️ Construyendo...</div>`;
+      const cons = activeCons[0];
+      const endDate = cons.EndDate?.$date || cons.EndDate;
+      const startDate = cons.StartDate?.$date || cons.StartDate;
+      const endMs = endDate ? new Date(endDate).getTime() : (Date.now() + 3600000);
+      const startMs = startDate ? new Date(startDate).getTime() : Date.now();
+      const totalDur = Math.max(1, endMs - startMs);
+      const remaining = Math.max(0, endMs - Date.now());
+      const pct = totalDur > 1 ? Math.min(100, ((1 - remaining / totalDur) * 100)) : 0;
+      const consId = cons._id?.$oid || cons._id || cons.idConstruct || '';
+      html += `<div class="card-timer">
+        <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:9px">
+          <span>⏱️ <span class="countdown" data-end="${endMs}">${formatTime(Math.ceil(remaining/1000))}</span></span>
+          <button class="btn btn-blue btn-sm" onclick="checkConstruct('${consId}')">⏱️ Completar</button>
+        </div>
+      </div>`;
     }
     if (!hasActive) {
       html += `<div class="card-actions">
@@ -1971,14 +1988,14 @@ function formatTime(secs) {
 function startWatcherCountdowns() {
   countdownTimers.forEach(t => clearInterval(t));
   countdownTimers = [];
-  document.querySelectorAll('.watcher-item .countdown').forEach(el => {
+  document.querySelectorAll('.countdown[data-end]').forEach(el => {
     const end = parseInt(el.dataset.end);
     if (!end) return;
     const id = setInterval(() => {
       const remaining = Math.max(0, end - Date.now());
       const secs = Math.ceil(remaining / 1000);
       el.textContent = formatTime(secs);
-      const parent = el.closest('.watcher-item');
+      const parent = el.closest('.watcher-item, .dash-card');
       if (parent) {
         const bar = parent.querySelector('.bar-fill');
         if (bar) {
