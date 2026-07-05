@@ -558,6 +558,7 @@ body {
     <button class="nav-item" onclick="scrollToSection('apuesta')">🎰 Ruleta</button>
     <button class="nav-item" onclick="scrollToSection('chat')">💬 Chat/Correo</button>
     <button class="nav-item" onclick="scrollToSection('admin')">🛠️ Admin</button>
+    <button class="nav-item" onclick="scrollToSection('items')">🎒 Items</button>
     <button class="nav-item" onclick="scrollToSection('acciones')">📋 Acciones</button>
     <button class="nav-item" onclick="showDiccionarios()">📚 Diccionarios</button>
   </div>
@@ -1477,6 +1478,57 @@ function renderDashboard(data) {
       <button class="btn btn-blue btn-sm" onclick="showActionModal('Objetos','use')">📦 Usar Item</button>
       <button class="btn btn-blue btn-sm" onclick="showActionModal('Objetos','advancedTeleport')">🌀 Teletransporte</button>
       <button class="btn btn-dim btn-sm" onclick="showActionModal('Demo','modifyTimeValues')">⏱️ Mult. Tiempo</button>
+    </div>
+  </div>`;
+
+  // ========== SECCIÓN ITEMS ==========
+  html += `<div class="dash-section" id="section-items">
+    <h2>🎒 Items <span class="badge">${(u.Items||[]).length} items</span></h2>
+    <div id="items-container">`;
+  const itemsList = u.Items || [];
+  if (itemsList.length) {
+    // Group by type
+    const groups = {};
+    itemsList.forEach(item => {
+      const t = item.Type || 'Otros';
+      if (!groups[t]) groups[t] = [];
+      groups[t].push(item);
+    });
+    Object.keys(groups).forEach(type => {
+      const iconMap = {'resources':'📦','speedups':'⏱️','chests':'🎁','chest':'🎁','material':'🔮','speedup':'⏱️'};
+      const ic = iconMap[type.toLowerCase()] || '📦';
+      html += `<div style="margin-bottom:6px">
+        <div style="color:var(--gold);font-size:11px;margin-bottom:3px">${ic} ${type}</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:3px">`;
+      groups[type].forEach(item => {
+        const isSpeedUp = type.toLowerCase().includes('speed');
+        const isResource = type.toLowerCase() === 'resources' || type.toLowerCase() === 'resource';
+        html += `<div class="dash-card" style="padding:4px 6px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:11px;font-weight:bold">#${item.idItem}</span>
+            <span style="font-size:12px;color:var(--gold)">x${item.Quantity||1}</span>
+          </div>
+          <div style="display:flex;gap:2px;margin-top:3px;flex-wrap:wrap">
+            ${isResource ? `<button class="btn btn-green btn-sm" onclick="useItemNow('${item.idItem}',${item.Quantity||1})">📦 Usar</button>` : ''}
+            ${isSpeedUp ? `<button class="btn btn-blue btn-sm" onclick="selectConstructForSpeedUp('${item.idItem}',${item.Quantity||1})">⏱️ Usar SpeedUp</button>` : ''}
+            ${!isResource && !isSpeedUp ? `<button class="btn btn-outline btn-sm" onclick="useItemNow('${item.idItem}',1)">📦 Usar</button>` : ''}
+          </div>
+        </div>`;
+      });
+      html += `</div></div>`;
+    });
+  } else {
+    html += `<div class="dash-card"><div class="card-stats" style="color:var(--text-dim);text-align:center;padding:8px">Sin items en inventario</div></div>`;
+  }
+  html += `</div>
+    <div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap">
+      <button class="btn btn-blue btn-sm" onclick="showActionModal('Objetos','timeItems')">⏱️ Ver SpeedUps</button>
+      <button class="btn btn-green btn-sm" onclick="showActionModal('Objetos','use')">📦 Usar Item</button>
+      <button class="btn btn-gold btn-sm" onclick="showActionModal('Objetos','materialChest')">🎁 Cofre Materiales</button>
+      <button class="btn btn-dim btn-sm" onclick="showActionModal('Misiones','rewards')">🎯 Misiones</button>
+      <button class="btn btn-green btn-sm" onclick="apiCall('QUEST?action=collectQ')">🎯 Cobrar Misiones</button>
+      <button class="btn btn-green btn-sm" onclick="apiCall('QUEST?action=collectD')">📅 Cobrar Diarias</button>
+      <button class="btn btn-gold btn-sm" onclick="apiCall('USER?action=dailyReward')">🎁 Recompensa Diaria</button>
     </div>
   </div>`;
 
@@ -2689,6 +2741,51 @@ function showLatestResponse() {
   }
   handle.addEventListener('mousedown', onMouseDown);
 })();
+
+// ========== ITEM ACTIONS ==========
+async function useItemNow(idItem, quantity) {
+  setStatus(`🎒 Usando item #${idItem} x${quantity}...`);
+  const r = await apiCall(`ITEMS?action=use&idItem=${idItem}&Quantity=${quantity}`);
+  if (r && r.result === 1) {
+    setStatus(`✅ Item #${idItem} usado`, 'ok');
+    setTimeout(refreshDashboard, 500);
+  }
+}
+
+function selectConstructForSpeedUp(idItem, quantity) {
+  // Show modal with active constructs to pick one for speed-up
+  const activeCons = document.querySelectorAll('#construct-list .watcher-item');
+  const consList = lastUserData?.User?.Constructs || [];
+  if (!consList.length) {
+    setStatus('❌ No hay construcciones activas para acelerar', 'err');
+    return;
+  }
+  let pickerHtml = `<div style="margin-bottom:8px;font-size:11px">Selecciona construcción para acelerar con Item #${idItem} x${quantity}:</div>`;
+  consList.forEach(c => {
+    const cid = c._id?.$oid || c._id || '';
+    pickerHtml += `<button class="btn btn-outline" style="display:block;width:100%;text-align:left;margin-bottom:4px;padding:4px 8px" onclick="doSpeedUpItem('${cid}','${idItem}',${quantity})">
+      🏗️ Construct ${cid} | ${c.Type || '?'} | Node ${c.Location || c.Node || '?'}
+    </button>`;
+  });
+  showCustomModal('⏱️ Acelerar con Item', pickerHtml);
+}
+
+async function doSpeedUpItem(idConstruct, idItem, quantity) {
+  closeModal();
+  setStatus(`⏱️ Acelerando construcción ${idConstruct} con Item #${idItem} x${quantity}...`);
+  const r = await apiCall(`CONSTRUCT?action=speedUpItems&idConstruct=${idConstruct}&Items=${idItem}.${quantity}`);
+  if (r && r.result === 1) {
+    setStatus(`✅ Construcción acelerada`, 'ok');
+    setTimeout(refreshDashboard, 500);
+  }
+}
+
+function showCustomModal(title, bodyHtml) {
+  document.getElementById('modal-title').innerHTML = title;
+  document.getElementById('modal-body').innerHTML = bodyHtml;
+  document.getElementById('modal-actions').innerHTML = '<button class="btn btn-dim" onclick="closeModal()">✖️ Cerrar</button>';
+  document.getElementById('modal-overlay').classList.add('open');
+}
 
 // ========== INIT ==========
 // Auto-login if deviceId exists
