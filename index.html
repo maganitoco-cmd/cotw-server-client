@@ -260,12 +260,62 @@ body {
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 /* RIGHT SIDEBAR */
 #right-sidebar {
-  width: 300px;
+  width: var(--resp-width, 300px);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
   border-left: 1px solid var(--border);
+  position: relative;
 }
+#resize-handle {
+  position: absolute;
+  left: -4px;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: col-resize;
+  z-index: 10;
+}
+#resize-handle:hover, #resize-handle.active {
+  background: var(--gold-dark);
+}
+#resize-handle::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 24px;
+  background: var(--border);
+  border-radius: 1px;
+}
+.stats-row-active td {
+  background: var(--gold-dark) !important;
+  color: #fff;
+}
+/* JSON Tree */
+.json-tree { font-family: 'Courier New', monospace; font-size: 10px; line-height: 1.4; }
+.json-tree .jt-node { margin-left: 14px; border-left: 1px solid rgba(212,168,67,0.12); }
+.json-tree .jt-key { color: #d4a843; }
+.json-tree .jt-string { color: #27ae60; }
+.json-tree .jt-number { color: #2980b9; }
+.json-tree .jt-bool { color: #e67e22; }
+.json-tree .jt-null { color: #6b5a4a; font-style: italic; }
+.json-tree .jt-toggle {
+  cursor: pointer;
+  user-select: none;
+  display: inline-block;
+  width: 12px;
+  text-align: center;
+  color: var(--gold);
+  font-weight: bold;
+  font-size: 9px;
+}
+.json-tree .jt-toggle:hover { color: #fff; }
+.json-tree .jt-bracket { color: var(--text-dim); }
+.json-tree .jt-comma { color: var(--text-dim); }
+.json-tree .jt-entry { margin: 1px 0; }
 #timers-panel {
   background: var(--panel);
   padding: 6px;
@@ -415,7 +465,7 @@ body {
 /* Responsive */
 @media (max-width: 900px) {
   #left-sidebar { width: 150px; }
-  #right-sidebar { width: 250px; }
+  #right-sidebar { width: var(--resp-width, 250px); }
   .building-grid { grid-template-columns: 1fr; }
   .res-grid { grid-template-columns: repeat(3, 1fr); }
 }
@@ -466,6 +516,7 @@ body {
 
   <!-- RIGHT SIDEBAR -->
   <div id="right-sidebar">
+    <div id="resize-handle"></div>
     <div id="timers-panel">
       <h3>⏱️ Temporizadores</h3>
       <div id="construct-watcher" style="display:none">
@@ -479,8 +530,13 @@ body {
       <div id="timers-empty" style="color:var(--text-dim);font-size:10px;padding:6px;text-align:center">Sin temporizadores activos</div>
     </div>
     <div id="response-panel">
-      <h3>📋 Respuesta <span id="resp-time" style="font-size:10px;font-weight:normal"></span></h3>
-      <pre id="resp-body">Esperando acción...</pre>
+      <h3>📋 Respuesta <span id="resp-time" style="font-size:10px;font-weight:normal"></span>
+        <span style="float:right">
+          <span id="resp-call-num" style="font-size:9px;color:var(--text-dim)"></span>
+          <button id="btn-latest" onclick="showLatestResponse()" style="display:none;background:var(--gold-dark);border:1px solid var(--border);color:#fff;padding:0 4px;border-radius:3px;cursor:pointer;font-size:9px;font-family:inherit">⬆ Última</button>
+        </span>
+      </h3>
+      <div id="resp-body" class="json-tree" style="background:#0a0502;padding:6px;border:1px solid var(--border);border-radius:3px;overflow:auto;flex:1;font-size:10px">Esperando acción...</div>
     </div>
   </div>
 </div>
@@ -515,6 +571,9 @@ let countdownTimers = [];
 let marchPollIntervals = {};
 let modalState = null; // {cat, action, params, costParams}
 let DICTS = null; // cached dictionaries from getDictionaries
+let callResponses = {}; // stored responses keyed by call number
+let lastCallNumber = 0;
+let activeCallNumber = 0;
 
 // Load cached dictionaries from localStorage
 try {
@@ -601,6 +660,23 @@ function getNodeValidationHtml(buildingId) {
 
 function getBuildingName(id) {
   return BUILDING_NAMES[parseInt(id)] || `Edificio #${id}`;
+}
+
+// ===================== BUILDING NODE SELECT (for construct modal) =====================
+function onConstructBuildingChange() {
+  const bldSelect = document.getElementById('m-idBuilding');
+  const nodeSelect = document.getElementById('m-Node');
+  if (!bldSelect || !nodeSelect) return;
+  const buildingId = bldSelect.value;
+  const validNodes = getValidNodes(buildingId);
+  nodeSelect.innerHTML = validNodes.map(n =>
+    `<option value="${n}">Nodo ${n}</option>`
+  ).join('');
+  // Also update the node validation info display
+  const reqDiv = document.getElementById('modal-requisites');
+  if (reqDiv) {
+    reqDiv.innerHTML = getNodeValidationHtml(buildingId);
+  }
 }
 
 function getBuildingLevelAtNode(node, userBuildings) {
@@ -1516,10 +1592,34 @@ function showActionModal(catName, actionName, presetParams) {
   // Action-specific params
   action.params.filter(p => p.key !== 'action').forEach(p => {
     const presetVal = (presetParams && presetParams[p.key]) || p.value || p.default || '';
-    html += `<div class="form-row">
-      <label>${p.label}</label>
-      <input type="text" id="m-${p.key}" value="${presetVal}" placeholder="${p.help || ''}">
-    </div>`;
+    if (actionName === 'construct' && p.key === 'idBuilding') {
+      // Building dropdown for construct modal
+      const bp = (DICTS && DICTS.BuildingProgressions) || [];
+      const buildingIds = [...new Set(bp.map(b => String(b.idBuilding)).filter(Boolean))];
+      const defaultBuilding = buildingIds.includes(presetVal) ? presetVal : (buildingIds[0] || '1001');
+      html += `<div class="form-row">
+        <label>${p.label}</label>
+        <select id="m-${p.key}" onchange="onConstructBuildingChange()">
+          ${buildingIds.length ? buildingIds.map(id => `<option value="${id}" ${id === defaultBuilding ? 'selected' : ''}>${getBuildingName(id)}</option>`).join('') : `<option value="1001">${getBuildingName(1001)}</option>`}
+        </select>
+      </div>`;
+    } else if (actionName === 'construct' && p.key === 'Node') {
+      // Node dropdown filtered by selected building
+      const defaultBuilding = presetParams?.idBuilding || action.params.find(x => x.key === 'idBuilding')?.default || '1001';
+      const validNodes = getValidNodes(defaultBuilding);
+      const defaultNode = validNodes.includes(parseInt(presetVal)) ? presetVal : String(validNodes[0] || '1');
+      html += `<div class="form-row">
+        <label>${p.label}</label>
+        <select id="m-${p.key}">
+          ${validNodes.map(n => `<option value="${n}" ${String(n) === defaultNode ? 'selected' : ''}>Nodo ${n}</option>`).join('')}
+        </select>
+      </div>`;
+    } else {
+      html += `<div class="form-row">
+        <label>${p.label}</label>
+        <input type="text" id="m-${p.key}" value="${presetVal}" placeholder="${p.help || ''}">
+      </div>`;
+    }
   });
 
   // Show requisites for building actions
@@ -1729,16 +1829,24 @@ function buildUrl(servlet, params) {
 function showResponse(data, elapsed, status) {
   const cls = elapsed > 5000 ? 'slow' : elapsed > 2000 ? 'medium' : 'fast';
   document.getElementById('resp-time').innerHTML = `⏱️ <span class="${cls}">${elapsed}ms</span> | HTTP ${status} | ${JSON.stringify(data).length} bytes`;
-  document.getElementById('resp-body').textContent = JSON.stringify(data, null, 2);
+  const container = document.getElementById('resp-body');
+  container.innerHTML = '';
+  renderJsonTree(data, container, 0);
+  activeCallNumber = 0;
+  document.getElementById('resp-call-num').textContent = '';
+  document.getElementById('btn-latest').style.display = 'none';
+  document.querySelectorAll('.stats-row-active').forEach(r => r.classList.remove('stats-row-active'));
 }
 
 // ========== STATS ==========
 function addStatsEntry(endpoint, status, elapsed, data) {
   callCount++;
+  lastCallNumber = callCount;
   totalElapsed += elapsed;
+  callResponses[callCount] = data;
   const cls = elapsed > 5000 ? 'slow' : elapsed > 2000 ? 'medium' : 'fast';
   document.getElementById('stats-body').insertAdjacentHTML('afterbegin', `
-    <tr>
+    <tr data-call="${callCount}" onclick="showCallResponse(${callCount})" style="cursor:pointer">
       <td>${callCount}</td>
       <td>${new Date().toLocaleTimeString()}</td>
       <td>${endpoint}</td>
@@ -2052,7 +2160,8 @@ async function apiCall(endpoint, silent=false) {
 async function doLogin() {
   deviceId = document.getElementById('deviceId').value;
   saveState();
-  const r = await apiCall('USER?action=login');
+  // Use loginJustUser for fast auto-login (~0.6s instead of ~15s)
+  const r = await apiCall('USER?action=loginJustUser');
   if (r && r.User) {
     userId = r.User._id?.$oid || r.User._id || '';
     saveState();
@@ -2061,6 +2170,8 @@ async function doLogin() {
     document.getElementById('conn-status').textContent = '🟢';
     document.getElementById('conn-status').style.color = 'var(--green)';
     document.getElementById('dash-summary').innerHTML = `<span style="color:var(--green)">${r.User.Player?.UserName || '?'}</span>`;
+    // Load dictionaries in background (non-blocking) for full functionality
+    loadDictionaries();
   } else {
     setStatus('❌ Login falló', 'err');
   }
@@ -2083,6 +2194,196 @@ async function refreshDashboard() {
 function setStatus(msg, cls='') {
   document.getElementById('status-bar').innerHTML = `⚡ ${msg}`;
 }
+
+// ========== COLLAPSIBLE JSON TREE ==========
+function renderJsonTree(data, container, depth) {
+  if (depth > 10) {
+    container.appendChild(document.createTextNode('... (límite de profundidad)'));
+    return;
+  }
+  if (data === null || data === undefined) {
+    const span = document.createElement('span');
+    span.className = 'jt-null';
+    span.textContent = 'null';
+    container.appendChild(span);
+    return;
+  }
+  if (typeof data === 'string') {
+    const span = document.createElement('span');
+    span.className = 'jt-string';
+    span.textContent = `"${data}"`;
+    container.appendChild(span);
+    return;
+  }
+  if (typeof data === 'number') {
+    const span = document.createElement('span');
+    span.className = 'jt-number';
+    span.textContent = String(data);
+    container.appendChild(span);
+    return;
+  }
+  if (typeof data === 'boolean') {
+    const span = document.createElement('span');
+    span.className = 'jt-bool';
+    span.textContent = String(data);
+    container.appendChild(span);
+    return;
+  }
+  if (Array.isArray(data)) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'jt-entry';
+    const toggle = document.createElement('span');
+    toggle.className = 'jt-toggle';
+    toggle.textContent = '▼';
+    const bracketOpen = document.createElement('span');
+    bracketOpen.className = 'jt-bracket';
+    bracketOpen.textContent = '[';
+    const bracketClose = document.createElement('span');
+    bracketClose.className = 'jt-bracket';
+    bracketClose.textContent = ']';
+    const countSpan = document.createElement('span');
+    countSpan.style.cssText = 'color:var(--text-dim);font-size:9px';
+    countSpan.textContent = ` ${data.length} items`;
+    wrapper.appendChild(toggle);
+    wrapper.appendChild(document.createTextNode(' '));
+    wrapper.appendChild(bracketOpen);
+    wrapper.appendChild(countSpan);
+    wrapper.appendChild(bracketClose);
+    const children = document.createElement('div');
+    children.className = 'jt-node';
+    data.forEach((item, i) => {
+      const entry = document.createElement('div');
+      entry.className = 'jt-entry';
+      renderJsonTree(item, entry, depth + 1);
+      if (i < data.length - 1) {
+        const comma = document.createElement('span');
+        comma.className = 'jt-comma';
+        comma.textContent = ',';
+        entry.appendChild(comma);
+      }
+      children.appendChild(entry);
+    });
+    wrapper.appendChild(children);
+    toggle.onclick = () => {
+      const expanded = children.style.display !== 'none';
+      children.style.display = expanded ? 'none' : 'block';
+      toggle.textContent = expanded ? '▶' : '▼';
+    };
+    container.appendChild(wrapper);
+    return;
+  }
+  if (typeof data === 'object') {
+    const keys = Object.keys(data);
+    const wrapper = document.createElement('div');
+    wrapper.className = 'jt-entry';
+    const toggle = document.createElement('span');
+    toggle.className = 'jt-toggle';
+    toggle.textContent = '▼';
+    const bracketOpen = document.createElement('span');
+    bracketOpen.className = 'jt-bracket';
+    bracketOpen.textContent = '{';
+    const bracketClose = document.createElement('span');
+    bracketClose.className = 'jt-bracket';
+    bracketClose.textContent = '}';
+    const countSpan = document.createElement('span');
+    countSpan.style.cssText = 'color:var(--text-dim);font-size:9px';
+    countSpan.textContent = ` ${keys.length} keys`;
+    wrapper.appendChild(toggle);
+    wrapper.appendChild(document.createTextNode(' '));
+    wrapper.appendChild(bracketOpen);
+    wrapper.appendChild(countSpan);
+    wrapper.appendChild(bracketClose);
+    const children = document.createElement('div');
+    children.className = 'jt-node';
+    keys.forEach((key, i) => {
+      const entry = document.createElement('div');
+      entry.className = 'jt-entry';
+      const keySpan = document.createElement('span');
+      keySpan.className = 'jt-key';
+      keySpan.textContent = `"${key}"`;
+      entry.appendChild(keySpan);
+      const colon = document.createElement('span');
+      colon.style.cssText = 'color:var(--text-dim)';
+      colon.textContent = ': ';
+      entry.appendChild(colon);
+      renderJsonTree(data[key], entry, depth + 1);
+      if (i < keys.length - 1) {
+        const comma = document.createElement('span');
+        comma.className = 'jt-comma';
+        comma.textContent = ',';
+        entry.appendChild(comma);
+      }
+      children.appendChild(entry);
+    });
+    wrapper.appendChild(children);
+    toggle.onclick = () => {
+      const expanded = children.style.display !== 'none';
+      children.style.display = expanded ? 'none' : 'block';
+      toggle.textContent = expanded ? '▶' : '▼';
+    };
+    container.appendChild(wrapper);
+    return;
+  }
+  container.appendChild(document.createTextNode(String(data)));
+}
+
+// ========== SHOW CALL RESPONSE (click stats row) ==========
+function showCallResponse(callNum) {
+  const data = callResponses[callNum];
+  if (!data) return;
+  const container = document.getElementById('resp-body');
+  container.innerHTML = '';
+  renderJsonTree(data, container, 0);
+  activeCallNumber = callNum;
+  document.getElementById('resp-call-num').textContent = `#${callNum}`;
+  document.getElementById('btn-latest').style.display = callNum < lastCallNumber ? 'inline' : 'none';
+  document.querySelectorAll('.stats-row-active').forEach(r => r.classList.remove('stats-row-active'));
+  const row = document.querySelector(`#stats-body tr[data-call="${callNum}"]`);
+  if (row) row.classList.add('stats-row-active');
+}
+
+function showLatestResponse() {
+  if (callResponses[lastCallNumber]) {
+    showCallResponse(lastCallNumber);
+  }
+}
+
+// ========== RESIZE RESPONSE PANEL ==========
+(function initResize() {
+  const handle = document.getElementById('resize-handle');
+  const sidebar = document.getElementById('right-sidebar');
+  if (!handle || !sidebar) return;
+  const saved = localStorage.getItem('cotw_resp_width');
+  if (saved) {
+    const w = Math.max(200, Math.min(600, parseInt(saved)));
+    document.documentElement.style.setProperty('--resp-width', w + 'px');
+  }
+  let startX, startW;
+  function onMouseDown(e) {
+    startX = e.clientX;
+    startW = sidebar.offsetWidth;
+    handle.classList.add('active');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  }
+  function onMouseMove(e) {
+    const diff = startX - e.clientX;
+    const newW = Math.max(200, Math.min(600, startW + diff));
+    document.documentElement.style.setProperty('--resp-width', newW + 'px');
+  }
+  function onMouseUp() {
+    handle.classList.remove('active');
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+    const w = Math.round(sidebar.offsetWidth);
+    localStorage.setItem('cotw_resp_width', String(w));
+  }
+  handle.addEventListener('mousedown', onMouseDown);
+})();
 
 // ========== INIT ==========
 // Auto-login if deviceId exists

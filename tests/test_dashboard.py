@@ -39,7 +39,7 @@ check("Has #stats-panel", 'id="stats-panel"' in html)
 check("Has #status-bar", 'id="status-bar"' in html)
 check("Has #modal-overlay", 'id="modal-overlay"' in html)
 check("Left sidebar width 200px", 'width: 200px' in html)
-check("Right sidebar width 300px", 'width: 300px' in html)
+check("Right sidebar uses CSS variable width", '--resp-width' in html)
 
 # 3. Header elements
 print("\n🔗 Header Tests")
