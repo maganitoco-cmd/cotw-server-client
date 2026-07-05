@@ -463,6 +463,62 @@ body {
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
 /* Responsive */
+/* Visual Builders for /-/ separator params */
+.builder-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 5px;
+  margin: 2px 0;
+  flex: 1;
+  min-width: 200px;
+}
+.builder-row {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 3px;
+}
+.builder-row select, .builder-row input {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: inherit;
+  font-size: 10px;
+}
+.builder-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  min-height: 18px;
+}
+.builder-pill {
+  background: var(--input-bg);
+  border: 1px solid var(--gold-dark);
+  border-radius: 10px;
+  padding: 1px 6px;
+  font-size: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--gold);
+}
+.builder-pill .remove-btn {
+  cursor: pointer;
+  color: var(--red);
+  font-weight: bold;
+  font-size: 12px;
+  line-height: 1;
+}
+.builder-pill .remove-btn:hover { color: #e74c3c; }
+.builder-empty {
+  color: var(--text-dim);
+  font-size: 9px;
+  font-style: italic;
+}
 @media (max-width: 900px) {
   #left-sidebar { width: 150px; }
   #right-sidebar { width: var(--resp-width, 250px); }
@@ -1631,6 +1687,161 @@ async function buildingLevelUp(node, idBuilding, currentLevel) {
   document.getElementById('modal-overlay').classList.add('open');
 }
 
+// ========== VISUAL BUILDERS for /-/ separator params ==========
+function isSepParam(p) {
+  return p.help && p.help.includes('/-/');
+}
+
+function parseSepItems(val) {
+  if (!val) return [];
+  return val.split('/-/').filter(Boolean).map(s => s.trim());
+}
+
+function formatSepItems(items) {
+  return items.join('/-/');
+}
+
+function getBuilderContainer(key) {
+  return document.getElementById('builder-' + key);
+}
+
+function getBuilderHidden(key) {
+  return document.getElementById('m-' + key);
+}
+
+function addBuilderItem(key) {
+  const container = getBuilderContainer(key);
+  const hidden = getBuilderHidden(key);
+  if (!container || !hidden) return;
+  let items = container.dataset.items ? JSON.parse(container.dataset.items) : [];
+  const typeEl = container.querySelector('.b-type');
+  const levelEl = container.querySelector('.b-level');
+  const qtyEl = container.querySelector('.b-qty');
+  const type = typeEl ? typeEl.value : '';
+  let newItem = '';
+  if (key === 'Troops') {
+    const level = levelEl ? levelEl.value : '1';
+    const qty = qtyEl ? qtyEl.value || '1' : '1';
+    newItem = type + '.' + level + '.' + qty;
+  } else if (key === 'Warlords') {
+    const qty = qtyEl ? qtyEl.value || '1' : '1';
+    newItem = type + '.' + qty;
+  } else if (key === 'Resources') {
+    const qty = qtyEl ? qtyEl.value || '1' : '1';
+    newItem = type + '.' + qty;
+  } else if (key === 'Materials') {
+    const val = qtyEl ? qtyEl.value || '1' : '1';
+    newItem = type + '.' + val;
+  } else {
+    // Generic: just push the type + qty
+    const qty = qtyEl ? qtyEl.value || '1' : '1';
+    newItem = type + '.' + qty;
+  }
+  items.push(newItem);
+  container.dataset.items = JSON.stringify(items);
+  hidden.value = formatSepItems(items);
+  renderBuilderList(key);
+}
+
+function removeBuilderItem(key, index) {
+  const container = getBuilderContainer(key);
+  const hidden = getBuilderHidden(key);
+  if (!container || !hidden) return;
+  let items = container.dataset.items ? JSON.parse(container.dataset.items) : [];
+  items.splice(index, 1);
+  container.dataset.items = JSON.stringify(items);
+  hidden.value = formatSepItems(items);
+  renderBuilderList(key);
+}
+
+function renderBuilderList(key) {
+  const container = getBuilderContainer(key);
+  if (!container) return;
+  const list = container.querySelector('.builder-list');
+  if (!list) return;
+  let items = container.dataset.items ? JSON.parse(container.dataset.items) : [];
+  if (!items.length) {
+    list.innerHTML = '<span class="builder-empty">Sin elementos — agrega usando el botón +</span>';
+    return;
+  }
+  let pills = '';
+  items.forEach((item, i) => {
+    let display = item;
+    if (key === 'Troops') {
+      const p = item.split('.');
+      display = p[0] + ' Nv.' + p[1] + ' ×' + p[2];
+    } else if (key === 'Warlords') {
+      const p = item.split('.');
+      display = 'Señor #' + p[0] + ' ×' + p[1];
+    } else if (key === 'Resources') {
+      const p = item.split('.');
+      display = p[0] + ' ×' + p[1];
+    } else if (key === 'Materials') {
+      const p = item.split('.');
+      display = p[0].replace('Item.','Item #').replace('Material.','') + ' ×' + (p[2] || p[1]);
+    }
+    pills += '<span class="builder-pill">' + display + ' <span class="remove-btn" onclick="removeBuilderItem(\'' + key + '\',' + i + ')">✖</span></span>';
+  });
+  list.innerHTML = pills;
+}
+
+function renderBuilderHtml(key, label, presetVal) {
+  const items = parseSepItems(presetVal);
+  const itemsJson = JSON.stringify(items).replace(/'/g, '&#39;');
+  let controlHtml = '';
+  if (key === 'Troops') {
+    controlHtml = '<select class="b-type" style="width:85px">'
+      + '<option value="Infantry">Infantería</option>'
+      + '<option value="Cavalry">Caballería</option>'
+      + '<option value="Archer">Arquero</option>'
+      + '<option value="Siege">Máquina</option>'
+      + '</select>'
+      + '<select class="b-level" style="width:55px">'
+      + '<option value="1">Nv.1</option><option value="2">Nv.2</option>'
+      + '<option value="3">Nv.3</option><option value="4">Nv.4</option>'
+      + '</select>'
+      + '<input type="number" class="b-qty" placeholder="Cant" min="1" value="10" style="width:55px">'
+      + '<button class="btn-add" onclick="addBuilderItem(\'' + key + '\')">+ Agregar</button>';
+  } else if (key === 'Warlords') {
+    controlHtml = '<select class="b-type" style="width:100px">'
+      + '<option value="1001">Señor #1001</option><option value="1002">#1002</option>'
+      + '<option value="1003">#1003</option><option value="2001">#2001</option>'
+      + '<option value="2002">#2002</option><option value="2003">#2003</option>'
+      + '<option value="3001">#3001</option><option value="3002">#3002</option>'
+      + '<option value="3003">#3003</option>'
+      + '</select>'
+      + '<input type="number" class="b-qty" placeholder="Cant" min="1" value="5" style="width:55px">'
+      + '<button class="btn-add" onclick="addBuilderItem(\'' + key + '\')">+ Agregar</button>';
+  } else if (key === 'Resources') {
+    controlHtml = '<select class="b-type" style="width:85px">'
+      + '<option value="Food">🍗 Comida</option><option value="Wood">🪵 Madera</option>'
+      + '<option value="Stone">🪨 Piedra</option><option value="Ore">⛏️ Mineral</option>'
+      + '<option value="Ecto">🔮 Ecto</option>'
+      + '</select>'
+      + '<input type="number" class="b-qty" placeholder="Cant" min="1" value="100" style="width:65px">'
+      + '<button class="btn-add" onclick="addBuilderItem(\'' + key + '\')">+ Agregar</button>';
+  } else if (key === 'Materials') {
+    controlHtml = '<select class="b-type" style="width:120px">'
+      + '<option value="Item.1001">Item #1001</option>'
+      + '<option value="Item.1002">Item #1002</option>'
+      + '<option value="Item.1003">Item #1003</option>'
+      + '<option value="Item.2001">Item #2001</option>'
+      + '<option value="Item.2002">Item #2002</option>'
+      + CRAFTING_MATERIALS.map(m => '<option value="Material.' + m + '">Material: ' + m + '</option>').join('')
+      + '</select>'
+      + '<input type="text" class="b-qty" placeholder="Tier/Cant" value="1" style="width:55px">'
+      + '<button class="btn-add" onclick="addBuilderItem(\'' + key + '\')">+ Agregar</button>';
+  }
+  return '<div class="form-row">'
+    + '<label>' + label + '</label>'
+    + '<div class="builder-card" id="builder-' + key + '" data-items=\'' + itemsJson + '\'>'
+    + '<div class="builder-row">' + controlHtml + '</div>'
+    + '<div class="builder-list" id="builder-list-' + key + '"></div>'
+    + '<input type="hidden" id="m-' + key + '" value="' + (presetVal || '') + '">'
+    + '</div>'
+    + '</div>';
+}
+
 // ========== MODAL SYSTEM ==========
 function showActionModal(catName, actionName, presetParams) {
   const cat = ACTIONS[catName];
@@ -1701,10 +1912,12 @@ function showActionModal(catName, actionName, presetParams) {
             ${dropdownOptions.map(o => `<option value="${o.value}" ${o.value === selectedVal ? 'selected' : ''}>${o.label}</option>`).join('')}
           </select>
         </div>`;
+      } else if (isSepParam(p) && ['Troops','Warlords','Resources','Materials'].includes(p.key)) {
+        html += renderBuilderHtml(p.key, p.label, presetVal);
       } else {
-        html += `<div class="form-row">
+        html += `<div class=\"form-row\">
           <label>${p.label}</label>
-          <input type="text" id="m-${p.key}" value="${presetVal}" placeholder="${p.help || ''}">
+          <input type=\"text\" id=\"m-${p.key}\" value=\"${presetVal}\" placeholder=\"${p.help || ''}\">
         </div>`;
       }
     }
@@ -1765,6 +1978,10 @@ function showActionModal(catName, actionName, presetParams) {
   html += `<div id="modal-cost" style="display:none"></div>`;
 
   modalBody.innerHTML = html;
+  // Initialize builder lists for /-/ separator params
+  ['Troops','Warlords','Resources','Materials'].forEach(function(k) {
+    if (document.getElementById('builder-' + k)) renderBuilderList(k);
+  });
   modalState = { cat: catName, action: actionName, params: presetParams || {} };
   document.getElementById('modal-overlay').classList.add('open');
 }
