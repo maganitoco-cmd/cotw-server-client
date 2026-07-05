@@ -1938,7 +1938,7 @@ function showActionModal(catName, actionName, presetParams) {
       let dropdownOptions = null;
       let dropdownLabel = '';
       if (actionName === 'changeHero' && p.key === 'idHero') {
-        dropdownOptions = HERO_NAMES.map((h, i) => ({value: String(i+1), label: h}));
+        dropdownOptions = HERO_NAMES.map(h => ({value: h, label: h}));
         dropdownLabel = 'Héroe';
       } else if (actionName === 'changeLanguage' && p.key === 'Language') {
         dropdownOptions = LANGUAGES.map(l => ({value: l === 'English' ? 'en' : 'es', label: l}));
